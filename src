@@ -1,5 +1,6 @@
 main {
-	real abc;  				/* this should be ignored */
+	/*
+	real abc;  				
 	int ysy;
 	bool flag[123];
 	char cc;
@@ -8,6 +9,7 @@ main {
 	abc := (1 * 2 + 2) < "FUCKYOU";
 	ysy := abc+ abc * (2 + abc);
 	int lyz;
+	real llyyzz;
 	for (i := 1; i < 10; i++) {
 		int j;
 		j := 10;
@@ -20,4 +22,6 @@ main {
 			}
 		} while ((j++) > (k--));
 	}
+	*/
+	a := b;
 }

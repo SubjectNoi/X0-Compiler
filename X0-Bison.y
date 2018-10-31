@@ -95,7 +95,7 @@ void 		gen(enum fct x, int y, int z);
 %token ELSESYM, EXITSYM, FORSYM, INTSYM, IFSYM, MAINSYM, READSYM, REALSYM, REPEATSYM
 %token STRINGSYM, SWITCHSYM, UNTILSYM, WHILESYM, WRITESYM, LBRACE, RBRACE, LBRACKET, RBRACKET
 %token BECOMES, LSS, LEQ, GTR, GEQ, EQL, NEQ, PLUS, INCPLUS, MINUS, INCMINUS,TIMES, DEVIDE
-%token LPAREN, RPAREN, MOD, SEMICOLON, XOR, AND, OR, NOT, YAJU
+%token LPAREN, RPAREN, MOD, SEMICOLON, XOR, AND, OR, NOT, YAJU, YARIMASUNESYM
 
 %token <ident> 		IDENT
 %token <integer> 	INTEGER
@@ -109,7 +109,12 @@ void 		gen(enum fct x, int y, int z);
 program: 				MAINSYM 
 						{	gen(jmp, 0, 0);
 						}
-						LBRACE statement_list RBRACE 
+						LBRACE 
+						statement_list 
+						{
+						
+						}
+						RBRACE 
 						;
 		
 declaration_list:		declaration_list declaration_stat 
@@ -185,6 +190,9 @@ expression_statement:	expression SEMICOLON
 						;
 
 expression:				var BECOMES expression 
+						{	gen(lod, 0, 0);
+							gen(sto, 0, 0);
+						}
 					  | simple_expr
 						;
 
@@ -306,6 +314,10 @@ void enter(enum object k) {
 		
 			break;
 	}
+}
+
+void display_sym_tab() {
+
 }
 
 void listall() {

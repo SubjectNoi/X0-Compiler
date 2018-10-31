@@ -93,12 +93,13 @@ extern int yydebug;
     OR = 303,
     NOT = 304,
     YAJU = 305,
-    IDENT = 306,
-    INTEGER = 307,
-    STRING = 308,
-    BOOL = 309,
-    REAL = 310,
-    CHAR = 311
+    YARIMASUNESYM = 306,
+    IDENT = 307,
+    INTEGER = 308,
+    STRING = 309,
+    BOOL = 310,
+    REAL = 311,
+    CHAR = 312
   };
 #endif
 
@@ -116,7 +117,7 @@ union YYSTYPE
 	int 	flag;
 	double 	realnumber;
 
-#line 120 "X0-Bison.tab.h" /* yacc.c:1909  */
+#line 121 "X0-Bison.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
