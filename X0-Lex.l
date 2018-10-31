@@ -47,7 +47,7 @@ int yywrap(void);
 							}
 [+|-]?([0-9]*\.?[0-9]+|[0-9]+\.[0-9]*) {	yylval.realnumber = atof(yytext);
 											return REAL;
-										}
+									   }
 ["].*["]					{	yylval.text = (char*) malloc(strlen(yytext) + 1);
 								int i = 0, j = 0;
 								for (i = 0; i < strlen(yytext); i++) {
@@ -90,6 +90,7 @@ int yywrap(void);
 "&&"		{return AND;}
 "||"		{return OR;}
 "!"			{return NOT;}
+"114514"	{return YAJU;}
 .			{yyerror("Unknown Character!");}
 
 %%

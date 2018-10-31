@@ -5,17 +5,18 @@
 #include <memory.h>
 #include <string.h>
 
-#define bool int
-#define true 1
-#define false 0
+#define bool 			int
+#define true 			1
+#define false 			0
 
-#define SYM_TABLE 		200			// Max Capicity of symbol table
-#define ID_NAME_LEN		20			// Max length of ident
-#define ADDRESS_MAX		8192		// Upper bound of the address
-#define DEPTH_MAX		10			// Max depth of declaration
-#define CODE_MAX		1000		// Max Virtual Machine code amount
-#define STACK_SIZE		2000		// Max Run-Time stack element amount
-#define STRING_LEN		201			// Max length of const string
+#define SYM_TABLE 		200				// Max Capicity of symbol table
+#define ID_NAME_LEN		20				// Max length of ident
+#define ADDRESS_MAX		8192			// Upper bound of the address
+#define DEPTH_MAX		10				// Max depth of declaration
+#define CODE_MAX		1000			// Max Virtual Machine code amount
+#define STACK_SIZE		2000			// Max Run-Time stack element amount
+#define STRING_LEN		201				// Max length of const string
+#define ERROR_MAG_NUM	1145141919810	// For error processing
 
 typedef unsigned char byte;
 
@@ -31,18 +32,14 @@ enum object {
 };
 
 struct symbol_table {
-	char name[ID_NAME_LEN];
-	enum object kind;
-	int addr;
-	int val_int;
-	double val_real;
-	char *val_string;
-	int val_bool;
-	int size;
-	int level;
+	char 	name[ID_NAME_LEN];
+	enum 	object kind;
+	int 	addr;
+	byte 	val[STRING_LEN];			// Use byte to store all kind of data, use pointer to specify them
+//	void*	val;						// Using pointer to specify unlimitted length constant string @todo: in the future.
 };
 
-struct symbol_table table[SYM_TABLE];
+struct symbol_table table[SYM_TABLE];	// Store all symbol
 
 enum fct {
 	lit,	opr,	lod,
@@ -51,26 +48,45 @@ enum fct {
 };
 
 struct instruction {
-	enum fct f;
-	int 
+	enum 	fct f;
+	int 	lev;						// Un-used in X0
+	int		opr;
 };
+
+struct instruction code[CODE_MAX];		// Store V-Machine code
+
+int			sym_tab_tail;
+int			vm_code_pointer;
+
+FILE*		fin;
+FILE*		ftable;
+FILE*		fcode;
+FILE*		foutput;
+FILE*		fresult;
+char		fname;
+int 		err;
+extern int	line;
+
+void 		init();
+void		enter(enum object k);
+void 		gen(enum fct x, int y, int z);
 
 %}
 
 %union {
-	char *ident;
-	int number;
-	char *text;
-	char single_char;
-	int flag;
-	double realnumber;
+	char 	*ident;
+	int 	number;
+	char 	*text;
+	char 	single_char;
+	int 	flag;
+	double 	realnumber;
 }
 
-%token BOOLSYM, BREAKSYM, CALLSYM, CASESYM, CONSTSYM, CONTINUESYM, DOSYM, ELSESYM
+%token BOOLSYM, BREAKSYM, CALLSYM, CASESYM, CHARSYM, CONSTSYM, CONTINUESYM, DOSYM, ELSESYM
 %token ELSESYM, EXITSYM, FORSYM, INTSYM, IFSYM, MAINSYM, READSYM, REALSYM, REPEATSYM
 %token STRINGSYM, SWITCHSYM, UNTILSYM, WHILESYM, WRITESYM, LBRACE, RBRACE, LBRACKET, RBRACKET
 %token BECOMES, LSS, LEQ, GTR, GEQ, EQL, NEQ, PLUS, INCPLUS, MINUS, INCMINUS,TIMES, DEVIDE
-%token LPAREN, RPAREN, MOD, SEMICOLON, XOR, AND, OR, NOT, REAL, CHARSYM
+%token LPAREN, RPAREN, MOD, SEMICOLON, XOR, AND, OR, NOT, YAJU
 
 %token <ident> 		IDENT
 %token <integer> 	INTEGER
@@ -81,7 +97,7 @@ struct instruction {
 
 %%
 
-program: 				MAINSYM LBRACE declaration_list statement_list RBRACE 
+program: 				MAINSYM LBRACE statement_list RBRACE 
 						;
 		
 declaration_list:		declaration_list declaration_stat 
@@ -91,6 +107,7 @@ declaration_list:		declaration_list declaration_stat
 
 declaration_stat:		type IDENT SEMICOLON 
 					  | type IDENT LBRACKET INTEGER RBRACKET SEMICOLON
+					  | CONSTSYM type IDENT BECOMES expression SEMICOLON
 						;
 					
 type:					INTSYM 
@@ -147,7 +164,8 @@ for_statement:			FORSYM LPAREN expression SEMICOLON expression SEMICOLON express
 do_statement:			DOSYM compound_statement WHILESYM LPAREN expression RPAREN SEMICOLON
 						;
 	
-var:					IDENT | IDENT LBRACKET expression RBRACKET
+var:					IDENT 
+					  | IDENT LBRACKET expression RBRACKET
 						;
 
 expression_statement:	expression SEMICOLON 
