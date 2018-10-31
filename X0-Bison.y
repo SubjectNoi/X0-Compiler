@@ -25,10 +25,12 @@ enum object {
 	constant_real,
 	constant_bool,
 	constant_string,
+	constant_char,
 	variable_int,
 	variable_real,
 	variable_bool,
 	variable_string,
+	variable_char,
 };
 
 struct symbol_table {
@@ -57,6 +59,13 @@ struct instruction code[CODE_MAX];		// Store V-Machine code
 
 int			sym_tab_tail;
 int			vm_code_pointer;
+char		id_name[ID_NAME_LEN];
+int			outter_int;
+float		outter_real;
+bool		outter_bool;
+char		outter_char;
+char		outter_string[STRING_LEN];
+int			err_num;
 
 FILE*		fin;
 FILE*		ftable;
@@ -97,7 +106,10 @@ void 		gen(enum fct x, int y, int z);
 
 %%
 
-program: 				MAINSYM LBRACE statement_list RBRACE 
+program: 				MAINSYM 
+						{	gen(jmp, 0, 0);
+						}
+						LBRACE statement_list RBRACE 
 						;
 		
 declaration_list:		declaration_list declaration_stat 
@@ -225,7 +237,91 @@ factor:					LPAREN expression RPAREN
 
 %%
 
+void init() {
+	sym_tab_tail 		= 0;
+	vm_code_pointer 	= 0 ;
+	outter_int 			= 0;
+	outter_real 		= 0.0;
+	outter_char 		= 0;
+	outter_bool 		= false;
+	err_num				= 0;
+	strcpy(outter_string, "\0");
+}
+
+int yyerror(char *s) {
+	err_num++;
+	printf("%s in line %d.\n", s, line);
+	fprintf(foutput, "%s in line %d.\n", s, line);
+	return 0;
+}
+
+void gen(enum fct x, int y, int z) {
+	if (vm_code_pointer > CODE_MAX) {
+		printf("Program is too long!\n");
+		exit(1);
+	}
+	if (z > ADDRESS_MAX) {
+		printf("Acquiring address out of boundn");
+		exit(1);
+	}
+	code[vm_code_pointer].f 	= x;
+	code[vm_code_pointer].lev 	= y;
+	code[vm_code_pointer].opr 	= z;
+	vm_code_pointer++;
+}
+
+void enter(enum object k) {
+	sym_tab_tail++;
+	strcpy(table[sym_tab_tail].name, id_name);
+	table[sym_tab_tail].kind = k;
+	switch (k) {
+		case constant_int:
+			memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_int, STRING_LEN);
+			break;
+		case constant_real:
+			memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_real, STRING_LEN);
+			break;
+		case constant_string:
+			memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_int, STRING_LEN);
+			break;
+		case constant_char:
+			memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_char, STRING_LEN);
+			break;
+		case constant_bool:
+			memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_bool, STRING_LEN);
+			break;
+		case variable_int:
+		
+			break;
+		case variable_real:
+		
+			break;
+		case variable_string:
+		
+			break;
+		case variable_char:
+		
+			break;
+		case variable_bool:
+		
+			break;
+	}
+}
+
+void listall() {
+	int i;
+	char name[][5] = {
+		{"lit"}, {"opr"}, {"lod"}, {"sto"},
+		{"cal"}, {"ini"}, {"jmp"}, {"jpc"},
+	};
+	for (i = 0; i < vm_code_pointer; i++) {
+		printf("%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, code[i].opr);
+		fprintf(fcode, "%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, code[i].opr);
+	}
+}
+
 int main(int argc, int **argv) {
+	fcode = fopen("fcode", "w+");
 	if (argc != 2) {
 		printf("Please specific ONE source code file!\n");
 		return 0;
@@ -236,5 +332,7 @@ int main(int argc, int **argv) {
 		return 1;
 	}
 	redirectInput(f);
+	init();
 	yyparse();
+	listall();
 }
