@@ -124,7 +124,28 @@ declaration_list:		declaration_list declaration_stat
 
 declaration_stat:		type IDENT SEMICOLON 
 					  | type IDENT LBRACKET INTEGER RBRACKET SEMICOLON
-					  | CONSTSYM type IDENT BECOMES expression SEMICOLON
+					  | CONSTSYM type IDENT BECOMES expression SEMICOLON {
+						  	/*
+						  	switch ($2) {
+								case INTSYM:
+									enter(constant_int);
+									break;
+								case STRINGSYM:
+									enter(constant_string);
+									break;
+								case REALSYM:
+									enter(constant_real);
+									break;
+								case CHARSYM:
+									enter(constant_char);
+									break;
+								case BOOLSYM:
+									enter(constant_bool);
+									break;
+							}
+							*/
+							return 0;
+					  	}
 						;
 					
 type:					INTSYM 
