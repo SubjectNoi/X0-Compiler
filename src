@@ -22,10 +22,5 @@ main {
 			}
 		} while ((j++) > (k--));
 	}
-<<<<<<< HEAD
 	/* at home at home push test */
-=======
-	*/
-	a := b;
->>>>>>> refs/remotes/origin/master
 }
