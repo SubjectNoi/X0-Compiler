@@ -1,4 +1,4 @@
-src
-.gitignore
-fcode
-X0
+/src
+/.gitignore
+/fcode
+/X0
