@@ -18,6 +18,7 @@
 #define STRING_LEN		201				// Max length of const string
 #define ERROR_MAG_NUM	1145141919810	// For error processing
 
+
 typedef unsigned char byte;
 
 enum object {
