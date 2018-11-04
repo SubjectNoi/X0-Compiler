@@ -49,55 +49,57 @@ extern int yydebug;
     BREAKSYM = 259,
     CALLSYM = 260,
     CASESYM = 261,
-    CONSTSYM = 262,
-    CONTINUESYM = 263,
-    DOSYM = 264,
-    ELSESYM = 265,
-    EXITSYM = 266,
-    FORSYM = 267,
-    INTSYM = 268,
-    IFSYM = 269,
-    MAINSYM = 270,
-    READSYM = 271,
-    REALSYM = 272,
-    REPEATSYM = 273,
-    STRINGSYM = 274,
-    SWITCHSYM = 275,
-    UNTILSYM = 276,
-    WHILESYM = 277,
-    WRITESYM = 278,
-    LBRACE = 279,
-    RBRACE = 280,
-    LBRACKET = 281,
-    RBRACKET = 282,
-    BECOMES = 283,
-    LSS = 284,
-    LEQ = 285,
-    GTR = 286,
-    GEQ = 287,
-    EQL = 288,
-    NEQ = 289,
-    PLUS = 290,
-    INCPLUS = 291,
-    MINUS = 292,
-    INCMINUS = 293,
-    TIMES = 294,
-    DEVIDE = 295,
-    LPAREN = 296,
-    RPAREN = 297,
-    MOD = 298,
-    SEMICOLON = 299,
-    XOR = 300,
-    AND = 301,
-    OR = 302,
-    NOT = 303,
-    REAL = 304,
-    CHARSYM = 305,
-    IDENT = 306,
-    INTEGER = 307,
-    STRING = 308,
-    BOOL = 309,
-    CHAR = 310
+    CHARSYM = 262,
+    CONSTSYM = 263,
+    CONTINUESYM = 264,
+    DOSYM = 265,
+    ELSESYM = 266,
+    EXITSYM = 267,
+    FORSYM = 268,
+    INTSYM = 269,
+    IFSYM = 270,
+    MAINSYM = 271,
+    READSYM = 272,
+    REALSYM = 273,
+    REPEATSYM = 274,
+    STRINGSYM = 275,
+    SWITCHSYM = 276,
+    UNTILSYM = 277,
+    WHILESYM = 278,
+    WRITESYM = 279,
+    LBRACE = 280,
+    RBRACE = 281,
+    LBRACKET = 282,
+    RBRACKET = 283,
+    BECOMES = 284,
+    LSS = 285,
+    LEQ = 286,
+    GTR = 287,
+    GEQ = 288,
+    EQL = 289,
+    NEQ = 290,
+    PLUS = 291,
+    INCPLUS = 292,
+    MINUS = 293,
+    INCMINUS = 294,
+    TIMES = 295,
+    DEVIDE = 296,
+    LPAREN = 297,
+    RPAREN = 298,
+    MOD = 299,
+    SEMICOLON = 300,
+    XOR = 301,
+    AND = 302,
+    OR = 303,
+    NOT = 304,
+    YAJU = 305,
+    YARIMASUNESYM = 306,
+    IDENT = 307,
+    INTEGER = 308,
+    STRING = 309,
+    BOOL = 310,
+    REAL = 311,
+    CHAR = 312
   };
 #endif
 
@@ -106,16 +108,16 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 60 "X0-Bison.y" /* yacc.c:1909  */
+#line 85 "X0-Bison.y" /* yacc.c:1909  */
 
-	char *ident;
-	int number;
-	char *text;
-	char single_char;
-	int flag;
-	double realnumber;
+	char 	*ident;
+	int 	number;
+	char 	*text;
+	char 	single_char;
+	int 	flag;
+	double 	realnumber;
 
-#line 119 "X0-Bison.tab.h" /* yacc.c:1909  */
+#line 121 "X0-Bison.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
