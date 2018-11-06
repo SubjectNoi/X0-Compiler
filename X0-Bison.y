@@ -67,6 +67,7 @@ bool		outter_bool;
 char		outter_char;
 char		outter_string[STRING_LEN];
 int			err_num;
+int			constant_decl_or_not;
 
 FILE*		fin;
 FILE*		ftable;
@@ -106,8 +107,9 @@ void 		gen(enum fct x, int y, int z);
 %token <realnumber>		REAL
 
 %type <number>			typeenum
-%type <number>			factor
-
+%type <number>			factor			// Indicate type of factor
+%type <number>			expression		// Indicate type of expression
+%type <number>			identlist, identarraylist, identdef
 %%
 
 program: 				MAINSYM 
@@ -122,28 +124,51 @@ program: 				MAINSYM
 						;
 		
 declaration_list:		declaration_list declaration_stat 
-					  | declaration_stat 
+					  | declaration_stat {
+					  	}
 					  | 
 						;
 
-declaration_stat:		typeenum identlist SEMICOLON 
+declaration_stat:		typeenum { constant_decl_or_not = 0; } identlist SEMICOLON {
+						}
 					  | typeenum identarraylist SEMICOLON
-					  | CONSTSYM typeenum identlist SEMICOLON {
-						  	switch ($2) {
-								case INTSYM:
-
-									enter(constant_int);
-									break;
-							}
+					  | CONSTSYM typeenum { constant_decl_or_not = 1; } identlist SEMICOLON {
 					  	}
 						;
 
-identlist:				identdef
-					  |	identlist COMMA identdef
+identlist:				identdef {
+						}
+					  |	identlist COMMA identdef {
+					  	}
 					  	;
 
-identdef:				IDENT				{ /* IDENT only must not be constant */ }
-					  |	IDENT BECOMES factor
+identdef:				IDENT {
+							printf("%d!\n", $$);
+							if (constant_decl_or_not == 1) {		// Constant without initialize, error
+								yyerror("Constants require initialization!\n");
+								return 1;
+							} 
+							else {
+
+							}
+	 					}
+					  |	IDENT BECOMES factor {
+						  	printf("Constant or not: %d\n", constant_decl_or_not);
+						  	if (constant_decl_or_not == 1) {		// Constant declaration
+								printf("%s\n", $1);
+								strcpy(id_name, $1);
+								switch ($3) {
+									case 2:
+										outter_int = 114514;
+												// @todo: How to pass actual value?
+										enter(constant_int);
+										break;
+								}
+							}
+							else {				// Variable declaration
+
+							}
+					  	}
 						;
 
 typeenum:				INTSYM 
@@ -173,7 +198,7 @@ statement:				expression_statement
 					  | compound_statement 
 					  | for_statement 
 					  | do_statement 
-					  | declaration_stat 
+					  | declaration_list
 					  | continue_stat 
 					  | break_stat 
 					  |
@@ -218,6 +243,7 @@ expression_statement:	expression SEMICOLON
 expression:				var BECOMES expression 
 						{	gen(lod, 0, 0);
 							gen(sto, 0, 0);
+							$$ = 0;
 						}
 					  | simple_expr
 						;
@@ -260,13 +286,27 @@ TIMESDEVIDE:			TIMES
 					  | DEVIDE
 						;
 
-factor:					LPAREN expression RPAREN 
-					  | var 
-					  | INTEGER 
-					  | REAL 
-					  | STRING 
-					  | BOOL 
-					  | CHAR
+factor:					LPAREN expression RPAREN {
+							$$ = 0;
+						}
+					  | var {
+						  	$$ = 1;
+					  	}
+					  | INTEGER {
+						  	$$ = 2;
+					  	}
+					  | REAL {
+						  	$$ = 3;
+					  	}
+					  | STRING {
+						  	$$ = 4;
+					  	}
+					  | BOOL {
+						  	$$ = 5;
+					  	}
+					  | CHAR {
+						  	$$ = 6;
+					  	}
 						;
 
 %%
@@ -342,7 +382,7 @@ void enter(enum object k) {
 	}
 }
 
-void display_sym_tab() {
+void display_sym_tab() {			// @todo: Finish sym-table displaying
 
 }
 
