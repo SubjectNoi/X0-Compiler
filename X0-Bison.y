@@ -106,7 +106,6 @@ void 		gen(enum fct x, int y, int z);
 %token <flag>			BOOL
 %token <realnumber>		REAL
 
-%type <number>			typeenum
 %type <number>			factor			// Indicate type of factor
 %type <number>			expression		// Indicate type of expression
 %type <number>			identlist, identarraylist, identdef
@@ -124,38 +123,34 @@ program: 				MAINSYM
 						;
 		
 declaration_list:		declaration_list declaration_stat 
-					  | declaration_stat {
-					  	}
+					  | declaration_stat 
 					  | 
 						;
 
-declaration_stat:		typeenum { constant_decl_or_not = 0; } identlist SEMICOLON {
-						}
+declaration_stat:		typeenum { constant_decl_or_not = 0; } identlist SEMICOLON {}
 					  | typeenum identarraylist SEMICOLON
 					  | CONSTSYM typeenum { constant_decl_or_not = 1; } identlist SEMICOLON {
 					  	}
 						;
 
-identlist:				identdef {
-						}
-					  |	identlist COMMA identdef {
-					  	}
+identlist:				identdef 
+					  |	identlist COMMA identdef
 					  	;
 
 identdef:				IDENT {
-							printf("%d!\n", $$);
+							printf("ID: %s", $1);
 							if (constant_decl_or_not == 1) {		// Constant without initialize, error
 								yyerror("Constants require initialization!\n");
 								return 1;
 							} 
 							else {
-
+								
 							}
 	 					}
 					  |	IDENT BECOMES factor {
 						  	printf("Constant or not: %d\n", constant_decl_or_not);
+							printf("%s\n", $1);
 						  	if (constant_decl_or_not == 1) {		// Constant declaration
-								printf("%s\n", $1);
 								strcpy(id_name, $1);
 								switch ($3) {
 									case 2:

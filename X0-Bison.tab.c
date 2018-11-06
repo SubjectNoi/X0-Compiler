@@ -577,15 +577,15 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   116,   116,   120,   115,   126,   127,   129,   132,   132,
-     134,   135,   135,   139,   141,   145,   155,   174,   175,   176,
-     177,   178,   181,   182,   185,   188,   189,   190,   193,   194,
-     195,   196,   197,   198,   199,   200,   201,   202,   203,   204,
-     207,   210,   213,   214,   217,   220,   223,   226,   229,   232,
-     235,   236,   239,   240,   243,   248,   251,   252,   253,   254,
-     257,   258,   259,   262,   263,   264,   265,   266,   267,   268,
-     269,   270,   273,   274,   277,   278,   281,   282,   285,   286,
-     289,   292,   295,   298,   301,   304,   307
+       0,   115,   115,   119,   114,   125,   126,   127,   130,   130,
+     131,   132,   132,   136,   137,   140,   150,   169,   170,   171,
+     172,   173,   176,   177,   180,   183,   184,   185,   188,   189,
+     190,   191,   192,   193,   194,   195,   196,   197,   198,   199,
+     202,   205,   208,   209,   212,   215,   218,   221,   224,   227,
+     230,   231,   234,   235,   238,   243,   246,   247,   248,   249,
+     252,   253,   254,   257,   258,   259,   260,   261,   262,   263,
+     264,   265,   268,   269,   272,   273,   276,   277,   280,   281,
+     284,   287,   290,   293,   296,   299,   302
 };
 #endif
 
@@ -1471,88 +1471,66 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 116 "X0-Bison.y" /* yacc.c:1646  */
+#line 115 "X0-Bison.y" /* yacc.c:1646  */
     {	gen(jmp, 0, 0);
 						}
 #line 1478 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 120 "X0-Bison.y" /* yacc.c:1646  */
+#line 119 "X0-Bison.y" /* yacc.c:1646  */
     {
 						
 						}
 #line 1486 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
-  case 6:
-#line 127 "X0-Bison.y" /* yacc.c:1646  */
-    {
-					  	}
-#line 1493 "X0-Bison.tab.c" /* yacc.c:1646  */
-    break;
-
   case 8:
-#line 132 "X0-Bison.y" /* yacc.c:1646  */
+#line 130 "X0-Bison.y" /* yacc.c:1646  */
     { constant_decl_or_not = 0; }
-#line 1499 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1492 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 132 "X0-Bison.y" /* yacc.c:1646  */
-    {
-						}
-#line 1506 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 130 "X0-Bison.y" /* yacc.c:1646  */
+    {}
+#line 1498 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 135 "X0-Bison.y" /* yacc.c:1646  */
+#line 132 "X0-Bison.y" /* yacc.c:1646  */
     { constant_decl_or_not = 1; }
-#line 1512 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1504 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 135 "X0-Bison.y" /* yacc.c:1646  */
+#line 132 "X0-Bison.y" /* yacc.c:1646  */
     {
 					  	}
-#line 1519 "X0-Bison.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 13:
-#line 139 "X0-Bison.y" /* yacc.c:1646  */
-    {
-						}
-#line 1526 "X0-Bison.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 14:
-#line 141 "X0-Bison.y" /* yacc.c:1646  */
-    {
-					  	}
-#line 1533 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1511 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 145 "X0-Bison.y" /* yacc.c:1646  */
+#line 140 "X0-Bison.y" /* yacc.c:1646  */
     {
-							printf("%d!\n", (yyval.number));
+							printf("ID: %s", (yyvsp[0].ident));
 							if (constant_decl_or_not == 1) {		// Constant without initialize, error
 								yyerror("Constants require initialization!\n");
 								return 1;
 							} 
 							else {
-
+								
 							}
 	 					}
-#line 1548 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1526 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 155 "X0-Bison.y" /* yacc.c:1646  */
+#line 150 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	printf("Constant or not: %d\n", constant_decl_or_not);
+							printf("%s\n", (yyvsp[-2].ident));
 						  	if (constant_decl_or_not == 1) {		// Constant declaration
-								printf("%s\n", (yyvsp[-2].ident));
 								strcpy(id_name, (yyvsp[-2].ident));
 								switch ((yyvsp[0].number)) {
 									case 2:
@@ -1566,76 +1544,76 @@ yyreduce:
 
 							}
 					  	}
-#line 1570 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1548 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 244 "X0-Bison.y" /* yacc.c:1646  */
+#line 239 "X0-Bison.y" /* yacc.c:1646  */
     {	gen(lod, 0, 0);
 							gen(sto, 0, 0);
 							(yyval.number) = 0;
 						}
-#line 1579 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1557 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 80:
-#line 289 "X0-Bison.y" /* yacc.c:1646  */
+#line 284 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = 0;
 						}
-#line 1587 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1565 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 81:
-#line 292 "X0-Bison.y" /* yacc.c:1646  */
+#line 287 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 1;
 					  	}
-#line 1595 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1573 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 82:
-#line 295 "X0-Bison.y" /* yacc.c:1646  */
+#line 290 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 2;
 					  	}
-#line 1603 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1581 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 83:
-#line 298 "X0-Bison.y" /* yacc.c:1646  */
+#line 293 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 3;
 					  	}
-#line 1611 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1589 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 84:
-#line 301 "X0-Bison.y" /* yacc.c:1646  */
+#line 296 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 4;
 					  	}
-#line 1619 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1597 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 85:
-#line 304 "X0-Bison.y" /* yacc.c:1646  */
+#line 299 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 5;
 					  	}
-#line 1627 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1605 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 86:
-#line 307 "X0-Bison.y" /* yacc.c:1646  */
+#line 302 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 6;
 					  	}
-#line 1635 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1613 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1639 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1617 "X0-Bison.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1863,7 +1841,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 312 "X0-Bison.y" /* yacc.c:1906  */
+#line 307 "X0-Bison.y" /* yacc.c:1906  */
 
 
 void init() {
