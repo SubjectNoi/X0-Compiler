@@ -1,4 +1,3 @@
-
 /* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison interface for Yacc-like parsers in C
@@ -95,12 +94,13 @@ extern int yydebug;
     NOT = 304,
     YAJU = 305,
     YARIMASUNESYM = 306,
-    IDENT = 307,
-    INTEGER = 308,
-    STRING = 309,
-    BOOL = 310,
-    REAL = 311,
-    CHAR = 312
+    KIBONOHANASYM = 307,
+    IDENT = 308,
+    INTEGER = 309,
+    STRING = 310,
+    BOOL = 311,
+    REAL = 312,
+    CHAR = 313
   };
 #endif
 
@@ -109,7 +109,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 85 "X0-Bison.y" /* yacc.c:1909  */
+#line 86 "X0-Bison.y" /* yacc.c:1909  */
 
 	char 	*ident;
 	int 	number;
@@ -118,7 +118,7 @@ union YYSTYPE
 	int 	flag;
 	double 	realnumber;
 
-#line 121 "X0-Bison.tab.h" /* yacc.c:1909  */
+#line 122 "X0-Bison.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

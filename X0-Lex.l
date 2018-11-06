@@ -26,6 +26,7 @@ int 		line = 1;
 "for"			{return FORSYM;}
 "int"			{return INTSYM;}
 "if"			{return IFSYM;}
+"kibonohana"	{return KIBONOHANASYM;}		
 "main"			{return MAINSYM;}
 "read"			{return READSYM;}
 "real"			{return REALSYM;}
@@ -35,7 +36,7 @@ int 		line = 1;
 "until"			{return UNTILSYM;}
 "while"			{return WHILESYM;}
 "write"			{return WRITESYM;}
-"yarimasune"	{return YARIMASUNESYM;}		
+"yarimasune"	{return YARIMASUNESYM;}
 
 [A-Za-z]([A-Za-z]|[0-9])*	{ 	yylval.ident = (char*) malloc(strlen(yytext) + 1);
 								strcpy(yylval.ident, yytext);
