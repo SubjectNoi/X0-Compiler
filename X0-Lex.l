@@ -85,6 +85,7 @@ int 		line = 1;
 "["				{return LBRACKET;}
 "]"				{return RBRACKET;}
 "%"				{return MOD;}
+","				{return COMMA;}
 ";"				{return SEMICOLON;}
 "^^"			{return XOR;}
 "&&"			{return AND;}

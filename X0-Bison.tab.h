@@ -72,35 +72,36 @@ extern int yydebug;
     LBRACKET = 282,
     RBRACKET = 283,
     BECOMES = 284,
-    LSS = 285,
-    LEQ = 286,
-    GTR = 287,
-    GEQ = 288,
-    EQL = 289,
-    NEQ = 290,
-    PLUS = 291,
-    INCPLUS = 292,
-    MINUS = 293,
-    INCMINUS = 294,
-    TIMES = 295,
-    DEVIDE = 296,
-    LPAREN = 297,
-    RPAREN = 298,
-    MOD = 299,
-    SEMICOLON = 300,
-    XOR = 301,
-    AND = 302,
-    OR = 303,
-    NOT = 304,
-    YAJU = 305,
-    YARIMASUNESYM = 306,
-    KIBONOHANASYM = 307,
-    IDENT = 308,
-    INTEGER = 309,
-    STRING = 310,
-    BOOL = 311,
-    REAL = 312,
-    CHAR = 313
+    COMMA = 285,
+    LSS = 286,
+    LEQ = 287,
+    GTR = 288,
+    GEQ = 289,
+    EQL = 290,
+    NEQ = 291,
+    PLUS = 292,
+    INCPLUS = 293,
+    MINUS = 294,
+    INCMINUS = 295,
+    TIMES = 296,
+    DEVIDE = 297,
+    LPAREN = 298,
+    RPAREN = 299,
+    MOD = 300,
+    SEMICOLON = 301,
+    XOR = 302,
+    AND = 303,
+    OR = 304,
+    NOT = 305,
+    YAJU = 306,
+    YARIMASUNESYM = 307,
+    KIBONOHANASYM = 308,
+    IDENT = 309,
+    INTEGER = 310,
+    STRING = 311,
+    CHAR = 312,
+    BOOL = 313,
+    REAL = 314
   };
 #endif
 
@@ -118,7 +119,7 @@ union YYSTYPE
 	int 	flag;
 	double 	realnumber;
 
-#line 122 "X0-Bison.tab.h" /* yacc.c:1909  */
+#line 123 "X0-Bison.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

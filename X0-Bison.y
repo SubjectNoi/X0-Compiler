@@ -95,15 +95,18 @@ void 		gen(enum fct x, int y, int z);
 %token BOOLSYM, BREAKSYM, CALLSYM, CASESYM, CHARSYM, CONSTSYM, CONTINUESYM, DOSYM, ELSESYM
 %token ELSESYM, EXITSYM, FORSYM, INTSYM, IFSYM, MAINSYM, READSYM, REALSYM, REPEATSYM
 %token STRINGSYM, SWITCHSYM, UNTILSYM, WHILESYM, WRITESYM, LBRACE, RBRACE, LBRACKET, RBRACKET
-%token BECOMES, LSS, LEQ, GTR, GEQ, EQL, NEQ, PLUS, INCPLUS, MINUS, INCMINUS,TIMES, DEVIDE
+%token BECOMES, COMMA, LSS, LEQ, GTR, GEQ, EQL, NEQ, PLUS, INCPLUS, MINUS, INCMINUS,TIMES, DEVIDE
 %token LPAREN, RPAREN, MOD, SEMICOLON, XOR, AND, OR, NOT, YAJU, YARIMASUNESYM, KIBONOHANASYM
 
-%token <ident> 		IDENT
-%token <integer> 	INTEGER
-%token <string>		STRING
-%token <bool>		BOOL
-%token <real>		REAL
-%token <char>		CHAR
+%token <ident> 			IDENT
+%token <number> 		INTEGER
+%token <text>			STRING
+%token <single_char>	CHAR
+%token <flag>			BOOL
+%token <realnumber>		REAL
+
+%type <number>			typeenum
+%type <number>			factor
 
 %%
 
@@ -123,37 +126,38 @@ declaration_list:		declaration_list declaration_stat
 					  | 
 						;
 
-declaration_stat:		type IDENT SEMICOLON 
-					  | type IDENT LBRACKET INTEGER RBRACKET SEMICOLON
-					  | CONSTSYM type IDENT BECOMES expression SEMICOLON {
-						  	/*
+declaration_stat:		typeenum identlist SEMICOLON 
+					  | typeenum identarraylist SEMICOLON
+					  | CONSTSYM typeenum identlist SEMICOLON {
 						  	switch ($2) {
 								case INTSYM:
+
 									enter(constant_int);
 									break;
-								case STRINGSYM:
-									enter(constant_string);
-									break;
-								case REALSYM:
-									enter(constant_real);
-									break;
-								case CHARSYM:
-									enter(constant_char);
-									break;
-								case BOOLSYM:
-									enter(constant_bool);
-									break;
 							}
-							*/
-							return 0;
 					  	}
 						;
-					
-type:					INTSYM 
+
+identlist:				identdef
+					  |	identlist COMMA identdef
+					  	;
+
+identdef:				IDENT				{ /* IDENT only must not be constant */ }
+					  |	IDENT BECOMES factor
+						;
+
+typeenum:				INTSYM 
 					  | STRINGSYM 
 					  | BOOLSYM 
 					  | REALSYM 
 					  | CHARSYM
+						;
+
+identarraylist:			identarraydef
+					  |	identarraylist COMMA identarraydef
+						;
+				
+identarraydef:			IDENT LBRACKET INTEGER RBRACKET
 						;
 	
 statement_list:			statement_list statement 
