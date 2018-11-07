@@ -67,7 +67,7 @@ bool		outter_bool;
 char		outter_char;
 char		outter_string[STRING_LEN];
 int			err_num;
-int			constant_decl_or_not;
+int			constant_decl_or_not = 0;
 
 FILE*		fin;
 FILE*		ftable;
@@ -127,10 +127,9 @@ declaration_list:		declaration_list declaration_stat
 					  | 
 						;
 
-declaration_stat:		typeenum { constant_decl_or_not = 0; } identlist SEMICOLON {}
+declaration_stat:		typeenum identlist SEMICOLON { /* Why can't me add sth after typeenum?? */ }
 					  | typeenum identarraylist SEMICOLON
-					  | CONSTSYM typeenum { constant_decl_or_not = 1; } identlist SEMICOLON {
-					  	}
+					  | CONSTSYM typeenum { constant_decl_or_not = 1; } identlist { constant_decl_or_not = 0; } SEMICOLON
 						;
 
 identlist:				identdef 
@@ -138,7 +137,6 @@ identlist:				identdef
 					  	;
 
 identdef:				IDENT {
-							printf("ID: %s", $1);
 							if (constant_decl_or_not == 1) {		// Constant without initialize, error
 								yyerror("Constants require initialization!\n");
 								return 1;
@@ -148,14 +146,10 @@ identdef:				IDENT {
 							}
 	 					}
 					  |	IDENT BECOMES factor {
-						  	printf("Constant or not: %d\n", constant_decl_or_not);
-							printf("%s\n", $1);
 						  	if (constant_decl_or_not == 1) {		// Constant declaration
 								strcpy(id_name, $1);
 								switch ($3) {
 									case 2:
-										outter_int = 114514;
-												// @todo: How to pass actual value?
 										enter(constant_int);
 										break;
 								}
@@ -289,6 +283,7 @@ factor:					LPAREN expression RPAREN {
 					  	}
 					  | INTEGER {
 						  	$$ = 2;
+							outter_int = $1;
 					  	}
 					  | REAL {
 						  	$$ = 3;
@@ -378,7 +373,44 @@ void enter(enum object k) {
 }
 
 void display_sym_tab() {			// @todo: Finish sym-table displaying
+	int i;
+	for (i = 1; i <= sym_tab_tail; i++) {
+		switch (table[i].kind) {
+			case constant_int:
+				printf("	%d	constant	integer		%s: ", i, table[i].name);
+				printf("value = %d\n", *((int*)&table[i].val));
+				break;
+			case constant_real:
+				printf("	%d	constant	real		%s: ", i, table[i].name);
+				printf("value = %f\n", *((float*)&table[i].val));
+				break;
+			case constant_char:
 
+				break;
+			case constant_string:
+
+				break;
+			case constant_bool:
+				printf("	%d	constant	real		%s: ", i, table[i].name);
+				printf("value = %s\n", (*((int*)&table[i].val) == 0) ? "false" : "true");
+				break;
+			case variable_int:
+
+				break;
+			case variable_real:
+
+				break;
+			case variable_char:
+
+				break;
+			case variable_string:
+
+				break;
+			case variable_bool:
+
+				break;
+		}
+	}
 }
 
 void listall() {
@@ -408,4 +440,5 @@ int main(int argc, int **argv) {
 	init();
 	yyparse();
 	listall();
+	display_sym_tab();
 }
