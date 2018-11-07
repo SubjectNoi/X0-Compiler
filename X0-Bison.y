@@ -152,6 +152,12 @@ identdef:				IDENT {
 									case 2:
 										enter(constant_int);
 										break;
+									case 3:
+										enter(constant_real);
+										break;
+									case 5:
+										enter(constant_bool);
+										break;
 								}
 							}
 							else {				// Variable declaration
@@ -287,15 +293,19 @@ factor:					LPAREN expression RPAREN {
 					  	}
 					  | REAL {
 						  	$$ = 3;
+							outter_real = $1;
 					  	}
 					  | STRING {
 						  	$$ = 4;
+							strcpy(outter_string, $1);
 					  	}
 					  | BOOL {
 						  	$$ = 5;
+							outter_bool = $1;
 					  	}
 					  | CHAR {
 						  	$$ = 6;
+							outter_char = $1;
 					  	}
 						;
 
@@ -377,11 +387,11 @@ void display_sym_tab() {			// @todo: Finish sym-table displaying
 	for (i = 1; i <= sym_tab_tail; i++) {
 		switch (table[i].kind) {
 			case constant_int:
-				printf("	%d	constant	integer		%s: ", i, table[i].name);
+				printf("	%d	constant	integer		%s:		", i, table[i].name);
 				printf("value = %d\n", *((int*)&table[i].val));
 				break;
 			case constant_real:
-				printf("	%d	constant	real		%s: ", i, table[i].name);
+				printf("	%d	constant	real		%s:		", i, table[i].name);
 				printf("value = %f\n", *((float*)&table[i].val));
 				break;
 			case constant_char:
@@ -391,7 +401,8 @@ void display_sym_tab() {			// @todo: Finish sym-table displaying
 
 				break;
 			case constant_bool:
-				printf("	%d	constant	real		%s: ", i, table[i].name);
+				//	There's some problem in enter(bool), Please check!
+				printf("	%d	constant	real		%s:		", i, table[i].name);
 				printf("value = %s\n", (*((int*)&table[i].val) == 0) ? "false" : "true");
 				break;
 			case variable_int:
