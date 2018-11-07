@@ -23,6 +23,7 @@ int 		line = 1;
 "do"			{return DOSYM;}
 "else"			{return ELSESYM;}
 "exit"			{return EXITSYM;}
+"false"			{yylval.flag = 0; return BOOL;}
 "for"			{return FORSYM;}
 "int"			{return INTSYM;}
 "if"			{return IFSYM;}
@@ -33,10 +34,15 @@ int 		line = 1;
 "repeat"		{return REPEATSYM;}
 "string"		{return STRINGSYM;}
 "switch"		{return SWITCHSYM;}
+"true"			{yylval.flag = 1; return BOOL;}
 "until"			{return UNTILSYM;}
 "while"			{return WHILESYM;}
 "write"			{return WRITESYM;}
 "yarimasune"	{return YARIMASUNESYM;}
+"114514"		{	printf("heng heng heng a a a a a, a a a a a a a, a a a a a a a a a a a a a a!!!!!\n"); 
+					printf("ni shi yi ge, yi ge, yi ge, a a a a a a a a a a a a a a a a!!!!!!!!!!!!!!\n");
+					return YAJU;
+				}
 
 [A-Za-z]([A-Za-z]|[0-9])*	{ 	yylval.ident = (char*) malloc(strlen(yytext) + 1);
 								strcpy(yylval.ident, yytext);
@@ -57,9 +63,6 @@ int 		line = 1;
 								}
 								yylval.text[strlen(yytext) - 1] = '\0';
 								return STRING;
-							}
-[true|false]				{	yylval.flag = (strcmp(yytext, "true") == 0) ? 1 : 0;
-								return BOOL;
 							}
 ['].[']						{	yylval.single_char = yytext[1];
 								return CHAR;
@@ -91,7 +94,6 @@ int 		line = 1;
 "&&"			{return AND;}
 "||"			{return OR;}
 "!"				{return NOT;}
-"114514"		{return YAJU;}
 .				{yyerror("Unknown Character!");}
 
 %%

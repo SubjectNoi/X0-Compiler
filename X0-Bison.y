@@ -155,8 +155,14 @@ identdef:				IDENT {
 									case 3:
 										enter(constant_real);
 										break;
+									case 4:
+										enter(constant_string);
+										break;
 									case 5:
 										enter(constant_bool);
+										break;
+									case 6:
+										enter(constant_char);
 										break;
 								}
 							}
@@ -307,6 +313,9 @@ factor:					LPAREN expression RPAREN {
 						  	$$ = 6;
 							outter_char = $1;
 					  	}
+					  | YAJU {
+						  	$$ = 7;
+					  	}
 						;
 
 %%
@@ -356,7 +365,7 @@ void enter(enum object k) {
 			memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_real, STRING_LEN);
 			break;
 		case constant_string:
-			memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_int, STRING_LEN);
+			memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_string, STRING_LEN);
 			break;
 		case constant_char:
 			memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_char, STRING_LEN);
@@ -395,14 +404,15 @@ void display_sym_tab() {			// @todo: Finish sym-table displaying
 				printf("value = %f\n", *((float*)&table[i].val));
 				break;
 			case constant_char:
-
+				printf("	%d	constant	char		%s:		", i, table[i].name);
+				printf("value = %c\n", *((char*)&table[i].val));
 				break;
 			case constant_string:
-
+				printf("	%d	constant	string		%s:		", i, table[i].name);
+				printf("value = %s\n", table[i].val);
 				break;
 			case constant_bool:
-				//	There's some problem in enter(bool), Please check!
-				printf("	%d	constant	real		%s:		", i, table[i].name);
+				printf("	%d	constant	bool		%s:		", i, table[i].name);
 				printf("value = %s\n", (*((int*)&table[i].val) == 0) ? "false" : "true");
 				break;
 			case variable_int:
