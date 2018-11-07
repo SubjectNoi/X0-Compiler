@@ -335,7 +335,7 @@ void gen(enum fct x, int y, int z) {
 		exit(1);
 	}
 	if (z > ADDRESS_MAX) {
-		printf("Acquiring address out of boundn");
+		printf("Acquiring address out of bound\n");
 		exit(1);
 	}
 	code[vm_code_pointer].f 	= x;
