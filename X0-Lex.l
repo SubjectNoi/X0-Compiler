@@ -44,7 +44,7 @@ int 		line = 1;
 					return YAJU;
 				}
 
-[A-Za-z]([A-Za-z]|[0-9])*	{ 	yylval.ident = (char*) malloc(strlen(yytext) + 1);
+[A-Za-z]([A-Za-z]|[0-9]|_)*	{ 	yylval.ident = (char*) malloc(strlen(yytext) + 1);
 								strcpy(yylval.ident, yytext);
 								return IDENT; 
 							}

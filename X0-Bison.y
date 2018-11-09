@@ -39,6 +39,7 @@ struct symbol_table {
 	enum 	object kind;
 	int 	addr;
 	byte 	val[STRING_LEN];			// Use byte to store all kind of data, use pointer to specify them
+	int		init_or_not;
 //	void*	val;						// Using pointer to specify unlimitted length constant string @todo: in the future.
 };
 
@@ -68,6 +69,8 @@ char		outter_char;
 char		outter_string[STRING_LEN];
 int			err_num;
 int			constant_decl_or_not = 0;
+int 		var_decl_with_init_or_not = 0;
+int			cur_decl_type = -1;
 
 FILE*		fin;
 FILE*		ftable;
@@ -142,13 +145,31 @@ identdef:				IDENT {
 								return 1;
 							} 
 							else {
-								
+								var_decl_with_init_or_not = 0;
+								strcpy(id_name, $1);
+								switch (cur_decl_type) {
+									case 2:
+										enter(variable_int);
+										break;
+									case 3:
+										enter(variable_real);
+										break;
+									case 4:
+										enter(variable_string);
+										break;
+									case 5:
+										enter(variable_bool);
+										break;
+									case 6:
+										enter(variable_char);
+										break;
+								}
 							}
 	 					}
 					  |	IDENT BECOMES factor {
 						  	if (constant_decl_or_not == 1) {		// Constant declaration
 								strcpy(id_name, $1);
-								switch ($3) {
+								switch (cur_decl_type) {
 									case 2:
 										enter(constant_int);
 										break;
@@ -166,17 +187,36 @@ identdef:				IDENT {
 										break;
 								}
 							}
-							else {				// Variable declaration
-
+							else {									// Variable declaration, pre-init required?
+								var_decl_with_init_or_not = 1;
+								strcpy(id_name, $1);
+								switch (cur_decl_type) {
+									case 2:
+										enter(variable_int);
+										break;
+									case 3:
+										enter(variable_real);
+										break;
+									case 4:
+										enter(variable_string);
+										break;
+									case 5:
+										enter(variable_bool);
+										break;
+									case 6:
+										enter(variable_char);
+										break;
+								}
+								var_decl_with_init_or_not = 0;
 							}
 					  	}
 						;
 
-typeenum:				INTSYM 
-					  | STRINGSYM 
-					  | BOOLSYM 
-					  | REALSYM 
-					  | CHARSYM
+typeenum:				INTSYM 		{ cur_decl_type = 2; }
+					  | STRINGSYM 	{ cur_decl_type = 4; }
+					  | BOOLSYM 	{ cur_decl_type = 5; }
+					  | REALSYM 	{ cur_decl_type = 3; }
+					  | CHARSYM		{ cur_decl_type = 6; }
 						;
 
 identarraylist:			identarraydef
@@ -357,6 +397,7 @@ void enter(enum object k) {
 	sym_tab_tail++;
 	strcpy(table[sym_tab_tail].name, id_name);
 	table[sym_tab_tail].kind = k;
+	table[sym_tab_tail].init_or_not = 0;
 	switch (k) {
 		case constant_int:
 			memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_int, STRING_LEN);
@@ -374,19 +415,34 @@ void enter(enum object k) {
 			memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_bool, STRING_LEN);
 			break;
 		case variable_int:
-		
+			if (var_decl_with_init_or_not) {
+				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_int, STRING_LEN);
+				table[sym_tab_tail].init_or_not = 1;
+			}
 			break;
 		case variable_real:
-		
+			if (var_decl_with_init_or_not) {
+				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_int, STRING_LEN);
+				table[sym_tab_tail].init_or_not = 1;
+			}
 			break;
 		case variable_string:
-		
+			if (var_decl_with_init_or_not) {
+				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_string, STRING_LEN);
+				table[sym_tab_tail].init_or_not = 1;
+			}
 			break;
 		case variable_char:
-		
+			if (var_decl_with_init_or_not) {
+				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_char, STRING_LEN);
+				table[sym_tab_tail].init_or_not = 1;
+			}
 			break;
 		case variable_bool:
-		
+			if (var_decl_with_init_or_not) {
+				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_bool, STRING_LEN);
+				table[sym_tab_tail].init_or_not = 1;
+			}
 			break;
 	}
 }
@@ -396,39 +452,64 @@ void display_sym_tab() {			// @todo: Finish sym-table displaying
 	for (i = 1; i <= sym_tab_tail; i++) {
 		switch (table[i].kind) {
 			case constant_int:
-				printf("	%d	constant	integer		%s:		", i, table[i].name);
+				printf("%10d\tconstant\tinteger\t%20s:\t", i, table[i].name);
 				printf("value = %d\n", *((int*)&table[i].val));
+				fprintf(ftable, "%10d\tconstant\tinteger\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "value = %d\n", *((int*)&table[i].val));
 				break;
 			case constant_real:
-				printf("	%d	constant	real		%s:		", i, table[i].name);
+				printf("%10d\tconstant\treal\t%20s:\t", i, table[i].name);
 				printf("value = %f\n", *((float*)&table[i].val));
+				fprintf(ftable, "%10d\tconstant\treal\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "value = %f\n", *((float*)&table[i].val));
 				break;
 			case constant_char:
-				printf("	%d	constant	char		%s:		", i, table[i].name);
+				printf("%10d\tconstant\tchar\t%20s:\t", i, table[i].name);
 				printf("value = %c\n", *((char*)&table[i].val));
+				fprintf(ftable, "%10d\tconstant\tchar\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "value = %c\n", *((char*)&table[i].val));
 				break;
 			case constant_string:
-				printf("	%d	constant	string		%s:		", i, table[i].name);
+				printf("%10d\tconstant\tstring\t%20s:\t", i, table[i].name);
 				printf("value = %s\n", table[i].val);
+				fprintf(ftable, "%10d\tconstant\tstring\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "value = %s\n", table[i].val);
 				break;
 			case constant_bool:
-				printf("	%d	constant	bool		%s:		", i, table[i].name);
+				printf("%10d\tconstant\tbool\t%20s:\t", i, table[i].name);
 				printf("value = %s\n", (*((int*)&table[i].val) == 0) ? "false" : "true");
+				fprintf(ftable, "%10d\tconstant\tbool\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "value = %s\n", (*((int*)&table[i].val) == 0) ? "false" : "true");
 				break;
 			case variable_int:
-
+				printf("%10d\tvariable\tinteger\t%20s:\t", i, table[i].name);
+				printf("Initialized or not = %d\n", table[i].init_or_not);
+				fprintf(ftable, "%10d\tvariable\tinteger\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_real:
-
+				printf("%10d\tvariable\treal\t%20s:\t", i, table[i].name);
+				printf("Initialized or not = %d\n", table[i].init_or_not);
+				fprintf(ftable, "%10d\tvariable\treal\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_char:
-
+				printf("%10d\tvariable\tcahr\t%20s:\t", i, table[i].name);
+				printf("Initialized or not = %d\n", table[i].init_or_not);
+				fprintf(ftable, "%10d\tvariable\tchar\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_string:
-
+				printf("%10d\tvariable\tstring\t%20s:\t", i, table[i].name);
+				printf("Initialized or not = %d\n", table[i].init_or_not);
+				fprintf(ftable, "%10d\tvariable\tstring\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_bool:
-
+				printf("%10d\tvariable\tbool\t%20s:\t", i, table[i].name);
+				printf("Initialized or not = %d\n", table[i].init_or_not);
+				fprintf(ftable, "%10d\tvariable\tbool\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 		}
 	}
@@ -448,6 +529,7 @@ void listall() {
 
 int main(int argc, int **argv) {
 	fcode = fopen("fcode", "w+");
+	ftable = fopen("ftable", "w+");
 	if (argc != 2) {
 		printf("Please specific ONE source code file!\n");
 		return 0;

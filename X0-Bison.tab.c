@@ -104,6 +104,7 @@ struct symbol_table {
 	enum 	object kind;
 	int 	addr;
 	byte 	val[STRING_LEN];			// Use byte to store all kind of data, use pointer to specify them
+	int		init_or_not;
 //	void*	val;						// Using pointer to specify unlimitted length constant string @todo: in the future.
 };
 
@@ -133,6 +134,8 @@ char		outter_char;
 char		outter_string[STRING_LEN];
 int			err_num;
 int			constant_decl_or_not = 0;
+int 		var_decl_with_init_or_not = 0;
+int			cur_decl_type = -1;
 
 FILE*		fin;
 FILE*		ftable;
@@ -148,7 +151,7 @@ void		enter(enum object k);
 void 		gen(enum fct x, int y, int z);
 
 
-#line 152 "X0-Bison.tab.c" /* yacc.c:339  */
+#line 155 "X0-Bison.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -248,7 +251,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 87 "X0-Bison.y" /* yacc.c:355  */
+#line 90 "X0-Bison.y" /* yacc.c:355  */
 
 	char 	*ident;
 	int 	number;
@@ -257,7 +260,7 @@ union YYSTYPE
 	int 	flag;
 	double 	realnumber;
 
-#line 261 "X0-Bison.tab.c" /* yacc.c:355  */
+#line 264 "X0-Bison.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -274,7 +277,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 278 "X0-Bison.tab.c" /* yacc.c:358  */
+#line 281 "X0-Bison.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -577,15 +580,15 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   115,   115,   119,   114,   125,   126,   127,   130,   131,
-     132,   132,   132,   135,   136,   139,   148,   175,   176,   177,
-     178,   179,   182,   183,   186,   189,   190,   191,   194,   195,
-     196,   197,   198,   199,   200,   201,   202,   203,   204,   205,
-     208,   211,   214,   215,   218,   221,   224,   227,   230,   233,
-     236,   237,   240,   241,   244,   249,   252,   253,   254,   255,
-     258,   259,   260,   263,   264,   265,   266,   267,   268,   269,
-     270,   271,   274,   275,   278,   279,   282,   283,   286,   287,
-     290,   293,   296,   300,   304,   308,   312,   316
+       0,   118,   118,   122,   117,   128,   129,   130,   133,   134,
+     135,   135,   135,   138,   139,   142,   169,   215,   216,   217,
+     218,   219,   222,   223,   226,   229,   230,   231,   234,   235,
+     236,   237,   238,   239,   240,   241,   242,   243,   244,   245,
+     248,   251,   254,   255,   258,   261,   264,   267,   270,   273,
+     276,   277,   280,   281,   284,   289,   292,   293,   294,   295,
+     298,   299,   300,   303,   304,   305,   306,   307,   308,   309,
+     310,   311,   314,   315,   318,   319,   322,   323,   326,   327,
+     330,   333,   336,   340,   344,   348,   352,   356
 };
 #endif
 
@@ -1471,58 +1474,76 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 115 "X0-Bison.y" /* yacc.c:1646  */
+#line 118 "X0-Bison.y" /* yacc.c:1646  */
     {	gen(jmp, 0, 0);
 						}
-#line 1478 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1481 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 119 "X0-Bison.y" /* yacc.c:1646  */
+#line 122 "X0-Bison.y" /* yacc.c:1646  */
     {
 						
 						}
-#line 1486 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1489 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 130 "X0-Bison.y" /* yacc.c:1646  */
+#line 133 "X0-Bison.y" /* yacc.c:1646  */
     { /* Why can't me add sth after typeenum?? */ }
-#line 1492 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1495 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 132 "X0-Bison.y" /* yacc.c:1646  */
+#line 135 "X0-Bison.y" /* yacc.c:1646  */
     { constant_decl_or_not = 1; }
-#line 1498 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1501 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 132 "X0-Bison.y" /* yacc.c:1646  */
+#line 135 "X0-Bison.y" /* yacc.c:1646  */
     { constant_decl_or_not = 0; }
-#line 1504 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1507 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 139 "X0-Bison.y" /* yacc.c:1646  */
+#line 142 "X0-Bison.y" /* yacc.c:1646  */
     {
 							if (constant_decl_or_not == 1) {		// Constant without initialize, error
 								yyerror("Constants require initialization!\n");
 								return 1;
 							} 
 							else {
-								
+								var_decl_with_init_or_not = 0;
+								strcpy(id_name, (yyvsp[0].ident));
+								switch (cur_decl_type) {
+									case 2:
+										enter(variable_int);
+										break;
+									case 3:
+										enter(variable_real);
+										break;
+									case 4:
+										enter(variable_string);
+										break;
+									case 5:
+										enter(variable_bool);
+										break;
+									case 6:
+										enter(variable_char);
+										break;
+								}
 							}
 	 					}
-#line 1518 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1539 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 148 "X0-Bison.y" /* yacc.c:1646  */
+#line 169 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	if (constant_decl_or_not == 1) {		// Constant declaration
 								strcpy(id_name, (yyvsp[-2].ident));
-								switch ((yyvsp[0].number)) {
+								switch (cur_decl_type) {
 									case 2:
 										enter(constant_int);
 										break;
@@ -1540,93 +1561,142 @@ yyreduce:
 										break;
 								}
 							}
-							else {				// Variable declaration
-
+							else {									// Variable declaration, pre-init required?
+								var_decl_with_init_or_not = 1;
+								strcpy(id_name, (yyvsp[-2].ident));
+								switch (cur_decl_type) {
+									case 2:
+										enter(variable_int);
+										break;
+									case 3:
+										enter(variable_real);
+										break;
+									case 4:
+										enter(variable_string);
+										break;
+									case 5:
+										enter(variable_bool);
+										break;
+									case 6:
+										enter(variable_char);
+										break;
+								}
+								var_decl_with_init_or_not = 0;
 							}
 					  	}
-#line 1548 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1588 "X0-Bison.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 17:
+#line 215 "X0-Bison.y" /* yacc.c:1646  */
+    { cur_decl_type = 2; }
+#line 1594 "X0-Bison.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 18:
+#line 216 "X0-Bison.y" /* yacc.c:1646  */
+    { cur_decl_type = 4; }
+#line 1600 "X0-Bison.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 19:
+#line 217 "X0-Bison.y" /* yacc.c:1646  */
+    { cur_decl_type = 5; }
+#line 1606 "X0-Bison.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 20:
+#line 218 "X0-Bison.y" /* yacc.c:1646  */
+    { cur_decl_type = 3; }
+#line 1612 "X0-Bison.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 21:
+#line 219 "X0-Bison.y" /* yacc.c:1646  */
+    { cur_decl_type = 6; }
+#line 1618 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 245 "X0-Bison.y" /* yacc.c:1646  */
+#line 285 "X0-Bison.y" /* yacc.c:1646  */
     {	gen(lod, 0, 0);
 							gen(sto, 0, 0);
 							(yyval.number) = 0;
 						}
-#line 1557 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1627 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 80:
-#line 290 "X0-Bison.y" /* yacc.c:1646  */
+#line 330 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = 0;
 						}
-#line 1565 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1635 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 81:
-#line 293 "X0-Bison.y" /* yacc.c:1646  */
+#line 333 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 1;
 					  	}
-#line 1573 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1643 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 82:
-#line 296 "X0-Bison.y" /* yacc.c:1646  */
+#line 336 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 2;
 							outter_int = (yyvsp[0].number);
 					  	}
-#line 1582 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1652 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 83:
-#line 300 "X0-Bison.y" /* yacc.c:1646  */
+#line 340 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 3;
 							outter_real = (yyvsp[0].realnumber);
 					  	}
-#line 1591 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1661 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 84:
-#line 304 "X0-Bison.y" /* yacc.c:1646  */
+#line 344 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 4;
 							strcpy(outter_string, (yyvsp[0].text));
 					  	}
-#line 1600 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1670 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 85:
-#line 308 "X0-Bison.y" /* yacc.c:1646  */
+#line 348 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 5;
 							outter_bool = (yyvsp[0].flag);
 					  	}
-#line 1609 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1679 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 86:
-#line 312 "X0-Bison.y" /* yacc.c:1646  */
+#line 352 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 6;
 							outter_char = (yyvsp[0].single_char);
 					  	}
-#line 1618 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1688 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 87:
-#line 316 "X0-Bison.y" /* yacc.c:1646  */
+#line 356 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 7;
 					  	}
-#line 1626 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1696 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1630 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1700 "X0-Bison.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1854,7 +1924,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 321 "X0-Bison.y" /* yacc.c:1906  */
+#line 361 "X0-Bison.y" /* yacc.c:1906  */
 
 
 void init() {
@@ -1894,6 +1964,7 @@ void enter(enum object k) {
 	sym_tab_tail++;
 	strcpy(table[sym_tab_tail].name, id_name);
 	table[sym_tab_tail].kind = k;
+	table[sym_tab_tail].init_or_not = 0;
 	switch (k) {
 		case constant_int:
 			memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_int, STRING_LEN);
@@ -1911,19 +1982,34 @@ void enter(enum object k) {
 			memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_bool, STRING_LEN);
 			break;
 		case variable_int:
-		
+			if (var_decl_with_init_or_not) {
+				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_int, STRING_LEN);
+				table[sym_tab_tail].init_or_not = 1;
+			}
 			break;
 		case variable_real:
-		
+			if (var_decl_with_init_or_not) {
+				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_int, STRING_LEN);
+				table[sym_tab_tail].init_or_not = 1;
+			}
 			break;
 		case variable_string:
-		
+			if (var_decl_with_init_or_not) {
+				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_string, STRING_LEN);
+				table[sym_tab_tail].init_or_not = 1;
+			}
 			break;
 		case variable_char:
-		
+			if (var_decl_with_init_or_not) {
+				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_char, STRING_LEN);
+				table[sym_tab_tail].init_or_not = 1;
+			}
 			break;
 		case variable_bool:
-		
+			if (var_decl_with_init_or_not) {
+				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_bool, STRING_LEN);
+				table[sym_tab_tail].init_or_not = 1;
+			}
 			break;
 	}
 }
@@ -1933,39 +2019,64 @@ void display_sym_tab() {			// @todo: Finish sym-table displaying
 	for (i = 1; i <= sym_tab_tail; i++) {
 		switch (table[i].kind) {
 			case constant_int:
-				printf("	%d	constant	integer		%s:		", i, table[i].name);
+				printf("%10d\tconstant\tinteger\t%20s:\t", i, table[i].name);
 				printf("value = %d\n", *((int*)&table[i].val));
+				fprintf(ftable, "%10d\tconstant\tinteger\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "value = %d\n", *((int*)&table[i].val));
 				break;
 			case constant_real:
-				printf("	%d	constant	real		%s:		", i, table[i].name);
+				printf("%10d\tconstant\treal\t%20s:\t", i, table[i].name);
 				printf("value = %f\n", *((float*)&table[i].val));
+				fprintf(ftable, "%10d\tconstant\treal\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "value = %f\n", *((float*)&table[i].val));
 				break;
 			case constant_char:
-				printf("	%d	constant	char		%s:		", i, table[i].name);
+				printf("%10d\tconstant\tchar\t%20s:\t", i, table[i].name);
 				printf("value = %c\n", *((char*)&table[i].val));
+				fprintf(ftable, "%10d\tconstant\tchar\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "value = %c\n", *((char*)&table[i].val));
 				break;
 			case constant_string:
-				printf("	%d	constant	string		%s:		", i, table[i].name);
+				printf("%10d\tconstant\tstring\t%20s:\t", i, table[i].name);
 				printf("value = %s\n", table[i].val);
+				fprintf(ftable, "%10d\tconstant\tstring\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "value = %s\n", table[i].val);
 				break;
 			case constant_bool:
-				printf("	%d	constant	bool		%s:		", i, table[i].name);
+				printf("%10d\tconstant\tbool\t%20s:\t", i, table[i].name);
 				printf("value = %s\n", (*((int*)&table[i].val) == 0) ? "false" : "true");
+				fprintf(ftable, "%10d\tconstant\tbool\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "value = %s\n", (*((int*)&table[i].val) == 0) ? "false" : "true");
 				break;
 			case variable_int:
-
+				printf("%10d\tvariable\tinteger\t%20s:\t", i, table[i].name);
+				printf("Initialized or not = %d\n", table[i].init_or_not);
+				fprintf(ftable, "%10d\tvariable\tinteger\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_real:
-
+				printf("%10d\tvariable\treal\t%20s:\t", i, table[i].name);
+				printf("Initialized or not = %d\n", table[i].init_or_not);
+				fprintf(ftable, "%10d\tvariable\treal\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_char:
-
+				printf("%10d\tvariable\tcahr\t%20s:\t", i, table[i].name);
+				printf("Initialized or not = %d\n", table[i].init_or_not);
+				fprintf(ftable, "%10d\tvariable\tchar\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_string:
-
+				printf("%10d\tvariable\tstring\t%20s:\t", i, table[i].name);
+				printf("Initialized or not = %d\n", table[i].init_or_not);
+				fprintf(ftable, "%10d\tvariable\tstring\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_bool:
-
+				printf("%10d\tvariable\tbool\t%20s:\t", i, table[i].name);
+				printf("Initialized or not = %d\n", table[i].init_or_not);
+				fprintf(ftable, "%10d\tvariable\tbool\t%20s:\t", i, table[i].name);
+				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 		}
 	}
@@ -1985,6 +2096,7 @@ void listall() {
 
 int main(int argc, int **argv) {
 	fcode = fopen("fcode", "w+");
+	ftable = fopen("ftable", "w+");
 	if (argc != 2) {
 		printf("Please specific ONE source code file!\n");
 		return 0;
