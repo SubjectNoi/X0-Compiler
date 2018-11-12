@@ -515,6 +515,99 @@ void display_sym_tab() {			// @todo: Finish sym-table displaying
 	}
 }
 
+void interpret() {
+	int pc = 0;
+	int base = 1;
+	int stack_top = 0;
+	struct instruction i;
+	int s[STACK_SIZE];
+
+	printf("Start X0\n");
+	printf(fresult, "Start X0\n");
+	s[0] = 0;
+	s[1] = s[2] = s[3] = 0; 		//RA, DL, SL of main is 0, though X0 doesn't include recursive decl
+	do {
+		i = code[pc];
+		pc = pc + 1;
+		switch (i.fct) {
+			case lit:
+				stack_top++;
+				s[stack_top] = i.opr;
+				break;
+			case opr:
+				switch (i.opr) {
+					case 0:
+						stack_top = base - 1;
+						pc = s[stack_top + 3];
+						base = s[stack_top + 2];
+						break;
+					case 1:								// Negative
+						s[stack_top] = -s[stack_top];
+						break;
+					case 2:								// 2 opr +
+						stack_top--;
+						s[stack_top] = s[stack_top] + s[stack_top + 1];
+						break;
+					case 3:								// 2 opr -
+						stack_top--;
+						s[stack_top] = s[stack_top] - s[stack_top + 1];
+						break;
+					case 4:								// 2 opr *
+						stack_top--;
+						s[stack_top] = s[stack_top] * s[stack_top + 1];
+						break;
+					case 5:								// 2 opr /
+						stack_top--;
+						s[stack_top] = s[stack_top] / s[stack_top + 1];
+						break;
+					case 6:								// 2 opr %
+						stack_top--;
+						s[stack_top] = s[stack_top] % s[stack_top + 1];
+						break;
+					case 7:								// 2 opr ==
+						stack_top--;
+						s[stack_top] = (s[stack_top] == s[stack_top + 1]);
+						break;
+					case 8:								// 2 opr !=
+						stack_top--;
+						s[stack_top] = (s[stack_top] != s[stack_top + 1]);
+						break;
+					case 9:								// 2 opr <
+						stack_top--;
+						s[stack_top] = (s[stack_top] < s[stack_top + 1]);
+						break;
+					case 10:							// 2 opr >
+						stack_top--;
+						s[stack_top] = (s[stack_top] > s[stack_top + 1]);
+						break;
+					case 11:							// 2 opr <=
+						stack_top--;
+						s[stack_top] = (s[stack_top] <= s[stack_top + 1]);
+						break;
+					case 12:							// 2 opr >=
+						stack_top--;
+						s[stack_top] = (s[stack_top] >= s[stack_top + 1]);
+						break;
+					case 13:
+						stack_top--;
+						s[stack_top] = (s[stack_top] && s[stack_top + 1]);
+						break;
+					case 14:
+						stack_top--;
+						s[stack_top] = (s[stack_top] || s[stack_top + 1]);
+						break;
+					case 15:
+						stack_top--;
+						s[stack_top] = (s[stack_top] ^ s[stack_top + 1]);
+						break;
+					case 16:
+						s[stack_top] = !s[stack_top];
+						break;
+				}
+		}
+	}
+}
+
 void listall() {
 	int i;
 	char name[][5] = {
@@ -530,6 +623,7 @@ void listall() {
 int main(int argc, int **argv) {
 	fcode = fopen("fcode", "w+");
 	ftable = fopen("ftable", "w+");
+	fresult = fopen("fresult", "w+");
 	if (argc != 2) {
 		printf("Please specific ONE source code file!\n");
 		return 0;
