@@ -592,6 +592,7 @@ void display_sym_tab() {			// @todo: Finish sym-table displaying
 }
 
 void interpret() {
+	// Unknown error of unexpected output!
 	int pc = 0;
 	int base = 1;
 	int stack_top = 0;
