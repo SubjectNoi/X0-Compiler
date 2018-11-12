@@ -18,7 +18,6 @@
 #define STRING_LEN		201				// Max length of const string
 #define ERROR_MAG_NUM	1145141919810	// For error processing
 
-
 typedef unsigned char byte;
 
 enum object {
@@ -45,6 +44,17 @@ struct symbol_table {
 
 struct symbol_table table[SYM_TABLE];	// Store all symbol
 
+enum data_type {
+	integer,		real,
+	single_char,	boolean,
+	string,
+};
+
+struct data_stack {
+	enum 	data_type t;				// current un-used
+	byte 	val[STRING_LEN];
+};
+
 enum fct {
 	lit,	opr,	lod,
 	sto,	cal,	ini,
@@ -53,14 +63,20 @@ enum fct {
 
 struct instruction {
 	enum 	fct f;
-	int 	lev;						// Un-used in X0
-	int		opr;
+	int 	lev;						// Used for type identifying
+										// For all ato lod opr, this should be use to specify type
+										// 2 for integer
+										// 3 for real
+										// 4 for string
+										// 5 for bool
+										// 6 for char
+	byte	opr[STRING_LEN];
 };
 
 struct instruction code[CODE_MAX];		// Store V-Machine code
 
 int			sym_tab_tail;
-int			vm_code_pointer;
+int			vm_code_pointer = 0;
 char		id_name[ID_NAME_LEN];
 int			outter_int;
 float		outter_real;
@@ -83,7 +99,7 @@ extern int	line;
 
 void 		init();
 void		enter(enum object k);
-void 		gen(enum fct x, int y, int z);
+void 		gen(enum fct x, int y, byte* z);
 
 %}
 
@@ -109,13 +125,13 @@ void 		gen(enum fct x, int y, int z);
 %token <flag>			BOOL
 %token <realnumber>		REAL
 
-%type <number>			factor			// Indicate type of factor
-%type <number>			expression		// Indicate type of expression
+%type <number>			factor, term, additive_expr			// Indicate type of factor
+%type <number>			expression, var						// Indicate type of expression
 %type <number>			identlist, identarraylist, identdef
 %%
 
 program: 				MAINSYM 
-						{	gen(jmp, 0, 0);
+						{	
 						}
 						LBRACE 
 						statement_list 
@@ -168,44 +184,54 @@ identdef:				IDENT {
 	 					}
 					  |	IDENT BECOMES factor {
 						  	if (constant_decl_or_not == 1) {		// Constant declaration
+								if (cur_decl_type != $3) {
+									yyerror("Inconpitable type!\n");
+								}
+								else {
 								strcpy(id_name, $1);
-								switch (cur_decl_type) {
-									case 2:
-										enter(constant_int);
-										break;
-									case 3:
-										enter(constant_real);
-										break;
-									case 4:
-										enter(constant_string);
-										break;
-									case 5:
-										enter(constant_bool);
-										break;
-									case 6:
-										enter(constant_char);
-										break;
+									switch (cur_decl_type) {
+										case 2:
+											enter(constant_int);
+											break;
+										case 3:
+											enter(constant_real);
+											break;
+										case 4:
+											enter(constant_string);
+											break;
+										case 5:
+											enter(constant_bool);
+											break;
+										case 6:
+											enter(constant_char);
+											break;
+									}
 								}
 							}
 							else {									// Variable declaration, pre-init required?
 								var_decl_with_init_or_not = 1;
+								if (cur_decl_type != $3) {
+									yyerror("Incopnpitable type!\n");
+								}
+								else {
 								strcpy(id_name, $1);
-								switch (cur_decl_type) {
-									case 2:
-										enter(variable_int);
-										break;
-									case 3:
-										enter(variable_real);
-										break;
-									case 4:
-										enter(variable_string);
-										break;
-									case 5:
-										enter(variable_bool);
-										break;
-									case 6:
-										enter(variable_char);
-										break;
+									switch (cur_decl_type) {
+										case 2:
+											enter(variable_int);
+											break;
+										case 3:
+											enter(variable_real);
+											break;
+										case 4:
+											enter(variable_string);
+											break;
+										case 5:
+											enter(variable_bool);
+											break;
+										case 6:
+											enter(variable_char);
+											break;
+									}
 								}
 								var_decl_with_init_or_not = 0;
 							}
@@ -273,7 +299,42 @@ for_statement:			FORSYM LPAREN expression SEMICOLON expression SEMICOLON express
 do_statement:			DOSYM compound_statement WHILESYM LPAREN expression RPAREN SEMICOLON
 						;
 	
-var:					IDENT 
+var:					IDENT {
+							char name_buf[81];
+							strcpy(name_buf, $1);
+							int i, flag = 0;
+							for (i = 1; i <= sym_tab_tail; i++) {
+								if (strcmp(name_buf, table[i].name) == 0) {
+									flag = 1;
+									switch (table[i].kind) {
+										case constant_int:
+										case variable_int:
+											$$ = 2;
+											break;
+										case constant_real:
+										case variable_real:
+											$$ = 3;
+											break;
+										case constant_string:
+										case variable_string:
+											$$ = 4;
+											break;
+										case constant_char:
+										case variable_char:
+											$$ = 6;
+											break;
+										case constant_bool:
+										case variable_bool:
+											$$ = 5;
+											break;
+									}
+									break;
+								}
+							}
+							if (flag == 0) {
+								yyerror("Undefined variable!\n");
+							}
+						}
 					  | IDENT LBRACKET expression RBRACKET
 						;
 
@@ -282,8 +343,7 @@ expression_statement:	expression SEMICOLON
 						;
 
 expression:				var BECOMES expression 
-						{	gen(lod, 0, 0);
-							gen(sto, 0, 0);
+						{	
 							$$ = 0;
 						}
 					  | simple_expr
@@ -311,16 +371,31 @@ OPR:					EQL
 					  | XOR
 						;
 
-additive_expr:			term 
-					  | additive_expr PLUSMINUS term
+additive_expr:			term {
+							$$ = $1;
+						}
+					  | additive_expr PLUSMINUS term {
+						  	if ($1 != $3) {
+								yyerror("Incompitable Type between operator!\n");
+							}
+					  	}
 						;
 
 PLUSMINUS:				PLUS 
 					  | MINUS
 						;
 
-term:					factor 
-					  | term TIMESDEVIDE factor
+term:					factor {
+							$$ = $1;
+						}
+					  | term TIMESDEVIDE factor {
+						  	if ($1 != $3) {
+								yyerror("Incompitable Type between operator!\n");
+							}
+							else {
+
+							}
+					  	}
 						;
 
 TIMESDEVIDE:			TIMES 
@@ -331,7 +406,7 @@ factor:					LPAREN expression RPAREN {
 							$$ = 0;
 						}
 					  | var {
-						  	$$ = 1;
+						  	$$ = $1;
 					  	}
 					  | INTEGER {
 						  	$$ = 2;
@@ -378,19 +453,20 @@ int yyerror(char *s) {
 	return 0;
 }
 
-void gen(enum fct x, int y, int z) {
+void gen(enum fct x, int y, byte* z) {
 	if (vm_code_pointer > CODE_MAX) {
 		printf("Program is too long!\n");
 		exit(1);
 	}
-	if (z > ADDRESS_MAX) {
-		printf("Acquiring address out of bound\n");
-		exit(1);
-	}
+	// if (z > ADDRESS_MAX) {
+	// 	printf("Acquiring address out of bound\n");
+	// 	exit(1);
+	// }
 	code[vm_code_pointer].f 	= x;
 	code[vm_code_pointer].lev 	= y;
-	code[vm_code_pointer].opr 	= z;
+	memcpy((void*)(&(code[vm_code_pointer].opr)), (const void*)&z, STRING_LEN);
 	vm_code_pointer++;
+	printf("%d\n", vm_code_pointer);
 }
 
 void enter(enum object k) {
@@ -520,92 +596,86 @@ void interpret() {
 	int base = 1;
 	int stack_top = 0;
 	struct instruction i;
-	int s[STACK_SIZE];
+	struct data_stack s[STACK_SIZE];
+	byte in_buf[STRING_LEN];
 
 	printf("Start X0\n");
 	printf(fresult, "Start X0\n");
-	s[0] = 0;
-	s[1] = s[2] = s[3] = 0; 		//RA, DL, SL of main is 0, though X0 doesn't include recursive decl
 	do {
 		i = code[pc];
+
+		//printf("OPR: %d\n", *(int*)(&i.opr));
 		pc = pc + 1;
-		switch (i.fct) {
+		switch (i.f) {
 			case lit:
 				stack_top++;
-				s[stack_top] = i.opr;
+				memcpy((void*)(&(s[stack_top].val)), (const void*)(&i.opr), STRING_LEN);
 				break;
 			case opr:
-				switch (i.opr) {
-					case 0:
+				switch (*(int*)&(i.opr)) {
+					case 0:								// return
 						stack_top = base - 1;
-						pc = s[stack_top + 3];
-						base = s[stack_top + 2];
+						pc = *(int*)(&(s[stack_top + 3].val));
+						base = *(int*)(&(s[stack_top + 2].val));
 						break;
 					case 1:								// Negative
-						s[stack_top] = -s[stack_top];
 						break;
 					case 2:								// 2 opr +
-						stack_top--;
-						s[stack_top] = s[stack_top] + s[stack_top + 1];
 						break;
 					case 3:								// 2 opr -
-						stack_top--;
-						s[stack_top] = s[stack_top] - s[stack_top + 1];
 						break;
 					case 4:								// 2 opr *
-						stack_top--;
-						s[stack_top] = s[stack_top] * s[stack_top + 1];
 						break;
 					case 5:								// 2 opr /
-						stack_top--;
-						s[stack_top] = s[stack_top] / s[stack_top + 1];
 						break;
 					case 6:								// 2 opr %
-						stack_top--;
-						s[stack_top] = s[stack_top] % s[stack_top + 1];
 						break;
 					case 7:								// 2 opr ==
-						stack_top--;
-						s[stack_top] = (s[stack_top] == s[stack_top + 1]);
 						break;
 					case 8:								// 2 opr !=
-						stack_top--;
-						s[stack_top] = (s[stack_top] != s[stack_top + 1]);
 						break;
 					case 9:								// 2 opr <
-						stack_top--;
-						s[stack_top] = (s[stack_top] < s[stack_top + 1]);
 						break;
 					case 10:							// 2 opr >
-						stack_top--;
-						s[stack_top] = (s[stack_top] > s[stack_top + 1]);
 						break;
 					case 11:							// 2 opr <=
-						stack_top--;
-						s[stack_top] = (s[stack_top] <= s[stack_top + 1]);
 						break;
 					case 12:							// 2 opr >=
-						stack_top--;
-						s[stack_top] = (s[stack_top] >= s[stack_top + 1]);
 						break;
-					case 13:
-						stack_top--;
-						s[stack_top] = (s[stack_top] && s[stack_top + 1]);
+					case 13:							// 2 opr &&
 						break;
-					case 14:
-						stack_top--;
-						s[stack_top] = (s[stack_top] || s[stack_top + 1]);
+					case 14:							// 2 opr ||
 						break;
-					case 15:
-						stack_top--;
-						s[stack_top] = (s[stack_top] ^ s[stack_top + 1]);
+					case 15:							// 2 opr ^^
 						break;
-					case 16:
-						s[stack_top] = !s[stack_top];
+					case 16:							// 1 opr !
+						break;
+					case 17:							// 1 opr ++
+						break;
+					case 18:							// 1 opr --
+						break;
+					case 19:							// output
+						break;
+					case 20:							// input
+						//printf("INPUT!\n");
+						//scanf("%s", &in_buf);
+						//memcpy((void*)(&(s[stack_top].val)), (const void*)&in_buf, STRING_LEN);
 						break;
 				}
+			case lod:
+				break;
+			case sto:
+				break;
+			case cal:
+				break;
+			case ini:
+				break;
+			case jmp:
+				break;
+			case jpc:
+				break;
 		}
-	}
+	} while (1 == 0);
 }
 
 void listall() {
@@ -615,8 +685,8 @@ void listall() {
 		{"cal"}, {"ini"}, {"jmp"}, {"jpc"},
 	};
 	for (i = 0; i < vm_code_pointer; i++) {
-		printf("%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, code[i].opr);
-		fprintf(fcode, "%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, code[i].opr);
+		printf("%4d %s %4d %4s\n", i, name[code[i].f], code[i].lev, (byte*)(&(code[i].opr)));
+		fprintf(fcode, "%4d %s %4d %4s\n", i, name[code[i].f], code[i].lev, (byte*)(&(code[i].opr)));
 	}
 }
 
@@ -636,6 +706,9 @@ int main(int argc, int **argv) {
 	redirectInput(f);
 	init();
 	yyparse();
-	listall();
 	display_sym_tab();
+	int i = 20;
+	gen(opr, 0, (byte*)i);
+	//listall();
+	interpret();
 }
