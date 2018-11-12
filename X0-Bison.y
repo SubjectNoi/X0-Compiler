@@ -655,11 +655,17 @@ void interpret() {
 					case 18:							// 1 opr --
 						break;
 					case 19:							// output
+						
 						break;
 					case 20:							// input
-						//printf("INPUT!\n");
-						//scanf("%s", &in_buf);
-						//memcpy((void*)(&(s[stack_top].val)), (const void*)&in_buf, STRING_LEN);
+						printf("INPUT!\n");
+						scanf("%s", &in_buf);
+						memcpy((void*)(&(s[stack_top].val)), (const void*)&in_buf, STRING_LEN);
+						switch (i.lev) {
+							case 2:
+
+							bnr
+						}
 						break;
 				}
 			case lod:
