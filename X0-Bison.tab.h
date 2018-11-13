@@ -110,7 +110,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 108 "X0-Bison.y" /* yacc.c:1909  */
+#line 113 "X0-Bison.y" /* yacc.c:1909  */
 
 	char 	*ident;
 	int 	number;

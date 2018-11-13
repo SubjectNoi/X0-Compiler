@@ -87,7 +87,7 @@ int			output_int;
 float		output_real;
 bool		output_bool;
 char		output_char;
-char		output_char[STRING_LEN];
+char		output_string[STRING_LEN];
 int			err_num;
 int			constant_decl_or_not = 0;
 int 		var_decl_with_init_or_not = 0;
@@ -292,7 +292,10 @@ if_statement:			IFSYM LPAREN expression RPAREN compound_statement
 while_statement:		WHILESYM LPAREN expression RPAREN compound_statement
 						;
 	
-write_statement:		WRITESYM LPAREN expression RPAREN SEMICOLON
+write_statement:		WRITESYM LPAREN expression RPAREN SEMICOLON {
+							int opran = 19;
+							gen(opr, $3, (byte*)opran);
+						}
 						;
 	
 read_statement:			READSYM LPAREN var RPAREN SEMICOLON {
@@ -397,7 +400,6 @@ expression:				var BECOMES expression {
 						}
 					  | simple_expr {
 						  	$$ = $1;
-							  printf("expression %d\n", $$);
 					  	}
 						;
 
@@ -458,6 +460,8 @@ factor:					LPAREN expression RPAREN {
 						}
 					  | var {
 						  	$$ = $1;
+							int var_addr = find_addr_of_ident(curr_read_write_ident);
+							gen(lod, $1, (byte*)var_addr);
 					  	}
 					  | INTEGER {
 						  	$$ = 2;
@@ -517,7 +521,6 @@ void gen(enum fct x, int y, byte* z) {
 	code[vm_code_pointer].lev 	= y;
 	memcpy((void*)(&(code[vm_code_pointer].opr)), (const void*)&z, STRING_LEN);
 	vm_code_pointer++;
-	printf("vm pc: %d\n", vm_code_pointer);
 }
 
 void enter(enum object k) {
@@ -647,6 +650,18 @@ void display_sym_tab() {			// @todo: Finish sym-table displaying
 	}
 }
 
+int find_addr_of_ident(char *s) {
+	int addr = -1;
+	int i;
+	for (i = 1; i <= sym_tab_tail; i++) {
+		if (strcmp(table[i].name, s) == 0) {
+			addr = table[i].addr;
+			break;
+		}
+	}
+	return addr;
+}
+
 int cur_pc = 0;
 
 void interpret() {
@@ -662,6 +677,7 @@ void interpret() {
 	char		inbuf_string[STRING_LEN];
 	char		inbuf_bool[6];
 	int			bool_flag;
+	int			addr;
 	memset(inbuf_string, 0, sizeof inbuf_string);
 
 	printf("Start X0\n");
@@ -772,9 +788,50 @@ void interpret() {
 						}
 						break;
 				}
+				break;
 			case lod:
+				stack_top++;
+				addr = *(int*)&(i.opr);
+				memcpy((void*)(&(s[stack_top].val)), (const void*)(&(s[addr].val)), STRING_LEN);
+				switch (i.lev) {
+					case 2:
+						s[stack_top].t = integer;
+						break;
+					case 3:
+						s[stack_top].t = real;
+						break;
+					case 4:
+						s[stack_top].t = str;
+						break;
+					case 5:
+						s[stack_top].t = boolean;
+						break;
+					case 6:
+						s[stack_top].t = single_char;
+						break;
+				}
 				break;
 			case sto:
+				addr = *(int*)&(i.opr);
+				memcpy((void*)(&(s[addr].val)), (const void*)(&(s[stack_top].val)), STRING_LEN);
+				switch (i.lev) {
+					case 2:
+						s[stack_top].t = integer;
+						break;
+					case 3:
+						s[stack_top].t = real;
+						break;
+					case 4:
+						s[stack_top].t = str;
+						break;
+					case 5:
+						s[stack_top].t = boolean;
+						break;
+					case 6:
+						s[stack_top].t = single_char;
+						break;
+				}
+				stack_top--;
 				break;
 			case cal:
 				break;
@@ -795,27 +852,33 @@ void listall() {
 		{"cal"}, {"ini"}, {"jmp"}, {"jpc"},
 	};
 	for (i = 0; i < vm_code_pointer; i++) {
-		switch (code[i].lev) {
-			case 2:
-				printf("%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
-				fprintf(fcode, "%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
-				break;
-			case 3:
-				printf("%4d %s %4d %4f\n", i, name[code[i].f], code[i].lev, *(float*)(&(code[i].opr)));
-				fprintf(fcode, "%4d %s %4d %4f\n", i, name[code[i].f], code[i].lev, *(float*)(&(code[i].opr)));
-				break;
-			case 4:
-				printf("%4d %s %4d %s\n", i, name[code[i].f], code[i].lev, (code[i].opr));
-				fprintf(fcode, "%4d %s %4d %s\n", i, name[code[i].f], code[i].lev, (code[i].opr));
-				break;
-			case 5:
-				printf("%4d %s %4d %s\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)) == 1 ? "true" : "false");
-				fprintf(fcode, "%4d %s %4d %s\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)) == 1 ? "true" : "false");
-				break;
-			case 6:
-				printf("%4d %s %4d %4c\n", i, name[code[i].f], code[i].lev, *(char*)(&(code[i].opr)));
-				fprintf(fcode, "%4d %s %4d %4c\n", i, name[code[i].f], code[i].lev, *(char*)(&(code[i].opr)));
-				break;
+		if (code[i].f == lit) {
+			switch (code[i].lev) {
+				case 2:
+					printf("%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
+					fprintf(fcode, "%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
+					break;
+				case 3:
+					printf("%4d %s %4d %4f\n", i, name[code[i].f], code[i].lev, *(float*)(&(code[i].opr)));
+					fprintf(fcode, "%4d %s %4d %4f\n", i, name[code[i].f], code[i].lev, *(float*)(&(code[i].opr)));
+					break;
+				case 4:
+					printf("%4d %s %4d %s\n", i, name[code[i].f], code[i].lev, (code[i].opr));
+					fprintf(fcode, "%4d %s %4d %s\n", i, name[code[i].f], code[i].lev, (code[i].opr));
+					break;
+				case 5:
+					printf("%4d %s %4d %s\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)) == 1 ? "true" : "false");
+					fprintf(fcode, "%4d %s %4d %s\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)) == 1 ? "true" : "false");
+					break;
+				case 6:
+					printf("%4d %s %4d %4c\n", i, name[code[i].f], code[i].lev, *(char*)(&(code[i].opr)));
+					fprintf(fcode, "%4d %s %4d %4c\n", i, name[code[i].f], code[i].lev, *(char*)(&(code[i].opr)));
+					break;
+			}
+		}
+		else {
+			printf("%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
+						fprintf(fcode, "%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
 		}
 	}
 }
