@@ -47,7 +47,7 @@ struct symbol_table table[SYM_TABLE];	// Store all symbol
 enum data_type {
 	integer,		real,
 	single_char,	boolean,
-	string,
+	str,
 };
 
 struct data_stack {
@@ -83,10 +83,17 @@ float		outter_real;
 bool		outter_bool;
 char		outter_char;
 char		outter_string[STRING_LEN];
+int			output_int;
+float		output_real;
+bool		output_bool;
+char		output_char;
+char		output_char[STRING_LEN];
 int			err_num;
 int			constant_decl_or_not = 0;
 int 		var_decl_with_init_or_not = 0;
 int			cur_decl_type = -1;
+char		curr_read_write_ident[ID_NAME_LEN];
+int 		curr_address = 3;
 
 FILE*		fin;
 FILE*		ftable;
@@ -128,6 +135,7 @@ void 		gen(enum fct x, int y, byte* z);
 %type <number>			factor, term, additive_expr			// Indicate type of factor
 %type <number>			expression, var						// Indicate type of expression
 %type <number>			identlist, identarraylist, identdef
+%type <number>			simple_expr
 %%
 
 program: 				MAINSYM 
@@ -287,7 +295,46 @@ while_statement:		WHILESYM LPAREN expression RPAREN compound_statement
 write_statement:		WRITESYM LPAREN expression RPAREN SEMICOLON
 						;
 	
-read_statement:			READSYM LPAREN var RPAREN SEMICOLON
+read_statement:			READSYM LPAREN var RPAREN SEMICOLON {
+							// Look up from sym_table by ident name
+							// Then access address filled in the sym_table
+							int id_addr;
+							enum object tmp;
+							for (int i = 1; i <= sym_tab_tail; i++) {
+								if (strcmp(curr_read_write_ident, table[i].name) == 0) {
+									id_addr = table[i].addr;
+									tmp = table[i].kind;
+									break;
+								}
+							}
+							int lev, opran;
+							switch (tmp) {
+								case constant_int:
+								case variable_int:
+									lev = 2;
+									break;
+								case constant_real:
+								case variable_real:
+									lev = 3;
+									break;
+								case constant_string:
+								case variable_string:
+									lev = 4;
+									break;
+								case constant_char:
+								case variable_char:
+									lev = 6;
+									break;
+								case constant_bool:
+								case variable_bool:
+									lev = 5;
+									break;
+							}
+							opran = 20;
+							gen(opr, lev, (byte*)opran);
+							opran = id_addr;
+							gen(sto, 2, (byte*)opran);
+						}
 						;
 						
 compound_statement:		LBRACE statement_list RBRACE
@@ -305,7 +352,8 @@ var:					IDENT {
 							int i, flag = 0;
 							for (i = 1; i <= sym_tab_tail; i++) {
 								if (strcmp(name_buf, table[i].name) == 0) {
-									flag = 1;
+									flag++;
+									if (flag == 1) strcpy(curr_read_write_ident, $1);
 									switch (table[i].kind) {
 										case constant_int:
 										case variable_int:
@@ -328,11 +376,13 @@ var:					IDENT {
 											$$ = 5;
 											break;
 									}
-									break;
 								}
 							}
 							if (flag == 0) {
 								yyerror("Undefined variable!\n");
+							}
+							else if (flag > 1) {
+								yyerror("Duplicated variable defination!\n");
 							}
 						}
 					  | IDENT LBRACKET expression RBRACKET
@@ -342,17 +392,19 @@ expression_statement:	expression SEMICOLON
 					  | SEMICOLON
 						;
 
-expression:				var BECOMES expression 
-						{	
+expression:				var BECOMES expression {	
 							$$ = 0;
 						}
-					  | simple_expr
+					  | simple_expr {
+						  	$$ = $1;
+							  printf("expression %d\n", $$);
+					  	}
 						;
 
-simple_expr:			additive_expr 
-					  | additive_expr OPR additive_expr 
-					  | additive_expr SINGLEOPR 
-					  | SINGLEOPR additive_expr
+simple_expr:			additive_expr { $$ = $1; }
+					  | additive_expr OPR additive_expr { $$ = 5; }
+					  | additive_expr SINGLEOPR { $$ = $1; }
+					  | SINGLEOPR additive_expr { $$ = $2; }
 						;
 
 SINGLEOPR:				INCPLUS 
@@ -378,6 +430,7 @@ additive_expr:			term {
 						  	if ($1 != $3) {
 								yyerror("Incompitable Type between operator!\n");
 							}
+							$$ = $1;
 					  	}
 						;
 
@@ -392,9 +445,7 @@ term:					factor {
 						  	if ($1 != $3) {
 								yyerror("Incompitable Type between operator!\n");
 							}
-							else {
-
-							}
+							$$ = $1;
 					  	}
 						;
 
@@ -403,7 +454,7 @@ TIMESDEVIDE:			TIMES
 						;
 
 factor:					LPAREN expression RPAREN {
-							$$ = 0;
+							$$ = $2;
 						}
 					  | var {
 						  	$$ = $1;
@@ -466,7 +517,7 @@ void gen(enum fct x, int y, byte* z) {
 	code[vm_code_pointer].lev 	= y;
 	memcpy((void*)(&(code[vm_code_pointer].opr)), (const void*)&z, STRING_LEN);
 	vm_code_pointer++;
-	printf("%d\n", vm_code_pointer);
+	printf("vm pc: %d\n", vm_code_pointer);
 }
 
 void enter(enum object k) {
@@ -495,30 +546,35 @@ void enter(enum object k) {
 				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_int, STRING_LEN);
 				table[sym_tab_tail].init_or_not = 1;
 			}
+			table[sym_tab_tail].addr = curr_address++;
 			break;
 		case variable_real:
 			if (var_decl_with_init_or_not) {
 				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_int, STRING_LEN);
 				table[sym_tab_tail].init_or_not = 1;
 			}
+			table[sym_tab_tail].addr = curr_address++;
 			break;
 		case variable_string:
 			if (var_decl_with_init_or_not) {
 				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_string, STRING_LEN);
 				table[sym_tab_tail].init_or_not = 1;
 			}
+			table[sym_tab_tail].addr = curr_address++;
 			break;
 		case variable_char:
 			if (var_decl_with_init_or_not) {
 				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_char, STRING_LEN);
 				table[sym_tab_tail].init_or_not = 1;
 			}
+			table[sym_tab_tail].addr = curr_address++;
 			break;
 		case variable_bool:
 			if (var_decl_with_init_or_not) {
 				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_bool, STRING_LEN);
 				table[sym_tab_tail].init_or_not = 1;
 			}
+			table[sym_tab_tail].addr = curr_address++;
 			break;
 	}
 }
@@ -591,6 +647,8 @@ void display_sym_tab() {			// @todo: Finish sym-table displaying
 	}
 }
 
+int cur_pc = 0;
+
 void interpret() {
 	// Unknown error of unexpected output!
 	int pc = 0;
@@ -598,10 +656,16 @@ void interpret() {
 	int stack_top = 0;
 	struct instruction i;
 	struct data_stack s[STACK_SIZE];
-	byte in_buf[STRING_LEN];
+	int 		inbuf_int;
+	float		inbuf_real;
+	char		inbuf_char;
+	char		inbuf_string[STRING_LEN];
+	char		inbuf_bool[6];
+	int			bool_flag;
+	memset(inbuf_string, 0, sizeof inbuf_string);
 
 	printf("Start X0\n");
-	printf(fresult, "Start X0\n");
+	fprintf(fresult, "Start X0\n");
 	do {
 		i = code[pc];
 
@@ -655,17 +719,56 @@ void interpret() {
 						break;
 					case 18:							// 1 opr --
 						break;
-					case 19:							// output
-						
-						break;
-					case 20:							// input
-						printf("INPUT!\n");
-						scanf("%s", &in_buf);
-						memcpy((void*)(&(s[stack_top].val)), (const void*)&in_buf, STRING_LEN);
+					case 19:
+						printf("OUTPUT:\n");
 						switch (i.lev) {
 							case 2:
-
-							bnr
+								printf("%d\n", *((int*)&s[stack_top].val));    
+								break;
+							case 3:
+								printf("%f\n", *((float*)&s[stack_top].val));
+								break;
+							case 4:
+								printf("%s\n", s[stack_top].val);
+								break;
+							case 5:
+								printf("%s\n", (*(int*)&s[stack_top].val) == 1 ? "true" : "false");
+								break;
+							case 6:
+								printf("%d\n", *(char*)&s[stack_top].val);
+						}
+						stack_top--;
+						break;
+					case 20:							// input
+						stack_top++;
+						printf("INPUT:\n");
+						switch (i.lev) {
+							case 2:
+								scanf("%d", &inbuf_int);
+								memcpy((void*)(&(s[stack_top].val)), (const void*)&inbuf_int, STRING_LEN);
+								s[stack_top].t = integer;
+								break;
+							case 3:
+								scanf("%f", &inbuf_real);
+								memcpy((void*)(&(s[stack_top].val)), (const void*)&inbuf_real, STRING_LEN);
+								s[stack_top].t = real;
+								break;
+							case 4:
+								scanf("%s", inbuf_string);
+								memcpy((void*)(&(s[stack_top].val)), (const void*)inbuf_string, STRING_LEN);
+								s[stack_top].t = str;
+								break;
+							case 5:
+								scanf("%s", &inbuf_bool);
+								bool_flag = strcmp(inbuf_bool, "false");
+								memcpy((void*)(&(s[stack_top].val)), (const void*)&bool_flag, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 6:
+								scanf("%c", &inbuf_char);
+								memcpy((void*)(&(s[stack_top].val)), (const void*)&inbuf_char, STRING_LEN);
+								s[stack_top].t = single_char;
+								break;
 						}
 						break;
 				}
@@ -682,7 +785,7 @@ void interpret() {
 			case jpc:
 				break;
 		}
-	} while (1 == 0);
+	} while (cur_pc++ != vm_code_pointer);
 }
 
 void listall() {
@@ -692,8 +795,28 @@ void listall() {
 		{"cal"}, {"ini"}, {"jmp"}, {"jpc"},
 	};
 	for (i = 0; i < vm_code_pointer; i++) {
-		printf("%4d %s %4d %4s\n", i, name[code[i].f], code[i].lev, (byte*)(&(code[i].opr)));
-		fprintf(fcode, "%4d %s %4d %4s\n", i, name[code[i].f], code[i].lev, (byte*)(&(code[i].opr)));
+		switch (code[i].lev) {
+			case 2:
+				printf("%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
+				fprintf(fcode, "%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
+				break;
+			case 3:
+				printf("%4d %s %4d %4f\n", i, name[code[i].f], code[i].lev, *(float*)(&(code[i].opr)));
+				fprintf(fcode, "%4d %s %4d %4f\n", i, name[code[i].f], code[i].lev, *(float*)(&(code[i].opr)));
+				break;
+			case 4:
+				printf("%4d %s %4d %s\n", i, name[code[i].f], code[i].lev, (code[i].opr));
+				fprintf(fcode, "%4d %s %4d %s\n", i, name[code[i].f], code[i].lev, (code[i].opr));
+				break;
+			case 5:
+				printf("%4d %s %4d %s\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)) == 1 ? "true" : "false");
+				fprintf(fcode, "%4d %s %4d %s\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)) == 1 ? "true" : "false");
+				break;
+			case 6:
+				printf("%4d %s %4d %4c\n", i, name[code[i].f], code[i].lev, *(char*)(&(code[i].opr)));
+				fprintf(fcode, "%4d %s %4d %4c\n", i, name[code[i].f], code[i].lev, *(char*)(&(code[i].opr)));
+				break;
+		}
 	}
 }
 
@@ -714,8 +837,6 @@ int main(int argc, int **argv) {
 	init();
 	yyparse();
 	display_sym_tab();
-	int i = 20;
-	gen(opr, 0, (byte*)i);
-	//listall();
+	listall();
 	interpret();
 }
