@@ -11,12 +11,13 @@
 
 #define SYM_TABLE 		200				// Max Capicity of symbol table
 #define ID_NAME_LEN		20				// Max length of ident
-#define ADDRESS_MAX		8192			// Upper bound of the address
-#define DEPTH_MAX		10				// Max depth of declaration
+#define ADDRESS_MAX		8000			// Upper bound of the address
+#define DEPTH_MAX		10				// Max depth of declaration, Un used
 #define CODE_MAX		1000			// Max Virtual Machine code amount
-#define STACK_SIZE		2000			// Max Run-Time stack element amount
+#define STACK_SIZE		8000			// Max Run-Time stack element amount
 #define STRING_LEN		201				// Max length of const string
 #define ERROR_MAG_NUM	1145141919810	// For error processing
+#define MAX_ARR_DIM		10				// Max dimension of the array
 
 typedef unsigned char byte;
 
@@ -31,6 +32,16 @@ enum object {
 	variable_bool,
 	variable_string,
 	variable_char,
+	constant_int_array,
+	variable_int_array,
+	constant_real_array,
+	variable_real_array,
+	constant_char_array,
+	variable_char_array,
+	constant_bool_array,
+	variable_bool_array,
+	constant_string_array,
+	variable_string_array,
 };
 
 struct symbol_table {
@@ -39,6 +50,9 @@ struct symbol_table {
 	int 	addr;
 	byte 	val[STRING_LEN];			// Use byte to store all kind of data, use pointer to specify them
 	int		init_or_not;
+	int		array_size;
+	int 	array_const_or_not;
+	int 	array_dim[MAX_ARR_DIM];
 //	void*	val;						// Using pointer to specify unlimitted length constant string @todo: in the future.
 };
 
@@ -100,6 +114,9 @@ char		inbuf_char;
 char		inbuf_string[STRING_LEN];
 char		inbuf_bool[6];
 int			bool_flag;
+int			arr_size = 0;
+int			tmp_arr_list[MAX_ARR_DIM];
+int			tmp_arr_dim_idx = 0;
 struct 		data_stack s[STACK_SIZE];
 
 struct expression_result {
@@ -110,6 +127,8 @@ struct expression_result {
 	char	res_char;
 	char	res_string[STRING_LEN];
 };
+
+struct expression_result e_res;
 
 FILE*		fin;
 FILE*		ftable;
@@ -152,6 +171,7 @@ void 		gen(enum fct x, int y, byte* z);
 %type <number>			expression, var						// Indicate type of expression
 %type <number>			identlist, identarraylist, identdef
 %type <number>			simple_expr
+%type <number>			dimension, dimensionlist
 %%
 
 program: 				MAINSYM 
@@ -171,8 +191,17 @@ declaration_list:		declaration_list declaration_stat
 						;
 
 declaration_stat:		typeenum identlist SEMICOLON { /* Why can't me add sth after typeenum?? */ }
-					  | typeenum identarraylist SEMICOLON
+					  | typeenum identarraylist { 
+						  	constant_decl_or_not = 0; 
+							memset(tmp_arr_list, 0, sizeof tmp_arr_list); 
+							tmp_arr_dim_idx = 0;
+						} SEMICOLON
 					  | CONSTSYM typeenum { constant_decl_or_not = 1; } identlist { constant_decl_or_not = 0; } SEMICOLON
+					  | CONSTSYM typeenum { 
+						  	constant_decl_or_not = 1; 
+							memset(tmp_arr_list, 0, sizeof tmp_arr_list); 
+							tmp_arr_dim_idx = 0;
+						} identarraylist { constant_decl_or_not = 0; } SEMICOLON;
 						;
 
 identlist:				identdef 
@@ -273,9 +302,73 @@ identarraylist:			identarraydef
 					  |	identarraylist COMMA identarraydef
 						;
 				
-identarraydef:			IDENT LBRACKET INTEGER RBRACKET
+identarraydef:			IDENT LBRACKET dimensionlist RBRACKET {
+							arr_size = $3;
+							strcpy(id_name, $1);
+							int i;
+							for (i = 0; i < MAX_ARR_DIM; i++) {
+								int tmp;
+								tmp = tmp_arr_list[i];
+								tmp_arr_list[i] = tmp_arr_list[MAX_ARR_DIM - 1 - i];
+								tmp_arr_list[MAX_ARR_DIM - 1 - i] = tmp;
+							}
+							if (constant_decl_or_not == 1) {
+								switch (cur_decl_type) {
+									case 2:
+										enter(constant_int_array);
+										break;
+									case 3:
+										enter(constant_real_array);
+										break;
+									case 4:
+										enter(constant_string_array);
+										break;
+									case 5:
+										enter(constant_bool_array);
+										break;
+									case 6:
+										enter(constant_char_array);
+										break;
+								}
+							}
+							else {
+								switch (cur_decl_type) {
+									case 2:
+										enter(variable_int_array);
+										break;
+									case 3:
+										enter(variable_real_array);
+										break;
+									case 4:
+										enter(variable_string_array);
+										break;
+									case 5:
+										enter(variable_bool_array);
+										break;
+									case 6:
+										enter(variable_char_array);
+										break;
+								}
+							}
+							arr_size = 0;
+						}
 						;
-	
+
+dimensionlist:			dimension {
+							$$ = $1;
+							tmp_arr_list[tmp_arr_dim_idx++] = $1;
+						}
+					  | dimensionlist COMMA dimension {
+						  	$$ = $1 * $3;
+							tmp_arr_list[tmp_arr_dim_idx++] = $3;
+					  	}
+					  	;
+
+dimension:				INTEGER {
+							$$ = $1;
+						}
+						;
+
 statement_list:			statement_list statement 
 					  | statement 
 					  | 
@@ -543,6 +636,8 @@ factor:					LPAREN expression RPAREN {
 					  | INTEGER {
 						  	$$ = 2;
 							outter_int = $1;
+							e_res.t = integer;
+							e_res.res_int = $1;
 					  	}
 					  | REAL {
 						  	$$ = 3;
@@ -657,11 +752,30 @@ void enter(enum object k) {
 			}
 			table[sym_tab_tail].addr = curr_address++;
 			break;
+		case constant_int_array:
+		case constant_real_array:
+		case constant_bool_array:
+		case constant_char_array:
+		case constant_string_array:
+			table[sym_tab_tail].array_const_or_not = 1;
+		case variable_int_array:
+		case variable_real_array:
+		case variable_bool_array:
+		case variable_char_array:
+		case variable_string_array:
+			table[sym_tab_tail].addr = curr_address;
+			table[sym_tab_tail].array_size = arr_size;
+			curr_address += arr_size;
+			int j;
+			for (j = 0; j < MAX_ARR_DIM; j++) {
+				table[sym_tab_tail].array_dim[j] = tmp_arr_list[j];
+			}
+			break;
 	}
 }
 
 void display_sym_tab() {			// @todo: Finish sym-table displaying
-	int i;
+	int i, j;
 	for (i = 1; i <= sym_tab_tail; i++) {
 		switch (table[i].kind) {
 			case constant_int:
@@ -723,6 +837,28 @@ void display_sym_tab() {			// @todo: Finish sym-table displaying
 				printf("Initialized or not = %d\n", table[i].init_or_not);
 				fprintf(ftable, "%10d\tvariable\tbool\t%20s:\t", i, table[i].name);
 				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
+				break;
+			case constant_int_array:
+			case constant_real_array:
+			case constant_bool_array:
+			case constant_char_array:
+			case constant_string_array:
+				printf("%10d\tconstant\tarray\t%20s:\taddress:%10d => Dimension:", i, table[i].name, table[i].addr);
+				for (j = 0; j < MAX_ARR_DIM; j++) {
+					printf("%2d%c", table[i].array_dim[j], j == MAX_ARR_DIM - 1 ? '\n' : ',');
+				}
+				fprintf(ftable, "%10d\tconstant\tarray\t%20s:\taddress:%10d\n", i, table[i].name, table[i].addr);
+				break;
+			case variable_int_array:
+			case variable_real_array:
+			case variable_bool_array:
+			case variable_char_array:
+			case variable_string_array:
+				printf("%10d\tvariable\tarray\t%20s:\taddress:%10d => Dimension:", i, table[i].name, table[i].addr);
+				for (j = 0; j < MAX_ARR_DIM; j++) {
+					printf("%2d%c", table[i].array_dim[j], j == MAX_ARR_DIM - 1 ? '\n' : ',');
+				}
+				fprintf(ftable, "%10d\tvariable\tarray\t%20s:\taddress:%10d\n", i, table[i].name, table[i].addr);
 				break;
 		}
 	}
@@ -909,6 +1045,7 @@ void interpret() {
 			case cal:
 				break;
 			case ini:
+				stack_top = stack_top + *(int*)&i.opr;
 				break;
 			case jmp:
 				break;
