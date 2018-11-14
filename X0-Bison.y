@@ -94,6 +94,13 @@ int 		var_decl_with_init_or_not = 0;
 int			cur_decl_type = -1;
 char		curr_read_write_ident[ID_NAME_LEN];
 int 		curr_address = 3;
+int 		inbuf_int;
+float		inbuf_real;
+char		inbuf_char;
+char		inbuf_string[STRING_LEN];
+char		inbuf_bool[6];
+int			bool_flag;
+struct 		data_stack s[STACK_SIZE];
 
 struct expression_result {
 	enum	data_type	t;
@@ -517,11 +524,19 @@ factor:					LPAREN expression RPAREN {
 								}
 							}
 							if (constant_or_not) {										// using constant variable
-								gen(lit, $1, *table[idx].val);
-								printf("lit: %d %x\n", *(int*)&table[idx].val, *table[idx].val);
+								gen(lit, $1, table[idx].val);
 							}
 							else {
 								int var_addr = find_addr_of_ident(curr_read_write_ident);
+								int i;
+								for (i = 1; i <= sym_tab_tail; i++) {
+									if (strcmp(table[i].name, curr_read_write_ident) == 0) {
+										if (table[i].init_or_not == 1) {
+											memcpy((void*)&s[table[i].addr].val, (const void*)&table[i].val, STRING_LEN);
+											break;
+										}
+									}
+								}
 								gen(lod, $1, (byte*)var_addr);
 							}
 					  	}
@@ -581,7 +596,8 @@ void gen(enum fct x, int y, byte z[STRING_LEN]) {
 	// }
 	code[vm_code_pointer].f 	= x;
 	code[vm_code_pointer].lev 	= y;
-	memcpy((void*)&(code[vm_code_pointer].opr), (const void*)&z, STRING_LEN);
+	if (x == lit) memcpy((void*)(code[vm_code_pointer].opr), (const void*)z, STRING_LEN); // @todo: Fatal Problem, should be research!!!!
+	else memcpy((void*)&(code[vm_code_pointer].opr), (const void*)&z, STRING_LEN);
 	vm_code_pointer++;
 }
 
@@ -615,7 +631,7 @@ void enter(enum object k) {
 			break;
 		case variable_real:
 			if (var_decl_with_init_or_not) {
-				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_int, STRING_LEN);
+				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_real, STRING_LEN);
 				table[sym_tab_tail].init_or_not = 1;
 			}
 			table[sym_tab_tail].addr = curr_address++;
@@ -679,31 +695,31 @@ void display_sym_tab() {			// @todo: Finish sym-table displaying
 				fprintf(ftable, "value = %s\n", (*((int*)&table[i].val) == 0) ? "false" : "true");
 				break;
 			case variable_int:
-				printf("%10d\tvariable\tinteger\t%20s:\t", i, table[i].name);
+				printf("%10d\tvariable\tinteger\t%20s\taddress:%10d => ", i, table[i].name, table[i].addr);
 				printf("Initialized or not = %d\n", table[i].init_or_not);
 				fprintf(ftable, "%10d\tvariable\tinteger\t%20s:\t", i, table[i].name);
 				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_real:
-				printf("%10d\tvariable\treal\t%20s:\t", i, table[i].name);
+				printf("%10d\tvariable\treal\t%20s:\taddress:%10d => ", i, table[i].name, table[i].addr);
 				printf("Initialized or not = %d\n", table[i].init_or_not);
 				fprintf(ftable, "%10d\tvariable\treal\t%20s:\t", i, table[i].name);
 				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_char:
-				printf("%10d\tvariable\tcahr\t%20s:\t", i, table[i].name);
+				printf("%10d\tvariable\tcahr\t%20s:\taddress:%10d => ", i, table[i].name, table[i].addr);
 				printf("Initialized or not = %d\n", table[i].init_or_not);
 				fprintf(ftable, "%10d\tvariable\tchar\t%20s:\t", i, table[i].name);
 				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_string:
-				printf("%10d\tvariable\tstring\t%20s:\t", i, table[i].name);
+				printf("%10d\tvariable\tstring\t%20s:\taddress:%10d => ", i, table[i].name, table[i].addr);
 				printf("Initialized or not = %d\n", table[i].init_or_not);
 				fprintf(ftable, "%10d\tvariable\tstring\t%20s:\t", i, table[i].name);
 				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_bool:
-				printf("%10d\tvariable\tbool\t%20s:\t", i, table[i].name);
+				printf("%10d\tvariable\tbool\t%20s:\taddress:%10d => ", i, table[i].name, table[i].addr);
 				printf("Initialized or not = %d\n", table[i].init_or_not);
 				fprintf(ftable, "%10d\tvariable\tbool\t%20s:\t", i, table[i].name);
 				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
@@ -728,33 +744,25 @@ int cur_pc = 0;
 
 void interpret() {
 	// Unknown error of unexpected output!
-	int pc = 0;
-	int base = 1;
-	int stack_top = 3;
-	struct instruction i;
-	struct data_stack s[STACK_SIZE];
-	int 		inbuf_int;
-	float		inbuf_real;
-	char		inbuf_char;
-	char		inbuf_string[STRING_LEN];
-	char		inbuf_bool[6];
-	int			bool_flag;
+	int 		pc = 0;
+	int 		base = 1;
+	int 		stack_top = 2;
+	struct 		instruction i;
 	int			addr;
+	int			iter;
 	memset(inbuf_string, 0, sizeof inbuf_string);
 
+	printf("%f\n", *(float*)&s[4].val);
 	printf("Start X0\n");
 	fprintf(fresult, "Start X0\n");
 	do {
 		i = code[pc];
-
-		//printf("OPR: %d\n", *(int*)(&i.opr));
 		pc = pc + 1;
 		switch (i.f) {
 			case lit:
 				stack_top++;
-				curr_address++;
+				//curr_address++;
 				memcpy((void*)(&(s[stack_top].val)), (const void*)(&i.opr), STRING_LEN);
-				printf("Execute:%x %x\n", *i.opr, *s[stack_top].val);
 				break;
 			case opr:
 				switch (*(int*)&(i.opr)) {
@@ -806,7 +814,7 @@ void interpret() {
 								printf("%d\n", *((int*)&s[stack_top].val));    
 								break;
 							case 3:
-								printf("%f\n", *(float*)(&(s[stack_top].val)));        // e1 at this unit but when convert to %f it can't be displayed correctly.
+								printf("%f\n", *(float*)&s[4].val);        // e1 at this unit but when convert to %f it can't be displayed correctly.
 								break;
 							case 4:
 								printf("%s\n", s[stack_top].val);
@@ -856,7 +864,6 @@ void interpret() {
 				break;
 			case lod:
 				stack_top++;
-				printf("%d\n", stack_top);
 				addr = *(int*)&(i.opr);
 				memcpy((void*)(&(s[stack_top].val)), (const void*)(&(s[addr].val)), STRING_LEN);
 				switch (i.lev) {
@@ -946,7 +953,7 @@ void listall() {
 		}
 		else {
 			printf("%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
-						fprintf(fcode, "%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
+			fprintf(fcode, "%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
 		}
 	}
 }

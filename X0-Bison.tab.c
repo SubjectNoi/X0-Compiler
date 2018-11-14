@@ -159,6 +159,13 @@ int 		var_decl_with_init_or_not = 0;
 int			cur_decl_type = -1;
 char		curr_read_write_ident[ID_NAME_LEN];
 int 		curr_address = 3;
+int 		inbuf_int;
+float		inbuf_real;
+char		inbuf_char;
+char		inbuf_string[STRING_LEN];
+char		inbuf_bool[6];
+int			bool_flag;
+struct 		data_stack s[STACK_SIZE];
 
 struct expression_result {
 	enum	data_type	t;
@@ -183,7 +190,7 @@ void		enter(enum object k);
 void 		gen(enum fct x, int y, byte* z);
 
 
-#line 187 "X0-Bison.tab.c" /* yacc.c:339  */
+#line 194 "X0-Bison.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -283,7 +290,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 122 "X0-Bison.y" /* yacc.c:355  */
+#line 129 "X0-Bison.y" /* yacc.c:355  */
 
 	char 	*ident;
 	int 	number;
@@ -292,7 +299,7 @@ union YYSTYPE
 	int 	flag;
 	double 	realnumber;
 
-#line 296 "X0-Bison.tab.c" /* yacc.c:355  */
+#line 303 "X0-Bison.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -309,7 +316,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 313 "X0-Bison.tab.c" /* yacc.c:358  */
+#line 320 "X0-Bison.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -612,15 +619,15 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   151,   151,   155,   150,   161,   162,   163,   166,   167,
-     168,   168,   168,   171,   172,   175,   202,   258,   259,   260,
-     261,   262,   265,   266,   269,   272,   273,   274,   277,   278,
-     279,   280,   281,   282,   283,   284,   285,   286,   287,   288,
-     291,   294,   297,   298,   301,   304,   311,   363,   366,   369,
-     372,   412,   415,   416,   419,   440,   445,   446,   447,   448,
-     451,   452,   453,   456,   457,   458,   459,   460,   461,   462,
-     463,   464,   467,   470,   478,   479,   482,   485,   493,   494,
-     497,   500,   528,   532,   536,   540,   544,   548
+       0,   158,   158,   162,   157,   168,   169,   170,   173,   174,
+     175,   175,   175,   178,   179,   182,   209,   265,   266,   267,
+     268,   269,   272,   273,   276,   279,   280,   281,   284,   285,
+     286,   287,   288,   289,   290,   291,   292,   293,   294,   295,
+     298,   301,   304,   305,   308,   311,   318,   370,   373,   376,
+     379,   419,   422,   423,   426,   447,   452,   453,   454,   455,
+     458,   459,   460,   463,   464,   465,   466,   467,   468,   469,
+     470,   471,   474,   477,   485,   486,   489,   492,   500,   501,
+     504,   507,   543,   547,   551,   555,   559,   563
 };
 #endif
 
@@ -1506,40 +1513,40 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 151 "X0-Bison.y" /* yacc.c:1646  */
+#line 158 "X0-Bison.y" /* yacc.c:1646  */
     {	
 						}
-#line 1513 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1520 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 155 "X0-Bison.y" /* yacc.c:1646  */
+#line 162 "X0-Bison.y" /* yacc.c:1646  */
     {
 						
 						}
-#line 1521 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1528 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 166 "X0-Bison.y" /* yacc.c:1646  */
+#line 173 "X0-Bison.y" /* yacc.c:1646  */
     { /* Why can't me add sth after typeenum?? */ }
-#line 1527 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1534 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 168 "X0-Bison.y" /* yacc.c:1646  */
+#line 175 "X0-Bison.y" /* yacc.c:1646  */
     { constant_decl_or_not = 1; }
-#line 1533 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1540 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 168 "X0-Bison.y" /* yacc.c:1646  */
+#line 175 "X0-Bison.y" /* yacc.c:1646  */
     { constant_decl_or_not = 0; }
-#line 1539 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1546 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 175 "X0-Bison.y" /* yacc.c:1646  */
+#line 182 "X0-Bison.y" /* yacc.c:1646  */
     {
 							if (constant_decl_or_not == 1) {		// Constant without initialize, error
 								yyerror("Constants require initialization!\n");
@@ -1567,11 +1574,11 @@ yyreduce:
 								}
 							}
 	 					}
-#line 1571 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1578 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 202 "X0-Bison.y" /* yacc.c:1646  */
+#line 209 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	if (constant_decl_or_not == 1) {		// Constant declaration
 								if (cur_decl_type != (yyvsp[0].number)) {
@@ -1626,51 +1633,51 @@ yyreduce:
 								var_decl_with_init_or_not = 0;
 							}
 					  	}
-#line 1630 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1637 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 258 "X0-Bison.y" /* yacc.c:1646  */
+#line 265 "X0-Bison.y" /* yacc.c:1646  */
     { cur_decl_type = 2; }
-#line 1636 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1643 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 259 "X0-Bison.y" /* yacc.c:1646  */
+#line 266 "X0-Bison.y" /* yacc.c:1646  */
     { cur_decl_type = 4; }
-#line 1642 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1649 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 260 "X0-Bison.y" /* yacc.c:1646  */
+#line 267 "X0-Bison.y" /* yacc.c:1646  */
     { cur_decl_type = 5; }
-#line 1648 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1655 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 261 "X0-Bison.y" /* yacc.c:1646  */
+#line 268 "X0-Bison.y" /* yacc.c:1646  */
     { cur_decl_type = 3; }
-#line 1654 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1661 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 262 "X0-Bison.y" /* yacc.c:1646  */
+#line 269 "X0-Bison.y" /* yacc.c:1646  */
     { cur_decl_type = 6; }
-#line 1660 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1667 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 304 "X0-Bison.y" /* yacc.c:1646  */
+#line 311 "X0-Bison.y" /* yacc.c:1646  */
     {
 							int opran = 19;
 							gen(opr, (yyvsp[-2].number), (byte*)opran);
 
 						}
-#line 1670 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1677 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 311 "X0-Bison.y" /* yacc.c:1646  */
+#line 318 "X0-Bison.y" /* yacc.c:1646  */
     {
 							// Look up from sym_table by ident name
 							// Then access address filled in the sym_table
@@ -1721,11 +1728,11 @@ yyreduce:
 							opran = id_addr;
 							gen(sto, 2, (byte*)opran);
 						}
-#line 1725 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1732 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 372 "X0-Bison.y" /* yacc.c:1646  */
+#line 379 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = -1;												// var == -1 means IDENT not exists, for := using
 							char name_buf[81];
@@ -1766,11 +1773,11 @@ yyreduce:
 								yyerror("Duplicated variable defination!\n");
 							}
 						}
-#line 1770 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1777 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 419 "X0-Bison.y" /* yacc.c:1646  */
+#line 426 "X0-Bison.y" /* yacc.c:1646  */
     {	
 							(yyval.number) = 0;
 							if ((yyvsp[-2].number) == -1) {
@@ -1792,89 +1799,89 @@ yyreduce:
 							// 	}
 							// }
 						}
-#line 1796 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1803 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 440 "X0-Bison.y" /* yacc.c:1646  */
+#line 447 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = (yyvsp[0].number);
 					  	}
-#line 1804 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1811 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 445 "X0-Bison.y" /* yacc.c:1646  */
+#line 452 "X0-Bison.y" /* yacc.c:1646  */
     { (yyval.number) = (yyvsp[0].number); }
-#line 1810 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1817 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 446 "X0-Bison.y" /* yacc.c:1646  */
+#line 453 "X0-Bison.y" /* yacc.c:1646  */
     { (yyval.number) = 5; }
-#line 1816 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1823 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 447 "X0-Bison.y" /* yacc.c:1646  */
+#line 454 "X0-Bison.y" /* yacc.c:1646  */
     { (yyval.number) = (yyvsp[-1].number); }
-#line 1822 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1829 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 448 "X0-Bison.y" /* yacc.c:1646  */
+#line 455 "X0-Bison.y" /* yacc.c:1646  */
     { (yyval.number) = (yyvsp[0].number); }
-#line 1828 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1835 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 467 "X0-Bison.y" /* yacc.c:1646  */
+#line 474 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = (yyvsp[0].number);
 						}
-#line 1836 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1843 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 470 "X0-Bison.y" /* yacc.c:1646  */
+#line 477 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	if ((yyvsp[-2].number) != (yyvsp[0].number)) {
 								yyerror("Incompitable Type between operator!\n");
 							}
 							(yyval.number) = (yyvsp[-2].number);
 					  	}
-#line 1847 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1854 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 482 "X0-Bison.y" /* yacc.c:1646  */
+#line 489 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = (yyvsp[0].number);
 						}
-#line 1855 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1862 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 485 "X0-Bison.y" /* yacc.c:1646  */
+#line 492 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	if ((yyvsp[-2].number) != (yyvsp[0].number)) {
 								yyerror("Incompitable Type between operator!\n");
 							}
 							(yyval.number) = (yyvsp[-2].number);
 					  	}
-#line 1866 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1873 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 80:
-#line 497 "X0-Bison.y" /* yacc.c:1646  */
+#line 504 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = (yyvsp[-1].number);
 						}
-#line 1874 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1881 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 81:
-#line 500 "X0-Bison.y" /* yacc.c:1646  */
+#line 507 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = (yyvsp[0].number);
 							int constant_or_not = 0, idx = -1;
@@ -1895,72 +1902,80 @@ yyreduce:
 								}
 							}
 							if (constant_or_not) {										// using constant variable
-								gen(lit, (yyvsp[0].number), *table[idx].val);
-								printf("lit: %d %x\n", *(int*)&table[idx].val, *table[idx].val);
+								gen(lit, (yyvsp[0].number), table[idx].val);
 							}
 							else {
 								int var_addr = find_addr_of_ident(curr_read_write_ident);
+								int i;
+								for (i = 1; i <= sym_tab_tail; i++) {
+									if (strcmp(table[i].name, curr_read_write_ident) == 0) {
+										if (table[i].init_or_not == 1) {
+											memcpy((void*)&s[table[i].addr].val, (const void*)&table[i].val, STRING_LEN);
+											break;
+										}
+									}
+								}
 								gen(lod, (yyvsp[0].number), (byte*)var_addr);
 							}
 					  	}
-#line 1907 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1922 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 82:
-#line 528 "X0-Bison.y" /* yacc.c:1646  */
+#line 543 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 2;
 							outter_int = (yyvsp[0].number);
 					  	}
-#line 1916 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1931 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 83:
-#line 532 "X0-Bison.y" /* yacc.c:1646  */
+#line 547 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 3;
 							outter_real = (yyvsp[0].realnumber);
 					  	}
-#line 1925 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1940 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 84:
-#line 536 "X0-Bison.y" /* yacc.c:1646  */
+#line 551 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 4;
 							strcpy(outter_string, (yyvsp[0].text));
 					  	}
-#line 1934 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1949 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 85:
-#line 540 "X0-Bison.y" /* yacc.c:1646  */
+#line 555 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 5;
 							outter_bool = (yyvsp[0].flag);
 					  	}
-#line 1943 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1958 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 86:
-#line 544 "X0-Bison.y" /* yacc.c:1646  */
+#line 559 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 6;
 							outter_char = (yyvsp[0].single_char);
 					  	}
-#line 1952 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1967 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 87:
-#line 548 "X0-Bison.y" /* yacc.c:1646  */
+#line 563 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 7;
 					  	}
-#line 1960 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1975 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1964 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1979 "X0-Bison.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2188,7 +2203,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 553 "X0-Bison.y" /* yacc.c:1906  */
+#line 568 "X0-Bison.y" /* yacc.c:1906  */
 
 
 void init() {
@@ -2220,7 +2235,8 @@ void gen(enum fct x, int y, byte z[STRING_LEN]) {
 	// }
 	code[vm_code_pointer].f 	= x;
 	code[vm_code_pointer].lev 	= y;
-	memcpy((void*)&(code[vm_code_pointer].opr), (const void*)&z, STRING_LEN);
+	if (x == lit) memcpy((void*)(code[vm_code_pointer].opr), (const void*)z, STRING_LEN); // @todo: Fatal Problem, should be research!!!!
+	else memcpy((void*)&(code[vm_code_pointer].opr), (const void*)&z, STRING_LEN);
 	vm_code_pointer++;
 }
 
@@ -2254,7 +2270,7 @@ void enter(enum object k) {
 			break;
 		case variable_real:
 			if (var_decl_with_init_or_not) {
-				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_int, STRING_LEN);
+				memcpy((void*)&table[sym_tab_tail].val, (const void*)&outter_real, STRING_LEN);
 				table[sym_tab_tail].init_or_not = 1;
 			}
 			table[sym_tab_tail].addr = curr_address++;
@@ -2318,31 +2334,31 @@ void display_sym_tab() {			// @todo: Finish sym-table displaying
 				fprintf(ftable, "value = %s\n", (*((int*)&table[i].val) == 0) ? "false" : "true");
 				break;
 			case variable_int:
-				printf("%10d\tvariable\tinteger\t%20s:\t", i, table[i].name);
+				printf("%10d\tvariable\tinteger\t%20s\taddress:%10d => ", i, table[i].name, table[i].addr);
 				printf("Initialized or not = %d\n", table[i].init_or_not);
 				fprintf(ftable, "%10d\tvariable\tinteger\t%20s:\t", i, table[i].name);
 				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_real:
-				printf("%10d\tvariable\treal\t%20s:\t", i, table[i].name);
+				printf("%10d\tvariable\treal\t%20s:\taddress:%10d => ", i, table[i].name, table[i].addr);
 				printf("Initialized or not = %d\n", table[i].init_or_not);
 				fprintf(ftable, "%10d\tvariable\treal\t%20s:\t", i, table[i].name);
 				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_char:
-				printf("%10d\tvariable\tcahr\t%20s:\t", i, table[i].name);
+				printf("%10d\tvariable\tcahr\t%20s:\taddress:%10d => ", i, table[i].name, table[i].addr);
 				printf("Initialized or not = %d\n", table[i].init_or_not);
 				fprintf(ftable, "%10d\tvariable\tchar\t%20s:\t", i, table[i].name);
 				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_string:
-				printf("%10d\tvariable\tstring\t%20s:\t", i, table[i].name);
+				printf("%10d\tvariable\tstring\t%20s:\taddress:%10d => ", i, table[i].name, table[i].addr);
 				printf("Initialized or not = %d\n", table[i].init_or_not);
 				fprintf(ftable, "%10d\tvariable\tstring\t%20s:\t", i, table[i].name);
 				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_bool:
-				printf("%10d\tvariable\tbool\t%20s:\t", i, table[i].name);
+				printf("%10d\tvariable\tbool\t%20s:\taddress:%10d => ", i, table[i].name, table[i].addr);
 				printf("Initialized or not = %d\n", table[i].init_or_not);
 				fprintf(ftable, "%10d\tvariable\tbool\t%20s:\t", i, table[i].name);
 				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
@@ -2367,33 +2383,25 @@ int cur_pc = 0;
 
 void interpret() {
 	// Unknown error of unexpected output!
-	int pc = 0;
-	int base = 1;
-	int stack_top = 3;
-	struct instruction i;
-	struct data_stack s[STACK_SIZE];
-	int 		inbuf_int;
-	float		inbuf_real;
-	char		inbuf_char;
-	char		inbuf_string[STRING_LEN];
-	char		inbuf_bool[6];
-	int			bool_flag;
+	int 		pc = 0;
+	int 		base = 1;
+	int 		stack_top = 2;
+	struct 		instruction i;
 	int			addr;
+	int			iter;
 	memset(inbuf_string, 0, sizeof inbuf_string);
 
+	printf("%f\n", *(float*)&s[4].val);
 	printf("Start X0\n");
 	fprintf(fresult, "Start X0\n");
 	do {
 		i = code[pc];
-
-		//printf("OPR: %d\n", *(int*)(&i.opr));
 		pc = pc + 1;
 		switch (i.f) {
 			case lit:
 				stack_top++;
-				curr_address++;
+				//curr_address++;
 				memcpy((void*)(&(s[stack_top].val)), (const void*)(&i.opr), STRING_LEN);
-				printf("Execute:%x %x\n", *i.opr, *s[stack_top].val);
 				break;
 			case opr:
 				switch (*(int*)&(i.opr)) {
@@ -2445,7 +2453,7 @@ void interpret() {
 								printf("%d\n", *((int*)&s[stack_top].val));    
 								break;
 							case 3:
-								printf("%f\n", *(float*)(&(s[stack_top].val)));        // e1 at this unit but when convert to %f it can't be displayed correctly.
+								printf("%f\n", *(float*)&s[4].val);        // e1 at this unit but when convert to %f it can't be displayed correctly.
 								break;
 							case 4:
 								printf("%s\n", s[stack_top].val);
@@ -2495,7 +2503,6 @@ void interpret() {
 				break;
 			case lod:
 				stack_top++;
-				printf("%d\n", stack_top);
 				addr = *(int*)&(i.opr);
 				memcpy((void*)(&(s[stack_top].val)), (const void*)(&(s[addr].val)), STRING_LEN);
 				switch (i.lev) {
@@ -2585,7 +2592,7 @@ void listall() {
 		}
 		else {
 			printf("%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
-						fprintf(fcode, "%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
+			fprintf(fcode, "%4d %s %4d %4d\n", i, name[code[i].f], code[i].lev, *(int*)(&(code[i].opr)));
 		}
 	}
 }
