@@ -119,6 +119,7 @@ int			tmp_arr_list[MAX_ARR_DIM];
 int			tmp_arr_dim_idx = 0;
 struct 		data_stack s[STACK_SIZE];
 int 		stack_top = 2;
+int 		array_offset;
 
 struct expression_result {
 	enum	data_type	t;
@@ -173,6 +174,7 @@ void 		gen(enum fct x, int y, byte* z);
 %type <number>			identlist, identarraylist, identdef
 %type <number>			simple_expr
 %type <number>			dimension, dimensionlist, PLUSMINUS, TIMESDEVIDE
+%type <number>			expression_list						// This Expression only for ARRAY LOCATING!!!!!!!!
 %%
 
 program: 				MAINSYM 
@@ -482,6 +484,7 @@ do_statement:			DOSYM compound_statement WHILESYM LPAREN expression RPAREN SEMIC
 						;
 	
 var:					IDENT {
+							array_offset = 0;
 							$$ = -1;												// var == -1 means IDENT not exists, for := using
 							char name_buf[81];
 							strcpy(name_buf, $1);
@@ -521,7 +524,52 @@ var:					IDENT {
 								yyerror("Duplicated variable defination!\n");
 							}
 						}
-					  | IDENT LBRACKET expression RBRACKET
+					  | IDENT LBRACKET expression_list RBRACKET {
+						  	$$ = -1;
+							char name_buf[81];
+							strcpy(name_buf, $1);
+							int i, flag = 0;
+							for (i = 1; i <= sym_tab_tail; i++) {
+								if (strcmp(name_buf, table[i].name) == 0) {
+									flag++;
+									if (flag == 1) strcpy(curr_read_write_ident, $1);
+									switch (table[i].kind) {
+										case constant_int_array:
+										case variable_int_array:
+											$$ = 2;
+											break;
+										case constant_real_array:
+										case variable_real_array:
+											$$ = 3;
+											break;
+										case constant_string_array:
+										case variable_string_array:
+											$$ = 4;
+											break;
+										case constant_char_array:
+										case variable_char_array:
+											$$ = 6;
+											break;
+										case constant_bool_array:
+										case variable_bool_array:
+											$$ = 5;
+											break;
+									}
+								}
+							}
+					  	}
+						;
+
+expression_list:		expression {
+							int opran = 19;
+							gen(opr, $1, (byte*)opran);
+						}
+					  | expression_list COMMA expression {
+						  	$1 = $3;
+							$$ = $1;
+							int opran = 19;
+							gen(opr, $1, (byte*)opran);
+					  	}
 						;
 
 expression_statement:	expression SEMICOLON 
@@ -531,23 +579,10 @@ expression_statement:	expression SEMICOLON
 expression:				var BECOMES expression {	
 							$$ = 0;
 							if ($1 == -1) {
-								yyerror("Variable not dfined!\n");
+								yyerror("Variable not defined!\n");
 							}
-							// else {
-							// 	int addr = find_addr_of_ident(curr_read_write_ident);
-							// 	switch (expression_result.t) {
-							// 		case integer:
-							// 			break;
-							// 		case real:
-							// 			break;
-							// 		case boolean:
-							// 			break;
-							// 		case single_char:
-							// 			break;
-							// 		case str:
-							// 			break;
-							// 	}
-							// }
+							int var_addr = find_addr_of_ident(curr_read_write_ident);
+							gen(sto, $1, (byte*)var_addr);
 						}
 					  | simple_expr {
 						  	$$ = $1;
@@ -638,6 +673,7 @@ factor:					LPAREN expression RPAREN {
 								}
 							}
 							if (constant_or_not) {										// using constant variable
+								gen(lit, $1, table[idx].val);
 							}
 							else {
 								int var_addr = find_addr_of_ident(curr_read_write_ident);
