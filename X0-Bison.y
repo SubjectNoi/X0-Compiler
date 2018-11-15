@@ -600,11 +600,20 @@ term:					factor {
 						}
 					  | term TIMESDEVIDE factor {
 							$$ = $1;
+							int opran = ($2 == 1 ? 4 : ($2 == 2 ? 5 : 6));
+							gen(opr, $$, (byte*)opran);
 					  	}
 						;
 
-TIMESDEVIDE:			TIMES 
-					  | DEVIDE
+TIMESDEVIDE:			TIMES {
+							$$ = 1;
+						}
+					  | DEVIDE {
+						  	$$ = 2;
+					  	}
+					  | MOD {
+						  	$$ = 3;
+					  	}
 						;
 
 factor:					LPAREN expression RPAREN {
@@ -913,7 +922,23 @@ void interpret() {
 				stack_top++;
 				//curr_address++;
 				memcpy((void*)(&(s[stack_top].val)), (const void*)(&i.opr), STRING_LEN);
-				s[stack_top].t = i.lev;
+				switch (i.lev) {
+					case 2:
+						s[stack_top].t = integer;
+						break;
+					case 3:
+						s[stack_top].t = real;
+						break;
+					case 4:
+						s[stack_top].t = str;
+						break;
+					case 5:
+						s[stack_top].t = boolean;
+						break;
+					case 6:
+						s[stack_top].t = single_char;
+						break;
+				}
 				break;
 			case opr:
 				switch (*(int*)&(i.opr)) {
@@ -961,6 +986,7 @@ void interpret() {
 								}
 								break;
 							case str:
+								// @todo: implement strcat
 								break;
 							case single_char:
 							case boolean: 
@@ -970,12 +996,157 @@ void interpret() {
 						}
 						break;
 					case 3:								// 2 opr -
+						stack_top--;
+						switch (s[stack_top].t) {
+							case integer:
+								switch (s[stack_top + 1].t) {
+									case integer:
+										outter_int = *(int*)&s[stack_top].val - *(int*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+										s[stack_top].t = integer;
+										break;
+									case real:
+										s[stack_top + 1].t = real;
+										s[stack_top].t = real;
+										outter_real = (float)*(int*)&s[stack_top].val - *(float*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_real, STRING_LEN);
+										break;
+									default: {
+										yyerror("Operators Incompitable!\n");
+									}
+								}
+								break;
+							case real:
+								switch (s[stack_top + 1].t) {
+									case real:
+										outter_real = *(float*)&s[stack_top].val - *(float*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_real, STRING_LEN);
+										s[stack_top].t = real;
+										break;
+									case integer:
+										s[stack_top + 1].t = real;
+										s[stack_top].t = real;
+										outter_real = *(float*)&s[stack_top].val - (float)*(int*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_real, STRING_LEN);
+										break;
+								}
+								break;
+							case str:
+								break;
+							case single_char:
+							case boolean: 
+								yyerror("Operant not support - operation!\n");
+								break;
+						}
 						break;
 					case 4:								// 2 opr *
+						stack_top--;
+						switch (s[stack_top].t) {
+							case integer:
+								switch (s[stack_top + 1].t) {
+									case integer:
+										outter_int = *(int*)&s[stack_top].val * *(int*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+										s[stack_top].t = integer;
+										break;
+									case real:
+										s[stack_top + 1].t = real;
+										s[stack_top].t = real;
+										outter_real = (float)*(int*)&s[stack_top].val * *(float*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_real, STRING_LEN);
+										break;
+									default: {
+										yyerror("Operators Incompitable!\n");
+									}
+								}
+								break;
+							case real:
+								switch (s[stack_top + 1].t) {
+									case real:
+										outter_real = *(float*)&s[stack_top].val * *(float*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_real, STRING_LEN);
+										s[stack_top].t = real;
+										break;
+									case integer:
+										s[stack_top + 1].t = real;
+										s[stack_top].t = real;
+										outter_real = *(float*)&s[stack_top].val * (float)*(int*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_real, STRING_LEN);
+										break;
+								}
+								break;
+							case str:
+							case single_char:
+							case boolean: 
+								yyerror("Operant not support * operation!\n");
+								break;
+						}
 						break;
 					case 5:								// 2 opr /
+						stack_top--;
+						switch (s[stack_top].t) {
+							case integer:
+								switch (s[stack_top + 1].t) {
+									case integer:
+										outter_int = *(int*)&s[stack_top].val / *(int*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+										s[stack_top].t = integer;
+										break;
+									case real:
+										s[stack_top + 1].t = real;
+										s[stack_top].t = real;
+										outter_real = (float)*(int*)&s[stack_top].val / *(float*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_real, STRING_LEN);
+										break;
+									default: {
+										yyerror("Operators Incompitable!\n");
+									}
+								}
+								break;
+							case real:
+								switch (s[stack_top + 1].t) {
+									case real:
+										outter_real = *(float*)&s[stack_top].val / *(float*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_real, STRING_LEN);
+										s[stack_top].t = real;
+										break;
+									case integer:
+										s[stack_top + 1].t = real;
+										s[stack_top].t = real;
+										outter_real = *(float*)&s[stack_top].val / (float)*(int*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_real, STRING_LEN);
+										break;
+								}
+								break;
+							case str:
+							case single_char:
+							case boolean: 
+								yyerror("Operant not support / operation!\n");
+								break;
+						}
 						break;
 					case 6:								// 2 opr %
+						stack_top--;
+						switch (s[stack_top].t) {
+							case integer:
+								switch (s[stack_top + 1].t) {
+									case integer:
+										outter_int = *(int*)&s[stack_top].val % *(int*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+										s[stack_top].t = integer;
+										break;
+									default: {
+										yyerror("Operators Incompitable!\n");
+									}
+								}
+								break;
+							case real:
+							case str:
+							case single_char:
+							case boolean: 
+								yyerror("Operant not support / operation!\n");
+								break;
+						}
 						break;
 					case 7:								// 2 opr ==
 						break;
