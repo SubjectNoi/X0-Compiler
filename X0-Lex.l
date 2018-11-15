@@ -41,7 +41,8 @@ int 		line = 1;
 "yarimasune"	{return YARIMASUNESYM;}
 "114514"		{	printf("heng heng heng a a a a a, a a a a a a a, a a a a a a a a a a a a a a!!!!!\n"); 
 					printf("ni shi yi ge, yi ge, yi ge, a a a a a a a a a a a a a a a a!!!!!!!!!!!!!!\n");
-					return YAJU;
+					yylval.number = atoi(yytext);
+					return INTEGER;
 				}
 
 [A-Za-z]([A-Za-z]|[0-9]|_)*	{ 	yylval.ident = (char*) malloc(strlen(yytext) + 1);

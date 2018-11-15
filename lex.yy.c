@@ -997,12 +997,13 @@ YY_RULE_SETUP
 #line 42 "X0-Lex.l"
 {	printf("heng heng heng a a a a a, a a a a a a a, a a a a a a a a a a a a a a!!!!!\n"); 
 					printf("ni shi yi ge, yi ge, yi ge, a a a a a a a a a a a a a a a a!!!!!!!!!!!!!!\n");
-					return YAJU;
+					yylval.number = atoi(yytext);
+					return INTEGER;
 				}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 47 "X0-Lex.l"
+#line 48 "X0-Lex.l"
 { 	yylval.ident = (char*) malloc(strlen(yytext) + 1);
 								strcpy(yylval.ident, yytext);
 								return IDENT; 
@@ -1010,21 +1011,21 @@ YY_RULE_SETUP
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 51 "X0-Lex.l"
+#line 52 "X0-Lex.l"
 {	yylval.number = atoi(yytext);
 								return INTEGER;
 							}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 54 "X0-Lex.l"
+#line 55 "X0-Lex.l"
 {	yylval.realnumber = atof(yytext);
 											return REAL;
 									   }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 57 "X0-Lex.l"
+#line 58 "X0-Lex.l"
 {	yylval.text = (char*) malloc(strlen(yytext) + 1);
 								int i = 0, j = 0;
 								for (i = 0; i < strlen(yytext); i++) {
@@ -1038,152 +1039,152 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 67 "X0-Lex.l"
+#line 68 "X0-Lex.l"
 {	yylval.single_char = yytext[1];
 								return CHAR;
 							}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 71 "X0-Lex.l"
+#line 72 "X0-Lex.l"
 {return BECOMES;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 72 "X0-Lex.l"
+#line 73 "X0-Lex.l"
 {return LSS;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 73 "X0-Lex.l"
+#line 74 "X0-Lex.l"
 {return LEQ;}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 74 "X0-Lex.l"
+#line 75 "X0-Lex.l"
 {return GTR;}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 75 "X0-Lex.l"
+#line 76 "X0-Lex.l"
 {return GEQ;}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 76 "X0-Lex.l"
+#line 77 "X0-Lex.l"
 {return EQL;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 77 "X0-Lex.l"
+#line 78 "X0-Lex.l"
 {return NEQ;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 78 "X0-Lex.l"
+#line 79 "X0-Lex.l"
 {return PLUS;}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 79 "X0-Lex.l"
+#line 80 "X0-Lex.l"
 {return INCPLUS;}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 80 "X0-Lex.l"
+#line 81 "X0-Lex.l"
 {return MINUS;}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 81 "X0-Lex.l"
+#line 82 "X0-Lex.l"
 {return INCMINUS;}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 82 "X0-Lex.l"
+#line 83 "X0-Lex.l"
 {return TIMES;}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 83 "X0-Lex.l"
+#line 84 "X0-Lex.l"
 {return DEVIDE;}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 84 "X0-Lex.l"
+#line 85 "X0-Lex.l"
 {return LPAREN;}
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 85 "X0-Lex.l"
+#line 86 "X0-Lex.l"
 {return RPAREN;}
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 86 "X0-Lex.l"
+#line 87 "X0-Lex.l"
 {return LBRACE;}
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 87 "X0-Lex.l"
+#line 88 "X0-Lex.l"
 {return RBRACE;}
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 88 "X0-Lex.l"
+#line 89 "X0-Lex.l"
 {return LBRACKET;}
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 89 "X0-Lex.l"
+#line 90 "X0-Lex.l"
 {return RBRACKET;}
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 90 "X0-Lex.l"
+#line 91 "X0-Lex.l"
 {return MOD;}
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 91 "X0-Lex.l"
+#line 92 "X0-Lex.l"
 {return COMMA;}
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 92 "X0-Lex.l"
+#line 93 "X0-Lex.l"
 {return SEMICOLON;}
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 93 "X0-Lex.l"
+#line 94 "X0-Lex.l"
 {return XOR;}
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 94 "X0-Lex.l"
+#line 95 "X0-Lex.l"
 {return AND;}
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 95 "X0-Lex.l"
+#line 96 "X0-Lex.l"
 {return OR;}
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 96 "X0-Lex.l"
+#line 97 "X0-Lex.l"
 {return NOT;}
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 97 "X0-Lex.l"
+#line 98 "X0-Lex.l"
 {yyerror("Unknown Character!");}
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 99 "X0-Lex.l"
+#line 100 "X0-Lex.l"
 ECHO;
 	YY_BREAK
-#line 1187 "lex.yy.c"
+#line 1188 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2188,7 +2189,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 99 "X0-Lex.l"
+#line 100 "X0-Lex.l"
 
 
 void redirectInput(FILE *input) {
