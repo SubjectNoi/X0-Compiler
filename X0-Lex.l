@@ -25,7 +25,7 @@ int 		line = 1;
 "exit"			{return EXITSYM;}
 "false"			{yylval.flag = 0; return BOOL;}
 "for"			{return FORSYM;}
-"int"			{return INTSYM;}
+"integer"		{return INTSYM;}
 "if"			{return IFSYM;}
 "kibonohana"	{return KIBONOHANASYM;}		
 "main"			{return MAINSYM;}

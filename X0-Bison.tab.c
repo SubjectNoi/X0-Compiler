@@ -641,14 +641,14 @@ static const yytype_uint16 yyrline[] =
 {
        0,   179,   179,   183,   178,   189,   190,   191,   194,   195,
      195,   200,   200,   200,   201,   205,   201,   208,   209,   212,
-     239,   307,   308,   309,   310,   311,   314,   315,   318,   370,
-     374,   380,   385,   386,   387,   390,   391,   392,   393,   394,
-     395,   396,   397,   398,   399,   400,   401,   404,   407,   410,
-     411,   414,   417,   424,   476,   479,   482,   485,   525,   528,
-     529,   532,   553,   558,   559,   560,   561,   564,   565,   566,
-     569,   570,   571,   572,   573,   574,   575,   576,   577,   580,
-     583,   590,   593,   598,   601,   608,   611,   614,   619,   622,
-     657,   662,   667,   672,   677,   682
+     239,   306,   307,   308,   309,   310,   313,   314,   317,   369,
+     373,   379,   384,   385,   386,   389,   390,   391,   392,   393,
+     394,   395,   396,   397,   398,   399,   400,   403,   406,   409,
+     410,   413,   416,   423,   475,   478,   481,   484,   524,   527,
+     528,   531,   552,   557,   558,   559,   560,   563,   564,   565,
+     568,   569,   570,   571,   572,   573,   574,   575,   576,   579,
+     582,   589,   592,   597,   600,   607,   610,   613,   618,   621,
+     656,   661,   666,   671,   676,   681
 };
 #endif
 
@@ -1696,47 +1696,46 @@ yyreduce:
 										break;
 									}
 								}
-								printf("%d\n", id_addr);
 								gen(sto, cur_decl_type, (byte*)id_addr);
 								var_decl_with_init_or_not = 0;
 							}
 							stack_top --;
 					  	}
-#line 1706 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1705 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 307 "X0-Bison.y" /* yacc.c:1646  */
+#line 306 "X0-Bison.y" /* yacc.c:1646  */
     { cur_decl_type = 2; }
-#line 1712 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1711 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 308 "X0-Bison.y" /* yacc.c:1646  */
+#line 307 "X0-Bison.y" /* yacc.c:1646  */
     { cur_decl_type = 4; }
-#line 1718 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1717 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 309 "X0-Bison.y" /* yacc.c:1646  */
+#line 308 "X0-Bison.y" /* yacc.c:1646  */
     { cur_decl_type = 5; }
-#line 1724 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1723 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 310 "X0-Bison.y" /* yacc.c:1646  */
+#line 309 "X0-Bison.y" /* yacc.c:1646  */
     { cur_decl_type = 3; }
-#line 1730 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1729 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 311 "X0-Bison.y" /* yacc.c:1646  */
+#line 310 "X0-Bison.y" /* yacc.c:1646  */
     { cur_decl_type = 6; }
-#line 1736 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1735 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 318 "X0-Bison.y" /* yacc.c:1646  */
+#line 317 "X0-Bison.y" /* yacc.c:1646  */
     {
 							arr_size = (yyvsp[-1].number);
 							strcpy(id_name, (yyvsp[-3].ident));
@@ -1787,47 +1786,47 @@ yyreduce:
 							}
 							arr_size = 0;
 						}
-#line 1791 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1790 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 370 "X0-Bison.y" /* yacc.c:1646  */
+#line 369 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = (yyvsp[0].number);
 							tmp_arr_list[tmp_arr_dim_idx++] = (yyvsp[0].number);
 						}
-#line 1800 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1799 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 374 "X0-Bison.y" /* yacc.c:1646  */
+#line 373 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = (yyvsp[-2].number) * (yyvsp[0].number);
 							tmp_arr_list[tmp_arr_dim_idx++] = (yyvsp[0].number);
 					  	}
-#line 1809 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1808 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 380 "X0-Bison.y" /* yacc.c:1646  */
+#line 379 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = (yyvsp[0].number);
 						}
-#line 1817 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1816 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 417 "X0-Bison.y" /* yacc.c:1646  */
+#line 416 "X0-Bison.y" /* yacc.c:1646  */
     {
 							int opran = 19;
 							gen(opr, (yyvsp[-2].number), (byte*)opran);
 
 						}
-#line 1827 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1826 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 424 "X0-Bison.y" /* yacc.c:1646  */
+#line 423 "X0-Bison.y" /* yacc.c:1646  */
     {
 							// Look up from sym_table by ident name
 							// Then access address filled in the sym_table
@@ -1878,11 +1877,11 @@ yyreduce:
 							opran = id_addr;
 							gen(sto, lev, (byte*)opran);
 						}
-#line 1882 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1881 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 485 "X0-Bison.y" /* yacc.c:1646  */
+#line 484 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = -1;												// var == -1 means IDENT not exists, for := using
 							char name_buf[81];
@@ -1923,11 +1922,11 @@ yyreduce:
 								yyerror("Duplicated variable defination!\n");
 							}
 						}
-#line 1927 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1926 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 532 "X0-Bison.y" /* yacc.c:1646  */
+#line 531 "X0-Bison.y" /* yacc.c:1646  */
     {	
 							(yyval.number) = 0;
 							if ((yyvsp[-2].number) == -1) {
@@ -1949,127 +1948,127 @@ yyreduce:
 							// 	}
 							// }
 						}
-#line 1953 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1952 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 553 "X0-Bison.y" /* yacc.c:1646  */
+#line 552 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = (yyvsp[0].number);
 					  	}
-#line 1961 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1960 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 558 "X0-Bison.y" /* yacc.c:1646  */
+#line 557 "X0-Bison.y" /* yacc.c:1646  */
     { (yyval.number) = (yyvsp[0].number); }
-#line 1967 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1966 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 559 "X0-Bison.y" /* yacc.c:1646  */
+#line 558 "X0-Bison.y" /* yacc.c:1646  */
     { (yyval.number) = 5; }
-#line 1973 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1972 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 560 "X0-Bison.y" /* yacc.c:1646  */
+#line 559 "X0-Bison.y" /* yacc.c:1646  */
     { (yyval.number) = (yyvsp[-1].number); }
-#line 1979 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1978 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 561 "X0-Bison.y" /* yacc.c:1646  */
+#line 560 "X0-Bison.y" /* yacc.c:1646  */
     { (yyval.number) = (yyvsp[0].number); }
-#line 1985 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1984 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 79:
-#line 580 "X0-Bison.y" /* yacc.c:1646  */
+#line 579 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = (yyvsp[0].number);
 						}
-#line 1993 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 1992 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 80:
-#line 583 "X0-Bison.y" /* yacc.c:1646  */
+#line 582 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = (yyvsp[-2].number);
 							int opran = ((yyvsp[-1].number) == 1 ? 2 : 3);
 							gen(opr, (yyval.number), (byte*)opran);
 					  	}
-#line 2003 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2002 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 81:
-#line 590 "X0-Bison.y" /* yacc.c:1646  */
+#line 589 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = 1;
 						}
-#line 2011 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2010 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 82:
-#line 593 "X0-Bison.y" /* yacc.c:1646  */
+#line 592 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 2;
 					 	}
-#line 2019 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2018 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 83:
-#line 598 "X0-Bison.y" /* yacc.c:1646  */
+#line 597 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = (yyvsp[0].number);
 						}
-#line 2027 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2026 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 84:
-#line 601 "X0-Bison.y" /* yacc.c:1646  */
+#line 600 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = (yyvsp[-2].number);
 							int opran = ((yyvsp[-1].number) == 1 ? 4 : ((yyvsp[-1].number) == 2 ? 5 : 6));
 							gen(opr, (yyval.number), (byte*)opran);
 					  	}
-#line 2037 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2036 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 85:
-#line 608 "X0-Bison.y" /* yacc.c:1646  */
+#line 607 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = 1;
 						}
-#line 2045 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2044 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 86:
-#line 611 "X0-Bison.y" /* yacc.c:1646  */
+#line 610 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 2;
 					  	}
-#line 2053 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2052 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 87:
-#line 614 "X0-Bison.y" /* yacc.c:1646  */
+#line 613 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 3;
 					  	}
-#line 2061 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2060 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 88:
-#line 619 "X0-Bison.y" /* yacc.c:1646  */
+#line 618 "X0-Bison.y" /* yacc.c:1646  */
     {
 							(yyval.number) = (yyvsp[-1].number);
 						}
-#line 2069 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2068 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 89:
-#line 622 "X0-Bison.y" /* yacc.c:1646  */
+#line 621 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = (yyvsp[0].number);
 							int constant_or_not = 0, idx = -1;
@@ -2105,69 +2104,69 @@ yyreduce:
 								gen(lod, (yyvsp[0].number), (byte*)var_addr);
 							}
 					  	}
-#line 2109 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2108 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 90:
-#line 657 "X0-Bison.y" /* yacc.c:1646  */
+#line 656 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 2;
 							outter_int = (yyvsp[0].number);
 							gen(lit, 2, (byte*)&outter_int);
 					  	}
-#line 2119 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2118 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 91:
-#line 662 "X0-Bison.y" /* yacc.c:1646  */
+#line 661 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 3;
 							outter_real = (yyvsp[0].realnumber);
 							gen(lit, 3, (byte*)&outter_real);
 					  	}
-#line 2129 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2128 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 92:
-#line 667 "X0-Bison.y" /* yacc.c:1646  */
+#line 666 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 4;
 							strcpy(outter_string, (yyvsp[0].text));
 							gen(lit, 4, outter_string);
 					  	}
-#line 2139 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2138 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 93:
-#line 672 "X0-Bison.y" /* yacc.c:1646  */
+#line 671 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 5;
 							outter_bool = (yyvsp[0].flag);
 							gen(lit, 5, (byte*)&outter_bool);
 					  	}
-#line 2149 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2148 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 94:
-#line 677 "X0-Bison.y" /* yacc.c:1646  */
+#line 676 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 6;
 							outter_char = (yyvsp[0].single_char);
 							gen(lit, 6, (byte*)&outter_char);
 					  	}
-#line 2159 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2158 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
   case 95:
-#line 682 "X0-Bison.y" /* yacc.c:1646  */
+#line 681 "X0-Bison.y" /* yacc.c:1646  */
     {
 						  	(yyval.number) = 7;
 					  	}
-#line 2167 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2166 "X0-Bison.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2171 "X0-Bison.tab.c" /* yacc.c:1646  */
+#line 2170 "X0-Bison.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2395,7 +2394,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 687 "X0-Bison.y" /* yacc.c:1906  */
+#line 686 "X0-Bison.y" /* yacc.c:1906  */
 
 
 void init() {
@@ -2623,7 +2622,6 @@ void interpret() {
 	int			iter;
 	memset(inbuf_string, 0, sizeof inbuf_string);
 
-	printf("%f\n", *(float*)&s[4].val);
 	printf("Start X0\n");
 	fprintf(fresult, "Start X0\n");
 	do {
@@ -2632,7 +2630,6 @@ void interpret() {
 		switch (i.f) {
 			case lit:
 				stack_top++;
-				//curr_address++;
 				memcpy((void*)(&(s[stack_top].val)), (const void*)(&i.opr), STRING_LEN);
 				switch (i.lev) {
 					case 2:
@@ -2667,6 +2664,7 @@ void interpret() {
 							case integer:
 								switch (s[stack_top + 1].t) {
 									case integer:
+										printf("%d %d\n", *(int*)&s[stack_top].val, *(int*)&s[stack_top + 1].val);
 										outter_int = *(int*)&s[stack_top].val + *(int*)&s[stack_top + 1].val;
 										memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
 										s[stack_top].t = integer;
@@ -2885,7 +2883,7 @@ void interpret() {
 					case 18:							// 1 opr --
 						break;
 					case 19:
-						printf("OUTPUT:\n");
+						//printf("OUTPUT:\n");
 						switch (s[stack_top].t) {
 							case integer:
 								printf("%d\n", *(int*)&s[stack_top].val);    
@@ -2906,8 +2904,8 @@ void interpret() {
 						stack_top--;
 						break;
 					case 20:							// input
-						stack_top++;
-						printf("INPUT:\n");
+						//stack_top++;
+						//printf("INPUT:\n");
 						switch (i.lev) {
 							case 2:
 								scanf("%d", &inbuf_int);
@@ -3082,4 +3080,5 @@ int main(int argc, int **argv) {
 	display_sym_tab();
 	listall();
 	interpret();
+	//print_data_stack();
 }

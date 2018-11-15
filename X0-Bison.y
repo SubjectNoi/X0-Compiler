@@ -296,7 +296,6 @@ identdef:				IDENT {
 										break;
 									}
 								}
-								printf("%d\n", id_addr);
 								gen(sto, cur_decl_type, (byte*)id_addr);
 								var_decl_with_init_or_not = 0;
 							}
@@ -911,7 +910,6 @@ void interpret() {
 	int			iter;
 	memset(inbuf_string, 0, sizeof inbuf_string);
 
-	printf("%f\n", *(float*)&s[4].val);
 	printf("Start X0\n");
 	fprintf(fresult, "Start X0\n");
 	do {
@@ -920,7 +918,6 @@ void interpret() {
 		switch (i.f) {
 			case lit:
 				stack_top++;
-				//curr_address++;
 				memcpy((void*)(&(s[stack_top].val)), (const void*)(&i.opr), STRING_LEN);
 				switch (i.lev) {
 					case 2:
@@ -1173,7 +1170,7 @@ void interpret() {
 					case 18:							// 1 opr --
 						break;
 					case 19:
-						printf("OUTPUT:\n");
+						//printf("OUTPUT:\n");
 						switch (s[stack_top].t) {
 							case integer:
 								printf("%d\n", *(int*)&s[stack_top].val);    
@@ -1194,8 +1191,8 @@ void interpret() {
 						stack_top--;
 						break;
 					case 20:							// input
-						stack_top++;
-						printf("INPUT:\n");
+						//stack_top++;
+						//printf("INPUT:\n");
 						switch (i.lev) {
 							case 2:
 								scanf("%d", &inbuf_int);
@@ -1370,4 +1367,5 @@ int main(int argc, int **argv) {
 	display_sym_tab();
 	listall();
 	interpret();
+	//print_data_stack();
 }
