@@ -172,7 +172,7 @@ void 		gen(enum fct x, int y, byte* z);
 %type <number>			expression, var						// Indicate type of expression
 %type <number>			identlist, identarraylist, identdef
 %type <number>			simple_expr
-%type <number>			dimension, dimensionlist
+%type <number>			dimension, dimensionlist, PLUSMINUS, TIMESDEVIDE
 %%
 
 program: 				MAINSYM 
@@ -264,10 +264,10 @@ identdef:				IDENT {
 							}
 							else {									// Variable declaration, pre-init required?
 								var_decl_with_init_or_not = 1;
-								if (cur_decl_type != $3) {
-									yyerror("Incopnpitable type!\n");
-								}
-								else {
+								// if (cur_decl_type != $3) {
+								// 	yyerror("Incopnpitable type!\n");
+								// }
+								// else {
 								strcpy(id_name, $1);
 									switch (cur_decl_type) {
 										case 2:
@@ -286,9 +286,21 @@ identdef:				IDENT {
 											enter(variable_char);
 											break;
 									}
+								//}
+								int id_addr = 0;
+								enum object tmp;
+								for (int i = 1; i <= sym_tab_tail; i++) {
+									if (strcmp($1, table[i].name) == 0) {
+										id_addr = table[i].addr;
+										tmp = table[i].kind;
+										break;
+									}
 								}
+								printf("%d\n", id_addr);
+								gen(sto, cur_decl_type, (byte*)id_addr);
 								var_decl_with_init_or_not = 0;
 							}
+							stack_top --;
 					  	}
 						;
 
@@ -569,24 +581,24 @@ additive_expr:			term {
 							$$ = $1;
 						}
 					  | additive_expr PLUSMINUS term {
-						  	if ($1 != $3) {
-								yyerror("Incompitable Type between operator!\n");
-							}
 							$$ = $1;
+							int opran = ($2 == 1 ? 2 : 3);
+							gen(opr, $$, (byte*)opran);
 					  	}
 						;
 
-PLUSMINUS:				PLUS 
-					  | MINUS
+PLUSMINUS:				PLUS {
+							$$ = 1;
+						}
+					  | MINUS {
+						  	$$ = 2;
+					 	}
 						;
 
 term:					factor {
 							$$ = $1;
 						}
 					  | term TIMESDEVIDE factor {
-						  	if ($1 != $3) {
-								yyerror("Incompitable Type between operator!\n");
-							}
 							$$ = $1;
 					  	}
 						;
@@ -618,7 +630,6 @@ factor:					LPAREN expression RPAREN {
 								}
 							}
 							if (constant_or_not) {										// using constant variable
-								gen(lit, $1, table[idx].val);
 							}
 							else {
 								int var_addr = find_addr_of_ident(curr_read_write_ident);
@@ -637,24 +648,27 @@ factor:					LPAREN expression RPAREN {
 					  | INTEGER {
 						  	$$ = 2;
 							outter_int = $1;
-							e_res.t = integer;
-							e_res.res_int = $1;
+							gen(lit, 2, (byte*)&outter_int);
 					  	}
 					  | REAL {
 						  	$$ = 3;
 							outter_real = $1;
+							gen(lit, 3, (byte*)&outter_real);
 					  	}
 					  | STRING {
 						  	$$ = 4;
 							strcpy(outter_string, $1);
+							gen(lit, 4, outter_string);
 					  	}
 					  | BOOL {
 						  	$$ = 5;
 							outter_bool = $1;
+							gen(lit, 5, (byte*)&outter_bool);
 					  	}
 					  | CHAR {
 						  	$$ = 6;
 							outter_char = $1;
+							gen(lit, 6, (byte*)&outter_char);
 					  	}
 					  | YAJU {
 						  	$$ = 7;
@@ -724,7 +738,6 @@ void enter(enum object k) {
 				table[sym_tab_tail].init_or_not = 1;
 			}
 			table[sym_tab_tail].addr = curr_address++;
-			stack_top++;
 			break;
 		case variable_real:
 			if (var_decl_with_init_or_not) {
@@ -732,7 +745,6 @@ void enter(enum object k) {
 				table[sym_tab_tail].init_or_not = 1;
 			}
 			table[sym_tab_tail].addr = curr_address++;
-			stack_top++;
 			break;
 		case variable_string:
 			if (var_decl_with_init_or_not) {
@@ -740,7 +752,6 @@ void enter(enum object k) {
 				table[sym_tab_tail].init_or_not = 1;
 			}
 			table[sym_tab_tail].addr = curr_address++;
-			stack_top++;
 			break;
 		case variable_char:
 			if (var_decl_with_init_or_not) {
@@ -748,7 +759,6 @@ void enter(enum object k) {
 				table[sym_tab_tail].init_or_not = 1;
 			}
 			table[sym_tab_tail].addr = curr_address++;
-			stack_top++;
 			break;
 		case variable_bool:
 			if (var_decl_with_init_or_not) {
@@ -756,7 +766,6 @@ void enter(enum object k) {
 				table[sym_tab_tail].init_or_not = 1;
 			}
 			table[sym_tab_tail].addr = curr_address++;
-			stack_top++;
 			break;
 		case constant_int_array:
 		case constant_real_array:
@@ -833,7 +842,7 @@ void display_sym_tab() {			// @todo: Finish sym-table displaying
 				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
 				break;
 			case variable_string:
-				printf("%10d\tvariable\tstring\t%20s:\taddress:%10d => ", i, table[i].name, table[i].addr);
+				printf("%10d\tvariable\tstring\t%20s\taddress:%10d => ", i, table[i].name, table[i].addr);
 				printf("Initialized or not = %d\n", table[i].init_or_not);
 				fprintf(ftable, "%10d\tvariable\tstring\t%20s:\t", i, table[i].name);
 				fprintf(ftable, "Initialized or not = %d\n", table[i].init_or_not);
@@ -904,6 +913,7 @@ void interpret() {
 				stack_top++;
 				//curr_address++;
 				memcpy((void*)(&(s[stack_top].val)), (const void*)(&i.opr), STRING_LEN);
+				s[stack_top].t = i.lev;
 				break;
 			case opr:
 				switch (*(int*)&(i.opr)) {
@@ -915,6 +925,49 @@ void interpret() {
 					case 1:								// Negative
 						break;
 					case 2:								// 2 opr +
+						stack_top--;
+						switch (s[stack_top].t) {
+							case integer:
+								switch (s[stack_top + 1].t) {
+									case integer:
+										outter_int = *(int*)&s[stack_top].val + *(int*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+										s[stack_top].t = integer;
+										break;
+									case real:
+										s[stack_top + 1].t = real;
+										s[stack_top].t = real;
+										outter_real = (float)*(int*)&s[stack_top].val + *(float*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_real, STRING_LEN);
+										break;
+									default: {
+										yyerror("Operators Incompitable!\n");
+									}
+								}
+								break;
+							case real:
+								switch (s[stack_top + 1].t) {
+									case real:
+										outter_real = *(float*)&s[stack_top].val + *(float*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_real, STRING_LEN);
+										s[stack_top].t = real;
+										break;
+									case integer:
+										s[stack_top + 1].t = real;
+										s[stack_top].t = real;
+										outter_real = *(float*)&s[stack_top].val + (float)*(int*)&s[stack_top + 1].val;
+										memcpy((void*)s[stack_top].val, (const void*)&outter_real, STRING_LEN);
+										break;
+								}
+								break;
+							case str:
+								break;
+							case single_char:
+							case boolean: 
+								yyerror("Operant not support + operation!\n");
+								break;
+							
+						}
 						break;
 					case 3:								// 2 opr -
 						break;
@@ -950,20 +1003,20 @@ void interpret() {
 						break;
 					case 19:
 						printf("OUTPUT:\n");
-						switch (i.lev) {
-							case 2:
+						switch (s[stack_top].t) {
+							case integer:
 								printf("%d\n", *(int*)&s[stack_top].val);    
 								break;
-							case 3:
+							case real:
 								printf("%f\n", *(float*)&s[stack_top].val);        // e1 at this unit but when convert to %f it can't be displayed correctly.
 								break;
-							case 4:
+							case str:
 								printf("%s\n", s[stack_top].val);
 								break;
-							case 5:
+							case boolean:
 								printf("%s\n", (*(int*)&s[stack_top].val) == 0 ? "false" : "true");
 								break;
-							case 6:
+							case single_char:
 								printf("%c\n", *(char*)&s[stack_top].val);
 								break;
 						}
@@ -1060,6 +1113,8 @@ void interpret() {
 			case jpc:
 				break;
 		}
+
+		//print_data_stack();
 	} while (cur_pc++ != vm_code_pointer);
 }
 
@@ -1102,7 +1157,27 @@ void listall() {
 }
 
 void print_data_stack() {
-	
+	int i = 3;
+	for (; i <= stack_top; i++) {
+		switch (s[i].t) {
+			case integer:
+				printf("%d\t\t%d\n", i, *(int*)&s[i].val);
+				break;
+			case real:
+				printf("%d\t\t%f\n", i, *(float*)&s[i].val);
+				break;
+			case str:
+				printf("%d\t\t%s\n", i, s[i].val);
+				break;
+			case boolean:
+				printf("%d\t\t%s\n", i, *(int*)&s[i].val == 0 ? "false" : "true");
+				break;
+			case single_char:
+				printf("%d\t\t%c\n", i, *(char*)&s[i].val);
+				break;
+		}
+	}
+	printf("==========================================================================\n");
 }
 
 int main(int argc, int **argv) {
