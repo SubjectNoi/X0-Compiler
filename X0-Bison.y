@@ -72,7 +72,7 @@ struct data_stack {
 enum fct {
 	lit,	opr,	lod,
 	sto,	cal,	ini,
-	jmp,	jpc,
+	jmp,	jpc,	off,
 };
 
 struct instruction {
@@ -120,6 +120,8 @@ int			tmp_arr_dim_idx = 0;
 struct 		data_stack s[STACK_SIZE];
 int 		stack_top = 2;
 int 		array_offset;
+int 		tmp_arr_cur_dim;
+int 		glob_var_addr;
 
 struct expression_result {
 	enum	data_type	t;
@@ -172,7 +174,7 @@ void 		gen(enum fct x, int y, byte* z);
 %type <number>			factor, term, additive_expr			// Indicate type of factor
 %type <number>			expression, var						// Indicate type of expression
 %type <number>			identlist, identarraylist, identdef
-%type <number>			simple_expr
+%type <number>			simple_expr, SINGLEOPR
 %type <number>			dimension, dimensionlist, PLUSMINUS, TIMESDEVIDE
 %type <number>			expression_list						// This Expression only for ARRAY LOCATING!!!!!!!!
 %%
@@ -301,7 +303,6 @@ identdef:				IDENT {
 								gen(sto, cur_decl_type, (byte*)id_addr);
 								var_decl_with_init_or_not = 0;
 							}
-							stack_top --;
 					  	}
 						;
 
@@ -326,6 +327,12 @@ identarraydef:			IDENT LBRACKET dimensionlist RBRACKET {
 								tmp_arr_list[i] = tmp_arr_list[MAX_ARR_DIM - 1 - i];
 								tmp_arr_list[MAX_ARR_DIM - 1 - i] = tmp;
 							}
+							// for (i = MAX_ARR_DIM - 1; i >= 0; i--) {
+							// 	if (tmp_arr_list[i]) {
+							// 		tmp_arr_list[i] = 1;
+							// 		break;
+							// 	}
+							// }
 							if (constant_decl_or_not == 1) {
 								switch (cur_decl_type) {
 									case 2:
@@ -364,6 +371,8 @@ identarraydef:			IDENT LBRACKET dimensionlist RBRACKET {
 										break;
 								}
 							}
+							memset(tmp_arr_list, 0, sizeof tmp_arr_list);
+							tmp_arr_dim_idx = 0;
 							arr_size = 0;
 						}
 						;
@@ -527,12 +536,17 @@ var:					IDENT {
 					  | IDENT LBRACKET expression_list RBRACKET {
 						  	$$ = -1;
 							char name_buf[81];
+							int idx = -1, cnt = 0, opran = 0, base_addr;
 							strcpy(name_buf, $1);
 							int i, flag = 0;
 							for (i = 1; i <= sym_tab_tail; i++) {
 								if (strcmp(name_buf, table[i].name) == 0) {
 									flag++;
-									if (flag == 1) strcpy(curr_read_write_ident, $1);
+									if (flag == 1) {
+										idx = i;
+										strcpy(curr_read_write_ident, $1);
+										base_addr = table[i].addr;
+									}
 									switch (table[i].kind) {
 										case constant_int_array:
 										case variable_int_array:
@@ -557,18 +571,35 @@ var:					IDENT {
 									}
 								}
 							}
+							for (i = 0; i < MAX_ARR_DIM; i++) {
+								tmp_arr_list[i] = table[idx].array_dim[i];
+								if (tmp_arr_list[i]) cnt++;
+							}
+							for (i = MAX_ARR_DIM - 1; i >= 0; i--) {
+								if (tmp_arr_list[i]) {
+									tmp_arr_list[i] = 1;
+									break;
+								}
+							}
+							opran = base_addr;
+							gen(off, cnt, (byte*)opran);
+							opran = 0;
+							tmp_arr_dim_idx = 0;
+							if (flag == 0) {
+								yyerror("Undefined variable!\n");
+							}
+							else if (flag > 1) {
+								yyerror("Duplicated variable defination!\n");
+							}
 					  	}
 						;
 
 expression_list:		expression {
-							int opran = 19;
-							gen(opr, $1, (byte*)opran);
+							$$ = $1;
 						}
 					  | expression_list COMMA expression {
 						  	$1 = $3;
 							$$ = $1;
-							int opran = 19;
-							gen(opr, $1, (byte*)opran);
 					  	}
 						;
 
@@ -576,13 +607,15 @@ expression_statement:	expression SEMICOLON
 					  | SEMICOLON
 						;
 
-expression:				var BECOMES expression {	
+expression:				var {
+							glob_var_addr = find_addr_of_ident(curr_read_write_ident);
+						} 
+						BECOMES expression {	
 							$$ = 0;
 							if ($1 == -1) {
 								yyerror("Variable not defined!\n");
 							}
-							int var_addr = find_addr_of_ident(curr_read_write_ident);
-							gen(sto, $1, (byte*)var_addr);
+							gen(sto, $1, (byte*)glob_var_addr);
 						}
 					  | simple_expr {
 						  	$$ = $1;
@@ -591,13 +624,31 @@ expression:				var BECOMES expression {
 
 simple_expr:			additive_expr { $$ = $1; }
 					  | additive_expr OPR additive_expr { $$ = 5; }
-					  | additive_expr SINGLEOPR { $$ = $1; }
-					  | SINGLEOPR additive_expr { $$ = $2; }
+					  | additive_expr SINGLEOPR { 
+						  	$$ = $1;
+						  	int var_addr = find_addr_of_ident(curr_read_write_ident);
+							gen(lod, 2, (byte*)var_addr);
+							int opran = 1;
+							gen(lit, 2, (byte*)&opran);
+							opran = ($2 == 1 ? 2 : 3);
+							gen(opr, 2, (byte*)opran);
+							gen(sto, 2, (byte*)var_addr);
+						}
+					  | SINGLEOPR additive_expr { 
+						  	// @todo: Finish stuff like ++a --a 
+						  	$$ = $2; 
+						}
 						;
 
-SINGLEOPR:				INCPLUS 
-					  | INCMINUS 
-					  | NOT
+SINGLEOPR:				INCPLUS {
+							$$ = 1;
+						}
+					  | INCMINUS {
+						  	$$ = 2;
+					  	}
+					  | NOT {
+						  	$$ = 3;
+					  	}
 						;
 
 OPR:					EQL 
@@ -688,6 +739,7 @@ factor:					LPAREN expression RPAREN {
 								}
 								gen(lod, $1, (byte*)var_addr);
 							}
+							stack_top++;
 					  	}
 					  | INTEGER {
 						  	$$ = 2;
@@ -944,8 +996,8 @@ void interpret() {
 	struct 		instruction i;
 	int			addr;
 	int			iter;
+	int			res;
 	memset(inbuf_string, 0, sizeof inbuf_string);
-
 	printf("Start X0\n");
 	fprintf(fresult, "Start X0\n");
 	do {
@@ -1209,7 +1261,7 @@ void interpret() {
 						//printf("OUTPUT:\n");
 						switch (s[stack_top].t) {
 							case integer:
-								printf("%d\n", *(int*)&s[stack_top].val);    
+								printf("%d\n", *(int*)&s[stack_top].val);  
 								break;
 							case real:
 								printf("%f\n", *(float*)&s[stack_top].val);        // e1 at this unit but when convert to %f it can't be displayed correctly.
@@ -1316,17 +1368,27 @@ void interpret() {
 				break;
 			case jpc:
 				break;
+			case off:
+				res = 0;
+				for (iter = 0; iter < i.lev; iter++) {
+					res += (*(int*)&s[stack_top].val) * tmp_arr_list[i.lev - iter - 1];
+					stack_top--;
+				}
+				res += *(int*)&i.opr;
+				memcpy((void*)&code[cur_pc + 1].opr, (const void*)&res, STRING_LEN);
+				break;
 		}
 
 		//print_data_stack();
 	} while (cur_pc++ != vm_code_pointer);
 }
 
+
 void listall() {
 	int i;
 	char name[][5] = {
 		{"lit"}, {"opr"}, {"lod"}, {"sto"},
-		{"cal"}, {"ini"}, {"jmp"}, {"jpc"},
+		{"cal"}, {"ini"}, {"jmp"}, {"jpc"}, {"off"}
 	};
 	for (i = 0; i < vm_code_pointer; i++) {
 		if (code[i].f == lit) {
@@ -1385,6 +1447,7 @@ void print_data_stack() {
 }
 
 int main(int argc, int **argv) {
+	int tok;
 	fcode = fopen("fcode", "w+");
 	ftable = fopen("ftable", "w+");
 	fresult = fopen("fresult", "w+");
@@ -1399,9 +1462,11 @@ int main(int argc, int **argv) {
 	}
 	redirectInput(f);
 	init();
+	//while (tok = yylex()) printf("%d\n", tok);
 	yyparse();
 	display_sym_tab();
 	listall();
 	interpret();
+	listall();
 	//print_data_stack();
 }

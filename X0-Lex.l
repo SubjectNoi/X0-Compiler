@@ -9,9 +9,10 @@ int 		line = 1;
 %}
 
 %%
-[ \t]		{;}
-[\n]		{line++;}
-[/*].*[*/]	{;}
+
+[/][*].*[*][/]	{;} 
+[ \t]			{;}
+[\n]			{line++;}
 
 "bool"			{return BOOLSYM;}
 "break"			{return BREAKSYM;}

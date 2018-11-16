@@ -1,0 +1,8 @@
+main {
+	integer a[10, 20, 5], b[20];
+	integer aa := 3, bb;
+	bb := 2 * aa;
+	write(bb);
+	b[bb];
+}
+
