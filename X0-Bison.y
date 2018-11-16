@@ -20,7 +20,7 @@
 #define MAX_ARR_DIM		10				// Max dimension of the array
 
 typedef unsigned char byte;
-
+int cnt = 0;
 enum object {
 	constant_int,
 	constant_real,
@@ -122,6 +122,9 @@ int 		stack_top = 2;
 int 		array_offset;
 int 		tmp_arr_cur_dim;
 int 		glob_var_addr;
+int			back_patch_list[STRING_LEN];
+int			back_patch_idx = 0;
+int 		curr_ident_array_or_not = 0;
 
 struct expression_result {
 	enum	data_type	t;
@@ -534,6 +537,7 @@ var:					IDENT {
 							}
 						}
 					  | IDENT LBRACKET expression_list RBRACKET {
+						  	// curr_ident_array_or_not = 1;
 						  	$$ = -1;
 							char name_buf[81];
 							int idx = -1, cnt = 0, opran = 0, base_addr;
@@ -544,8 +548,8 @@ var:					IDENT {
 									flag++;
 									if (flag == 1) {
 										idx = i;
-										strcpy(curr_read_write_ident, $1);
 										base_addr = table[i].addr;
+										strcpy(curr_read_write_ident, $1);
 									}
 									switch (table[i].kind) {
 										case constant_int_array:
@@ -610,11 +614,15 @@ expression_statement:	expression SEMICOLON
 expression:				var {
 							glob_var_addr = find_addr_of_ident(curr_read_write_ident);
 						} 
-						BECOMES expression {	
+						BECOMES expression {
 							$$ = 0;
 							if ($1 == -1) {
 								yyerror("Variable not defined!\n");
 							}
+							// if (curr_ident_array_or_not) {
+							// 	back_patch_list[back_patch_idx++] = vm_code_pointer;
+							// 	glob_var_addr = -1;
+							// }
 							gen(sto, $1, (byte*)glob_var_addr);
 						}
 					  | simple_expr {
@@ -737,6 +745,10 @@ factor:					LPAREN expression RPAREN {
 										}
 									}
 								}
+								// if (curr_ident_array_or_not) {
+								// 	back_patch_list[back_patch_idx++] = vm_code_pointer;
+								// 	var_addr = -1;
+								// }
 								gen(lod, $1, (byte*)var_addr);
 							}
 							stack_top++;
@@ -1318,23 +1330,28 @@ void interpret() {
 			case lod:
 				stack_top++;
 				addr = *(int*)&(i.opr);
-				memcpy((void*)(&(s[stack_top].val)), (const void*)(&(s[addr].val)), STRING_LEN);
-				switch (i.lev) {
-					case 2:
-						s[stack_top].t = integer;
-						break;
-					case 3:
-						s[stack_top].t = real;
-						break;
-					case 4:
-						s[stack_top].t = str;
-						break;
-					case 5:
-						s[stack_top].t = boolean;
-						break;
-					case 6:
-						s[stack_top].t = single_char;
-						break;
+				if (addr == -1) {
+
+				}
+				else {
+					memcpy((void*)(&(s[stack_top].val)), (const void*)(&(s[addr].val)), STRING_LEN);
+					switch (i.lev) {
+						case 2:
+							s[stack_top].t = integer;
+							break;
+						case 3:
+							s[stack_top].t = real;
+							break;
+						case 4:
+							s[stack_top].t = str;
+							break;
+						case 5:
+							s[stack_top].t = boolean;
+							break;
+						case 6:
+							s[stack_top].t = single_char;
+							break;
+					}
 				}
 				break;
 			case sto:
@@ -1375,7 +1392,12 @@ void interpret() {
 					stack_top--;
 				}
 				res += *(int*)&i.opr;
-				memcpy((void*)&code[cur_pc + 1].opr, (const void*)&res, STRING_LEN);
+				for (iter = cur_pc; iter < vm_code_pointer; iter++) {
+					if (code[iter].f == lod || code[iter].f == sto) {
+						back_patch(iter, (byte*)res);
+						break;
+					}
+				}
 				break;
 		}
 
@@ -1383,6 +1405,9 @@ void interpret() {
 	} while (cur_pc++ != vm_code_pointer);
 }
 
+void back_patch(int ins_idx, byte op[STRING_LEN]) {
+	memcpy((void*)code[ins_idx].opr, (const void*)&op, STRING_LEN);
+}
 
 void listall() {
 	int i;
