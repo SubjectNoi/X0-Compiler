@@ -3,7 +3,10 @@ main {
 	read(a);
 	read(b);
 	if (a == b) {
-		write("a equal b");
+		write("a == b");
+	}
+	else {
+		write("a != b");
 	}
 	write(a + b);
 }

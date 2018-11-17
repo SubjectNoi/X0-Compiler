@@ -20,16 +20,13 @@ Rules useless in parser due to conflicts
 
    45 statement: %empty
 
-   50 $@9: %empty
-
 
 State 5 conflicts: 27 shift/reduce, 28 reduce/reduce
-State 20 conflicts: 27 shift/reduce, 28 reduce/reduce
 State 33 conflicts: 6 shift/reduce
 State 36 conflicts: 27 shift/reduce, 28 reduce/reduce
 State 56 conflicts: 1 reduce/reduce
-State 64 conflicts: 28 shift/reduce, 28 reduce/reduce
-State 126 conflicts: 1 reduce/reduce
+State 64 conflicts: 27 shift/reduce, 28 reduce/reduce
+State 105 conflicts: 28 shift/reduce, 28 reduce/reduce
 
 
 Grammar
@@ -107,23 +104,23 @@ Grammar
 
    47 break_stat: BREAKSYM SEMICOLON
 
-   48 $@8: %empty
+   48 if_statement: IFSYM LPAREN expression RPAREN compound_statement
 
-   49 if_statement: IFSYM LPAREN expression RPAREN $@8 compound_statement
+   49 $@8: %empty
 
    50 $@9: %empty
 
-   51 $@10: %empty
+   51 if_statement: IFSYM LPAREN expression RPAREN compound_statement $@8 ELSESYM $@9 compound_statement
 
-   52 if_statement: IFSYM LPAREN expression RPAREN $@9 compound_statement $@10 ELSESYM compound_statement
+   52 while_statement: WHILESYM LPAREN expression RPAREN compound_statement
 
-   53 while_statement: WHILESYM LPAREN expression RPAREN compound_statement
+   53 write_statement: WRITESYM LPAREN expression RPAREN SEMICOLON
 
-   54 write_statement: WRITESYM LPAREN expression RPAREN SEMICOLON
+   54 read_statement: READSYM LPAREN var RPAREN SEMICOLON
 
-   55 read_statement: READSYM LPAREN var RPAREN SEMICOLON
+   55 $@10: %empty
 
-   56 compound_statement: LBRACE statement_list RBRACE
+   56 compound_statement: LBRACE $@10 statement_list RBRACE
 
    57 for_statement: FORSYM LPAREN expression SEMICOLON expression SEMICOLON expression RPAREN compound_statement
 
@@ -197,13 +194,13 @@ CHARSYM (262) 24
 CONSTSYM (263) 12 15
 CONTINUESYM (264) 46
 DOSYM (265) 58
-ELSESYM (266) 52
+ELSESYM (266) 51
 EXITSYM (267)
 FORSYM (268) 57
 INTSYM (269) 20
-IFSYM (270) 49 52
+IFSYM (270) 48 51
 MAINSYM (271) 3
-READSYM (272) 55
+READSYM (272) 54
 REALSYM (273) 23
 REPEATSYM (274)
 RR (275)
@@ -211,8 +208,8 @@ RL (276)
 STRINGSYM (277) 21
 SWITCHSYM (278)
 UNTILSYM (279)
-WHILESYM (280) 53 58
-WRITESYM (281) 54
+WHILESYM (280) 52 58
+WRITESYM (281) 53
 LBRACE (282) 3 56
 RBRACE (283) 3 56
 LBRACKET (284) 27 60
@@ -231,10 +228,10 @@ MINUS (296) 87
 INCMINUS (297) 73
 TIMES (298) 90
 DEVIDE (299) 91
-LPAREN (300) 49 52 53 54 55 57 58 93
-RPAREN (301) 49 52 53 54 55 57 58 93
+LPAREN (300) 48 51 52 53 54 57 58 93
+RPAREN (301) 48 51 52 53 54 57 58 93
 MOD (302) 92
-SEMICOLON (303) 7 9 12 15 46 47 54 55 57 58 63 64
+SEMICOLON (303) 7 9 12 15 46 47 53 54 57 58 63 64
 XOR (304) 83
 AND (305) 81
 OR (306) 82
@@ -297,33 +294,33 @@ continue_stat (82)
 break_stat (83)
     on left: 47, on right: 44
 if_statement (84)
-    on left: 49 52, on right: 35
+    on left: 48 51, on right: 35
 $@8 (85)
-    on left: 48, on right: 49
+    on left: 49, on right: 51
 $@9 (86)
-    on left: 50, on right: 52
-$@10 (87)
-    on left: 51, on right: 52
-while_statement (88)
-    on left: 53, on right: 36
-write_statement (89)
-    on left: 54, on right: 38
-read_statement (90)
-    on left: 55, on right: 37
-compound_statement (91)
-    on left: 56, on right: 39 49 52 53 57 58
+    on left: 50, on right: 51
+while_statement (87)
+    on left: 52, on right: 36
+write_statement (88)
+    on left: 53, on right: 38
+read_statement (89)
+    on left: 54, on right: 37
+compound_statement (90)
+    on left: 56, on right: 39 48 51 52 57 58
+$@10 (91)
+    on left: 55, on right: 56
 for_statement (92)
     on left: 57, on right: 40
 do_statement (93)
     on left: 58, on right: 41
 var (94)
-    on left: 59 60, on right: 55 66 94
+    on left: 59 60, on right: 54 66 94
 expression_list (95)
     on left: 61 62, on right: 60 62
 expression_statement (96)
     on left: 63 64, on right: 34
 expression (97)
-    on left: 66 67, on right: 49 52 53 54 57 58 61 62 63 66 93
+    on left: 66 67, on right: 48 51 52 53 57 58 61 62 63 66 93
 $@11 (98)
     on left: 65, on right: 66
 simple_expr (99)
@@ -592,15 +589,15 @@ State 13
 
 State 14
 
-   49 if_statement: IFSYM . LPAREN expression RPAREN $@8 compound_statement
-   52             | IFSYM . LPAREN expression RPAREN $@9 compound_statement $@10 ELSESYM compound_statement
+   48 if_statement: IFSYM . LPAREN expression RPAREN compound_statement
+   51             | IFSYM . LPAREN expression RPAREN compound_statement $@8 ELSESYM $@9 compound_statement
 
     LPAREN  shift, and go to state 60
 
 
 State 15
 
-   55 read_statement: READSYM . LPAREN var RPAREN SEMICOLON
+   54 read_statement: READSYM . LPAREN var RPAREN SEMICOLON
 
     LPAREN  shift, and go to state 61
 
@@ -621,158 +618,25 @@ State 17
 
 State 18
 
-   53 while_statement: WHILESYM . LPAREN expression RPAREN compound_statement
+   52 while_statement: WHILESYM . LPAREN expression RPAREN compound_statement
 
     LPAREN  shift, and go to state 62
 
 
 State 19
 
-   54 write_statement: WRITESYM . LPAREN expression RPAREN SEMICOLON
+   53 write_statement: WRITESYM . LPAREN expression RPAREN SEMICOLON
 
     LPAREN  shift, and go to state 63
 
 
 State 20
 
-   56 compound_statement: LBRACE . statement_list RBRACE
+   56 compound_statement: LBRACE . $@10 statement_list RBRACE
 
-    BOOLSYM      shift, and go to state 6
-    BREAKSYM     shift, and go to state 7
-    CHARSYM      shift, and go to state 8
-    CONSTSYM     shift, and go to state 9
-    CONTINUESYM  shift, and go to state 10
-    DOSYM        shift, and go to state 11
-    FORSYM       shift, and go to state 12
-    INTSYM       shift, and go to state 13
-    IFSYM        shift, and go to state 14
-    READSYM      shift, and go to state 15
-    REALSYM      shift, and go to state 16
-    STRINGSYM    shift, and go to state 17
-    WHILESYM     shift, and go to state 18
-    WRITESYM     shift, and go to state 19
-    LBRACE       shift, and go to state 20
-    INCPLUS      shift, and go to state 21
-    INCMINUS     shift, and go to state 22
-    LPAREN       shift, and go to state 23
-    SEMICOLON    shift, and go to state 24
-    NOT          shift, and go to state 25
-    YAJU         shift, and go to state 26
-    IDENT        shift, and go to state 27
-    INTEGER      shift, and go to state 28
-    STRING       shift, and go to state 29
-    CHAR         shift, and go to state 30
-    BOOL         shift, and go to state 31
-    REAL         shift, and go to state 32
+    $default  reduce using rule 55 ($@10)
 
-    BOOLSYM      [reduce using rule 6 (declaration_list)]
-    BOOLSYM      [reduce using rule 33 (statement_list)]
-    BOOLSYM      [reduce using rule 45 (statement)]
-    BREAKSYM     [reduce using rule 6 (declaration_list)]
-    BREAKSYM     [reduce using rule 33 (statement_list)]
-    BREAKSYM     [reduce using rule 45 (statement)]
-    CHARSYM      [reduce using rule 6 (declaration_list)]
-    CHARSYM      [reduce using rule 33 (statement_list)]
-    CHARSYM      [reduce using rule 45 (statement)]
-    CONSTSYM     [reduce using rule 6 (declaration_list)]
-    CONSTSYM     [reduce using rule 33 (statement_list)]
-    CONSTSYM     [reduce using rule 45 (statement)]
-    CONTINUESYM  [reduce using rule 6 (declaration_list)]
-    CONTINUESYM  [reduce using rule 33 (statement_list)]
-    CONTINUESYM  [reduce using rule 45 (statement)]
-    DOSYM        [reduce using rule 6 (declaration_list)]
-    DOSYM        [reduce using rule 33 (statement_list)]
-    DOSYM        [reduce using rule 45 (statement)]
-    FORSYM       [reduce using rule 6 (declaration_list)]
-    FORSYM       [reduce using rule 33 (statement_list)]
-    FORSYM       [reduce using rule 45 (statement)]
-    INTSYM       [reduce using rule 6 (declaration_list)]
-    INTSYM       [reduce using rule 33 (statement_list)]
-    INTSYM       [reduce using rule 45 (statement)]
-    IFSYM        [reduce using rule 6 (declaration_list)]
-    IFSYM        [reduce using rule 33 (statement_list)]
-    IFSYM        [reduce using rule 45 (statement)]
-    READSYM      [reduce using rule 6 (declaration_list)]
-    READSYM      [reduce using rule 33 (statement_list)]
-    READSYM      [reduce using rule 45 (statement)]
-    REALSYM      [reduce using rule 6 (declaration_list)]
-    REALSYM      [reduce using rule 33 (statement_list)]
-    REALSYM      [reduce using rule 45 (statement)]
-    STRINGSYM    [reduce using rule 6 (declaration_list)]
-    STRINGSYM    [reduce using rule 33 (statement_list)]
-    STRINGSYM    [reduce using rule 45 (statement)]
-    WHILESYM     [reduce using rule 6 (declaration_list)]
-    WHILESYM     [reduce using rule 33 (statement_list)]
-    WHILESYM     [reduce using rule 45 (statement)]
-    WRITESYM     [reduce using rule 6 (declaration_list)]
-    WRITESYM     [reduce using rule 33 (statement_list)]
-    WRITESYM     [reduce using rule 45 (statement)]
-    LBRACE       [reduce using rule 6 (declaration_list)]
-    LBRACE       [reduce using rule 33 (statement_list)]
-    LBRACE       [reduce using rule 45 (statement)]
-    RBRACE       reduce using rule 6 (declaration_list)
-    RBRACE       [reduce using rule 33 (statement_list)]
-    RBRACE       [reduce using rule 45 (statement)]
-    INCPLUS      [reduce using rule 6 (declaration_list)]
-    INCPLUS      [reduce using rule 33 (statement_list)]
-    INCPLUS      [reduce using rule 45 (statement)]
-    INCMINUS     [reduce using rule 6 (declaration_list)]
-    INCMINUS     [reduce using rule 33 (statement_list)]
-    INCMINUS     [reduce using rule 45 (statement)]
-    LPAREN       [reduce using rule 6 (declaration_list)]
-    LPAREN       [reduce using rule 33 (statement_list)]
-    LPAREN       [reduce using rule 45 (statement)]
-    SEMICOLON    [reduce using rule 6 (declaration_list)]
-    SEMICOLON    [reduce using rule 33 (statement_list)]
-    SEMICOLON    [reduce using rule 45 (statement)]
-    NOT          [reduce using rule 6 (declaration_list)]
-    NOT          [reduce using rule 33 (statement_list)]
-    NOT          [reduce using rule 45 (statement)]
-    YAJU         [reduce using rule 6 (declaration_list)]
-    YAJU         [reduce using rule 33 (statement_list)]
-    YAJU         [reduce using rule 45 (statement)]
-    IDENT        [reduce using rule 6 (declaration_list)]
-    IDENT        [reduce using rule 33 (statement_list)]
-    IDENT        [reduce using rule 45 (statement)]
-    INTEGER      [reduce using rule 6 (declaration_list)]
-    INTEGER      [reduce using rule 33 (statement_list)]
-    INTEGER      [reduce using rule 45 (statement)]
-    STRING       [reduce using rule 6 (declaration_list)]
-    STRING       [reduce using rule 33 (statement_list)]
-    STRING       [reduce using rule 45 (statement)]
-    CHAR         [reduce using rule 6 (declaration_list)]
-    CHAR         [reduce using rule 33 (statement_list)]
-    CHAR         [reduce using rule 45 (statement)]
-    BOOL         [reduce using rule 6 (declaration_list)]
-    BOOL         [reduce using rule 33 (statement_list)]
-    BOOL         [reduce using rule 45 (statement)]
-    REAL         [reduce using rule 6 (declaration_list)]
-    REAL         [reduce using rule 33 (statement_list)]
-    REAL         [reduce using rule 45 (statement)]
-    $default     reduce using rule 6 (declaration_list)
-
-    declaration_list      go to state 33
-    declaration_stat      go to state 34
-    typeenum              go to state 35
-    statement_list        go to state 64
-    statement             go to state 37
-    continue_stat         go to state 38
-    break_stat            go to state 39
-    if_statement          go to state 40
-    while_statement       go to state 41
-    write_statement       go to state 42
-    read_statement        go to state 43
-    compound_statement    go to state 44
-    for_statement         go to state 45
-    do_statement          go to state 46
-    var                   go to state 47
-    expression_statement  go to state 48
-    expression            go to state 49
-    simple_expr           go to state 50
-    SINGLEOPR             go to state 51
-    additive_expr         go to state 52
-    term                  go to state 53
-    factor                go to state 54
+    $@10  go to state 64
 
 
 State 21
@@ -1272,8 +1136,8 @@ State 59
 
 State 60
 
-   49 if_statement: IFSYM LPAREN . expression RPAREN $@8 compound_statement
-   52             | IFSYM LPAREN . expression RPAREN $@9 compound_statement $@10 ELSESYM compound_statement
+   48 if_statement: IFSYM LPAREN . expression RPAREN compound_statement
+   51             | IFSYM LPAREN . expression RPAREN compound_statement $@8 ELSESYM $@9 compound_statement
 
     INCPLUS   shift, and go to state 21
     INCMINUS  shift, and go to state 22
@@ -1298,7 +1162,7 @@ State 60
 
 State 61
 
-   55 read_statement: READSYM LPAREN . var RPAREN SEMICOLON
+   54 read_statement: READSYM LPAREN . var RPAREN SEMICOLON
 
     IDENT  shift, and go to state 27
 
@@ -1307,7 +1171,7 @@ State 61
 
 State 62
 
-   53 while_statement: WHILESYM LPAREN . expression RPAREN compound_statement
+   52 while_statement: WHILESYM LPAREN . expression RPAREN compound_statement
 
     INCPLUS   shift, and go to state 21
     INCMINUS  shift, and go to state 22
@@ -1332,7 +1196,7 @@ State 62
 
 State 63
 
-   54 write_statement: WRITESYM LPAREN . expression RPAREN SEMICOLON
+   53 write_statement: WRITESYM LPAREN . expression RPAREN SEMICOLON
 
     INCPLUS   shift, and go to state 21
     INCMINUS  shift, and go to state 22
@@ -1357,8 +1221,7 @@ State 63
 
 State 64
 
-   31 statement_list: statement_list . statement
-   56 compound_statement: LBRACE statement_list . RBRACE
+   56 compound_statement: LBRACE $@10 . statement_list RBRACE
 
     BOOLSYM      shift, and go to state 6
     BREAKSYM     shift, and go to state 7
@@ -1375,7 +1238,6 @@ State 64
     WHILESYM     shift, and go to state 18
     WRITESYM     shift, and go to state 19
     LBRACE       shift, and go to state 20
-    RBRACE       shift, and go to state 105
     INCPLUS      shift, and go to state 21
     INCMINUS     shift, and go to state 22
     LPAREN       shift, and go to state 23
@@ -1390,66 +1252,96 @@ State 64
     REAL         shift, and go to state 32
 
     BOOLSYM      [reduce using rule 6 (declaration_list)]
+    BOOLSYM      [reduce using rule 33 (statement_list)]
     BOOLSYM      [reduce using rule 45 (statement)]
     BREAKSYM     [reduce using rule 6 (declaration_list)]
+    BREAKSYM     [reduce using rule 33 (statement_list)]
     BREAKSYM     [reduce using rule 45 (statement)]
     CHARSYM      [reduce using rule 6 (declaration_list)]
+    CHARSYM      [reduce using rule 33 (statement_list)]
     CHARSYM      [reduce using rule 45 (statement)]
     CONSTSYM     [reduce using rule 6 (declaration_list)]
+    CONSTSYM     [reduce using rule 33 (statement_list)]
     CONSTSYM     [reduce using rule 45 (statement)]
     CONTINUESYM  [reduce using rule 6 (declaration_list)]
+    CONTINUESYM  [reduce using rule 33 (statement_list)]
     CONTINUESYM  [reduce using rule 45 (statement)]
     DOSYM        [reduce using rule 6 (declaration_list)]
+    DOSYM        [reduce using rule 33 (statement_list)]
     DOSYM        [reduce using rule 45 (statement)]
     FORSYM       [reduce using rule 6 (declaration_list)]
+    FORSYM       [reduce using rule 33 (statement_list)]
     FORSYM       [reduce using rule 45 (statement)]
     INTSYM       [reduce using rule 6 (declaration_list)]
+    INTSYM       [reduce using rule 33 (statement_list)]
     INTSYM       [reduce using rule 45 (statement)]
     IFSYM        [reduce using rule 6 (declaration_list)]
+    IFSYM        [reduce using rule 33 (statement_list)]
     IFSYM        [reduce using rule 45 (statement)]
     READSYM      [reduce using rule 6 (declaration_list)]
+    READSYM      [reduce using rule 33 (statement_list)]
     READSYM      [reduce using rule 45 (statement)]
     REALSYM      [reduce using rule 6 (declaration_list)]
+    REALSYM      [reduce using rule 33 (statement_list)]
     REALSYM      [reduce using rule 45 (statement)]
     STRINGSYM    [reduce using rule 6 (declaration_list)]
+    STRINGSYM    [reduce using rule 33 (statement_list)]
     STRINGSYM    [reduce using rule 45 (statement)]
     WHILESYM     [reduce using rule 6 (declaration_list)]
+    WHILESYM     [reduce using rule 33 (statement_list)]
     WHILESYM     [reduce using rule 45 (statement)]
     WRITESYM     [reduce using rule 6 (declaration_list)]
+    WRITESYM     [reduce using rule 33 (statement_list)]
     WRITESYM     [reduce using rule 45 (statement)]
     LBRACE       [reduce using rule 6 (declaration_list)]
+    LBRACE       [reduce using rule 33 (statement_list)]
     LBRACE       [reduce using rule 45 (statement)]
-    RBRACE       [reduce using rule 6 (declaration_list)]
+    RBRACE       reduce using rule 6 (declaration_list)
+    RBRACE       [reduce using rule 33 (statement_list)]
     RBRACE       [reduce using rule 45 (statement)]
     INCPLUS      [reduce using rule 6 (declaration_list)]
+    INCPLUS      [reduce using rule 33 (statement_list)]
     INCPLUS      [reduce using rule 45 (statement)]
     INCMINUS     [reduce using rule 6 (declaration_list)]
+    INCMINUS     [reduce using rule 33 (statement_list)]
     INCMINUS     [reduce using rule 45 (statement)]
     LPAREN       [reduce using rule 6 (declaration_list)]
+    LPAREN       [reduce using rule 33 (statement_list)]
     LPAREN       [reduce using rule 45 (statement)]
     SEMICOLON    [reduce using rule 6 (declaration_list)]
+    SEMICOLON    [reduce using rule 33 (statement_list)]
     SEMICOLON    [reduce using rule 45 (statement)]
     NOT          [reduce using rule 6 (declaration_list)]
+    NOT          [reduce using rule 33 (statement_list)]
     NOT          [reduce using rule 45 (statement)]
     YAJU         [reduce using rule 6 (declaration_list)]
+    YAJU         [reduce using rule 33 (statement_list)]
     YAJU         [reduce using rule 45 (statement)]
     IDENT        [reduce using rule 6 (declaration_list)]
+    IDENT        [reduce using rule 33 (statement_list)]
     IDENT        [reduce using rule 45 (statement)]
     INTEGER      [reduce using rule 6 (declaration_list)]
+    INTEGER      [reduce using rule 33 (statement_list)]
     INTEGER      [reduce using rule 45 (statement)]
     STRING       [reduce using rule 6 (declaration_list)]
+    STRING       [reduce using rule 33 (statement_list)]
     STRING       [reduce using rule 45 (statement)]
     CHAR         [reduce using rule 6 (declaration_list)]
+    CHAR         [reduce using rule 33 (statement_list)]
     CHAR         [reduce using rule 45 (statement)]
     BOOL         [reduce using rule 6 (declaration_list)]
+    BOOL         [reduce using rule 33 (statement_list)]
     BOOL         [reduce using rule 45 (statement)]
     REAL         [reduce using rule 6 (declaration_list)]
+    REAL         [reduce using rule 33 (statement_list)]
     REAL         [reduce using rule 45 (statement)]
+    $default     reduce using rule 6 (declaration_list)
 
     declaration_list      go to state 33
     declaration_stat      go to state 34
     typeenum              go to state 35
-    statement             go to state 74
+    statement_list        go to state 105
+    statement             go to state 37
     continue_stat         go to state 38
     break_stat            go to state 39
     if_statement          go to state 40
@@ -1799,38 +1691,145 @@ State 100
 
 State 101
 
-   49 if_statement: IFSYM LPAREN expression . RPAREN $@8 compound_statement
-   52             | IFSYM LPAREN expression . RPAREN $@9 compound_statement $@10 ELSESYM compound_statement
+   48 if_statement: IFSYM LPAREN expression . RPAREN compound_statement
+   51             | IFSYM LPAREN expression . RPAREN compound_statement $@8 ELSESYM $@9 compound_statement
 
     RPAREN  shift, and go to state 126
 
 
 State 102
 
-   55 read_statement: READSYM LPAREN var . RPAREN SEMICOLON
+   54 read_statement: READSYM LPAREN var . RPAREN SEMICOLON
 
     RPAREN  shift, and go to state 127
 
 
 State 103
 
-   53 while_statement: WHILESYM LPAREN expression . RPAREN compound_statement
+   52 while_statement: WHILESYM LPAREN expression . RPAREN compound_statement
 
     RPAREN  shift, and go to state 128
 
 
 State 104
 
-   54 write_statement: WRITESYM LPAREN expression . RPAREN SEMICOLON
+   53 write_statement: WRITESYM LPAREN expression . RPAREN SEMICOLON
 
     RPAREN  shift, and go to state 129
 
 
 State 105
 
-   56 compound_statement: LBRACE statement_list RBRACE .
+   31 statement_list: statement_list . statement
+   56 compound_statement: LBRACE $@10 statement_list . RBRACE
 
-    $default  reduce using rule 56 (compound_statement)
+    BOOLSYM      shift, and go to state 6
+    BREAKSYM     shift, and go to state 7
+    CHARSYM      shift, and go to state 8
+    CONSTSYM     shift, and go to state 9
+    CONTINUESYM  shift, and go to state 10
+    DOSYM        shift, and go to state 11
+    FORSYM       shift, and go to state 12
+    INTSYM       shift, and go to state 13
+    IFSYM        shift, and go to state 14
+    READSYM      shift, and go to state 15
+    REALSYM      shift, and go to state 16
+    STRINGSYM    shift, and go to state 17
+    WHILESYM     shift, and go to state 18
+    WRITESYM     shift, and go to state 19
+    LBRACE       shift, and go to state 20
+    RBRACE       shift, and go to state 130
+    INCPLUS      shift, and go to state 21
+    INCMINUS     shift, and go to state 22
+    LPAREN       shift, and go to state 23
+    SEMICOLON    shift, and go to state 24
+    NOT          shift, and go to state 25
+    YAJU         shift, and go to state 26
+    IDENT        shift, and go to state 27
+    INTEGER      shift, and go to state 28
+    STRING       shift, and go to state 29
+    CHAR         shift, and go to state 30
+    BOOL         shift, and go to state 31
+    REAL         shift, and go to state 32
+
+    BOOLSYM      [reduce using rule 6 (declaration_list)]
+    BOOLSYM      [reduce using rule 45 (statement)]
+    BREAKSYM     [reduce using rule 6 (declaration_list)]
+    BREAKSYM     [reduce using rule 45 (statement)]
+    CHARSYM      [reduce using rule 6 (declaration_list)]
+    CHARSYM      [reduce using rule 45 (statement)]
+    CONSTSYM     [reduce using rule 6 (declaration_list)]
+    CONSTSYM     [reduce using rule 45 (statement)]
+    CONTINUESYM  [reduce using rule 6 (declaration_list)]
+    CONTINUESYM  [reduce using rule 45 (statement)]
+    DOSYM        [reduce using rule 6 (declaration_list)]
+    DOSYM        [reduce using rule 45 (statement)]
+    FORSYM       [reduce using rule 6 (declaration_list)]
+    FORSYM       [reduce using rule 45 (statement)]
+    INTSYM       [reduce using rule 6 (declaration_list)]
+    INTSYM       [reduce using rule 45 (statement)]
+    IFSYM        [reduce using rule 6 (declaration_list)]
+    IFSYM        [reduce using rule 45 (statement)]
+    READSYM      [reduce using rule 6 (declaration_list)]
+    READSYM      [reduce using rule 45 (statement)]
+    REALSYM      [reduce using rule 6 (declaration_list)]
+    REALSYM      [reduce using rule 45 (statement)]
+    STRINGSYM    [reduce using rule 6 (declaration_list)]
+    STRINGSYM    [reduce using rule 45 (statement)]
+    WHILESYM     [reduce using rule 6 (declaration_list)]
+    WHILESYM     [reduce using rule 45 (statement)]
+    WRITESYM     [reduce using rule 6 (declaration_list)]
+    WRITESYM     [reduce using rule 45 (statement)]
+    LBRACE       [reduce using rule 6 (declaration_list)]
+    LBRACE       [reduce using rule 45 (statement)]
+    RBRACE       [reduce using rule 6 (declaration_list)]
+    RBRACE       [reduce using rule 45 (statement)]
+    INCPLUS      [reduce using rule 6 (declaration_list)]
+    INCPLUS      [reduce using rule 45 (statement)]
+    INCMINUS     [reduce using rule 6 (declaration_list)]
+    INCMINUS     [reduce using rule 45 (statement)]
+    LPAREN       [reduce using rule 6 (declaration_list)]
+    LPAREN       [reduce using rule 45 (statement)]
+    SEMICOLON    [reduce using rule 6 (declaration_list)]
+    SEMICOLON    [reduce using rule 45 (statement)]
+    NOT          [reduce using rule 6 (declaration_list)]
+    NOT          [reduce using rule 45 (statement)]
+    YAJU         [reduce using rule 6 (declaration_list)]
+    YAJU         [reduce using rule 45 (statement)]
+    IDENT        [reduce using rule 6 (declaration_list)]
+    IDENT        [reduce using rule 45 (statement)]
+    INTEGER      [reduce using rule 6 (declaration_list)]
+    INTEGER      [reduce using rule 45 (statement)]
+    STRING       [reduce using rule 6 (declaration_list)]
+    STRING       [reduce using rule 45 (statement)]
+    CHAR         [reduce using rule 6 (declaration_list)]
+    CHAR         [reduce using rule 45 (statement)]
+    BOOL         [reduce using rule 6 (declaration_list)]
+    BOOL         [reduce using rule 45 (statement)]
+    REAL         [reduce using rule 6 (declaration_list)]
+    REAL         [reduce using rule 45 (statement)]
+
+    declaration_list      go to state 33
+    declaration_stat      go to state 34
+    typeenum              go to state 35
+    statement             go to state 74
+    continue_stat         go to state 38
+    break_stat            go to state 39
+    if_statement          go to state 40
+    while_statement       go to state 41
+    write_statement       go to state 42
+    read_statement        go to state 43
+    compound_statement    go to state 44
+    for_statement         go to state 45
+    do_statement          go to state 46
+    var                   go to state 47
+    expression_statement  go to state 48
+    expression            go to state 49
+    simple_expr           go to state 50
+    SINGLEOPR             go to state 51
+    additive_expr         go to state 52
+    term                  go to state 53
+    factor                go to state 54
 
 
 State 106
@@ -1845,8 +1844,8 @@ State 107
    60 var: IDENT LBRACKET expression_list . RBRACKET
    62 expression_list: expression_list . COMMA expression
 
-    RBRACKET  shift, and go to state 130
-    COMMA     shift, and go to state 131
+    RBRACKET  shift, and go to state 131
+    COMMA     shift, and go to state 132
 
 
 State 108
@@ -1860,10 +1859,10 @@ State 109
 
    27 identarraydef: IDENT LBRACKET . dimensionlist RBRACKET
 
-    INTEGER  shift, and go to state 132
+    INTEGER  shift, and go to state 133
 
-    dimensionlist  go to state 133
-    dimension      go to state 134
+    dimensionlist  go to state 134
+    dimension      go to state 135
 
 
 State 110
@@ -1880,7 +1879,7 @@ State 110
     REAL     shift, and go to state 32
 
     var     go to state 77
-    factor  go to state 135
+    factor  go to state 136
 
 
 State 111
@@ -1889,7 +1888,7 @@ State 111
 
     IDENT  shift, and go to state 120
 
-    identdef  go to state 136
+    identdef  go to state 137
 
 
 State 112
@@ -1905,14 +1904,14 @@ State 113
 
     IDENT  shift, and go to state 122
 
-    identarraydef  go to state 137
+    identarraydef  go to state 138
 
 
 State 114
 
     9 declaration_stat: typeenum identarraylist $@3 . SEMICOLON
 
-    SEMICOLON  shift, and go to state 138
+    SEMICOLON  shift, and go to state 139
 
 
 State 115
@@ -1939,7 +1938,7 @@ State 116
     REAL      shift, and go to state 32
 
     var            go to state 47
-    expression     go to state 139
+    expression     go to state 140
     simple_expr    go to state 50
     SINGLEOPR      go to state 51
     additive_expr  go to state 52
@@ -2000,7 +1999,7 @@ State 121
 
     $default  reduce using rule 11 ($@5)
 
-    $@5  go to state 140
+    $@5  go to state 141
 
 
 State 122
@@ -2019,7 +2018,7 @@ State 123
 
     $default  reduce using rule 14 ($@7)
 
-    $@7  go to state 141
+    $@7  go to state 142
 
 
 State 124
@@ -2039,7 +2038,7 @@ State 124
     REAL      shift, and go to state 32
 
     var            go to state 47
-    expression     go to state 142
+    expression     go to state 143
     simple_expr    go to state 50
     SINGLEOPR      go to state 51
     additive_expr  go to state 52
@@ -2064,7 +2063,7 @@ State 125
     REAL      shift, and go to state 32
 
     var            go to state 47
-    expression     go to state 143
+    expression     go to state 144
     simple_expr    go to state 50
     SINGLEOPR      go to state 51
     additive_expr  go to state 52
@@ -2074,27 +2073,24 @@ State 125
 
 State 126
 
-   49 if_statement: IFSYM LPAREN expression RPAREN . $@8 compound_statement
-   52             | IFSYM LPAREN expression RPAREN . $@9 compound_statement $@10 ELSESYM compound_statement
+   48 if_statement: IFSYM LPAREN expression RPAREN . compound_statement
+   51             | IFSYM LPAREN expression RPAREN . compound_statement $@8 ELSESYM $@9 compound_statement
 
-    LBRACE    reduce using rule 48 ($@8)
-    LBRACE    [reduce using rule 50 ($@9)]
-    $default  reduce using rule 48 ($@8)
+    LBRACE  shift, and go to state 20
 
-    $@8  go to state 144
-    $@9  go to state 145
+    compound_statement  go to state 145
 
 
 State 127
 
-   55 read_statement: READSYM LPAREN var RPAREN . SEMICOLON
+   54 read_statement: READSYM LPAREN var RPAREN . SEMICOLON
 
     SEMICOLON  shift, and go to state 146
 
 
 State 128
 
-   53 while_statement: WHILESYM LPAREN expression RPAREN . compound_statement
+   52 while_statement: WHILESYM LPAREN expression RPAREN . compound_statement
 
     LBRACE  shift, and go to state 20
 
@@ -2103,19 +2099,26 @@ State 128
 
 State 129
 
-   54 write_statement: WRITESYM LPAREN expression RPAREN . SEMICOLON
+   53 write_statement: WRITESYM LPAREN expression RPAREN . SEMICOLON
 
     SEMICOLON  shift, and go to state 148
 
 
 State 130
 
+   56 compound_statement: LBRACE $@10 statement_list RBRACE .
+
+    $default  reduce using rule 56 (compound_statement)
+
+
+State 131
+
    60 var: IDENT LBRACKET expression_list RBRACKET .
 
     $default  reduce using rule 60 (var)
 
 
-State 131
+State 132
 
    62 expression_list: expression_list COMMA . expression
 
@@ -2140,14 +2143,14 @@ State 131
     factor         go to state 54
 
 
-State 132
+State 133
 
    30 dimension: INTEGER .
 
     $default  reduce using rule 30 (dimension)
 
 
-State 133
+State 134
 
    27 identarraydef: IDENT LBRACKET dimensionlist . RBRACKET
    29 dimensionlist: dimensionlist . COMMA dimension
@@ -2156,113 +2159,106 @@ State 133
     COMMA     shift, and go to state 151
 
 
-State 134
+State 135
 
    28 dimensionlist: dimension .
 
     $default  reduce using rule 28 (dimensionlist)
 
 
-State 135
+State 136
 
    19 identdef: IDENT BECOMES factor .
 
     $default  reduce using rule 19 (identdef)
 
 
-State 136
+State 137
 
    17 identlist: identlist COMMA identdef .
 
     $default  reduce using rule 17 (identlist)
 
 
-State 137
+State 138
 
    26 identarraylist: identarraylist COMMA identarraydef .
 
     $default  reduce using rule 26 (identarraylist)
 
 
-State 138
+State 139
 
     9 declaration_stat: typeenum identarraylist $@3 SEMICOLON .
 
     $default  reduce using rule 9 (declaration_stat)
 
 
-State 139
+State 140
 
    66 expression: var $@11 BECOMES expression .
 
     $default  reduce using rule 66 (expression)
 
 
-State 140
+State 141
 
    12 declaration_stat: CONSTSYM typeenum $@4 identlist $@5 . SEMICOLON
 
     SEMICOLON  shift, and go to state 152
 
 
-State 141
+State 142
 
    15 declaration_stat: CONSTSYM typeenum $@6 identarraylist $@7 . SEMICOLON
 
     SEMICOLON  shift, and go to state 153
 
 
-State 142
+State 143
 
    58 do_statement: DOSYM compound_statement WHILESYM LPAREN expression . RPAREN SEMICOLON
 
     RPAREN  shift, and go to state 154
 
 
-State 143
+State 144
 
    57 for_statement: FORSYM LPAREN expression SEMICOLON expression . SEMICOLON expression RPAREN compound_statement
 
     SEMICOLON  shift, and go to state 155
 
 
-State 144
-
-   49 if_statement: IFSYM LPAREN expression RPAREN $@8 . compound_statement
-
-    LBRACE  shift, and go to state 20
-
-    compound_statement  go to state 156
-
-
 State 145
 
-   52 if_statement: IFSYM LPAREN expression RPAREN $@9 . compound_statement $@10 ELSESYM compound_statement
+   48 if_statement: IFSYM LPAREN expression RPAREN compound_statement .
+   51             | IFSYM LPAREN expression RPAREN compound_statement . $@8 ELSESYM $@9 compound_statement
 
-    LBRACE  shift, and go to state 20
+    ELSESYM   reduce using rule 49 ($@8)
+    $default  reduce using rule 48 (if_statement)
 
-    compound_statement  go to state 157
+    $@8  go to state 156
 
 
 State 146
 
-   55 read_statement: READSYM LPAREN var RPAREN SEMICOLON .
+   54 read_statement: READSYM LPAREN var RPAREN SEMICOLON .
 
-    $default  reduce using rule 55 (read_statement)
+    $default  reduce using rule 54 (read_statement)
 
 
 State 147
 
-   53 while_statement: WHILESYM LPAREN expression RPAREN compound_statement .
+   52 while_statement: WHILESYM LPAREN expression RPAREN compound_statement .
 
-    $default  reduce using rule 53 (while_statement)
+    $default  reduce using rule 52 (while_statement)
 
 
 State 148
 
-   54 write_statement: WRITESYM LPAREN expression RPAREN SEMICOLON .
+   53 write_statement: WRITESYM LPAREN expression RPAREN SEMICOLON .
 
-    $default  reduce using rule 54 (write_statement)
+    $default  reduce using rule 53 (write_statement)
 
 
 State 149
@@ -2283,9 +2279,9 @@ State 151
 
    29 dimensionlist: dimensionlist COMMA . dimension
 
-    INTEGER  shift, and go to state 132
+    INTEGER  shift, and go to state 133
 
-    dimension  go to state 158
+    dimension  go to state 157
 
 
 State 152
@@ -2306,7 +2302,7 @@ State 154
 
    58 do_statement: DOSYM compound_statement WHILESYM LPAREN expression RPAREN . SEMICOLON
 
-    SEMICOLON  shift, and go to state 159
+    SEMICOLON  shift, and go to state 158
 
 
 State 155
@@ -2326,7 +2322,7 @@ State 155
     REAL      shift, and go to state 32
 
     var            go to state 47
-    expression     go to state 160
+    expression     go to state 159
     simple_expr    go to state 50
     SINGLEOPR      go to state 51
     additive_expr  go to state 52
@@ -2336,51 +2332,53 @@ State 155
 
 State 156
 
-   49 if_statement: IFSYM LPAREN expression RPAREN $@8 compound_statement .
+   51 if_statement: IFSYM LPAREN expression RPAREN compound_statement $@8 . ELSESYM $@9 compound_statement
 
-    $default  reduce using rule 49 (if_statement)
+    ELSESYM  shift, and go to state 160
 
 
 State 157
-
-   52 if_statement: IFSYM LPAREN expression RPAREN $@9 compound_statement . $@10 ELSESYM compound_statement
-
-    $default  reduce using rule 51 ($@10)
-
-    $@10  go to state 161
-
-
-State 158
 
    29 dimensionlist: dimensionlist COMMA dimension .
 
     $default  reduce using rule 29 (dimensionlist)
 
 
-State 159
+State 158
 
    58 do_statement: DOSYM compound_statement WHILESYM LPAREN expression RPAREN SEMICOLON .
 
     $default  reduce using rule 58 (do_statement)
 
 
-State 160
+State 159
 
    57 for_statement: FORSYM LPAREN expression SEMICOLON expression SEMICOLON expression . RPAREN compound_statement
 
-    RPAREN  shift, and go to state 162
+    RPAREN  shift, and go to state 161
+
+
+State 160
+
+   51 if_statement: IFSYM LPAREN expression RPAREN compound_statement $@8 ELSESYM . $@9 compound_statement
+
+    $default  reduce using rule 50 ($@9)
+
+    $@9  go to state 162
 
 
 State 161
 
-   52 if_statement: IFSYM LPAREN expression RPAREN $@9 compound_statement $@10 . ELSESYM compound_statement
+   57 for_statement: FORSYM LPAREN expression SEMICOLON expression SEMICOLON expression RPAREN . compound_statement
 
-    ELSESYM  shift, and go to state 163
+    LBRACE  shift, and go to state 20
+
+    compound_statement  go to state 163
 
 
 State 162
 
-   57 for_statement: FORSYM LPAREN expression SEMICOLON expression SEMICOLON expression RPAREN . compound_statement
+   51 if_statement: IFSYM LPAREN expression RPAREN compound_statement $@8 ELSESYM $@9 . compound_statement
 
     LBRACE  shift, and go to state 20
 
@@ -2389,22 +2387,13 @@ State 162
 
 State 163
 
-   52 if_statement: IFSYM LPAREN expression RPAREN $@9 compound_statement $@10 ELSESYM . compound_statement
-
-    LBRACE  shift, and go to state 20
-
-    compound_statement  go to state 165
-
-
-State 164
-
    57 for_statement: FORSYM LPAREN expression SEMICOLON expression SEMICOLON expression RPAREN compound_statement .
 
     $default  reduce using rule 57 (for_statement)
 
 
-State 165
+State 164
 
-   52 if_statement: IFSYM LPAREN expression RPAREN $@9 compound_statement $@10 ELSESYM compound_statement .
+   51 if_statement: IFSYM LPAREN expression RPAREN compound_statement $@8 ELSESYM $@9 compound_statement .
 
-    $default  reduce using rule 52 (if_statement)
+    $default  reduce using rule 51 (if_statement)

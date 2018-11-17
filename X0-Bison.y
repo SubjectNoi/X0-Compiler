@@ -129,6 +129,7 @@ int			back_patch_idx = 0;
 int 		curr_ident_array_or_not = 0;
 int			static_back_patch_idx;
 int			static_back_patch_val;
+int			else_compound;
 
 struct expression_result {
 	enum	data_type	t;
@@ -414,20 +415,17 @@ continue_stat:			CONTINUESYM SEMICOLON
 break_stat:				BREAKSYM SEMICOLON
 						;
 						
-if_statement:		  	IFSYM LPAREN expression RPAREN {
-							static_back_patch_idx = vm_code_pointer;
-							int opran = 0;
-							gen(jpc, 0, (byte*)opran);
-						} compound_statement {
+if_statement:		  	IFSYM LPAREN expression RPAREN compound_statement {
 							static_back_patch_val = vm_code_pointer;
 							memcpy((void*)code[static_back_patch_idx].opr, (const void*)&static_back_patch_val, STRING_LEN);
 						}
-					  | IFSYM LPAREN expression RPAREN {
-
-					  	} compound_statement {
-
-						} ELSESYM compound_statement {
-
+					  | IFSYM LPAREN expression RPAREN compound_statement {
+							static_back_patch_val = vm_code_pointer + 1;
+							memcpy((void*)code[static_back_patch_idx].opr, (const void*)&static_back_patch_val, STRING_LEN);
+					  	} ELSESYM { else_compound = 1; } compound_statement { 
+							static_back_patch_val = vm_code_pointer;
+							memcpy((void*)code[static_back_patch_idx].opr, (const void*)&static_back_patch_val, STRING_LEN);
+							else_compound = 0; 
 						}
 						;
 	
@@ -437,13 +435,10 @@ while_statement:		WHILESYM LPAREN expression RPAREN compound_statement
 write_statement:		WRITESYM LPAREN expression RPAREN SEMICOLON {
 							int opran = 19;
 							gen(opr, $3, (byte*)opran);
-
 						}
 						;
 	
 read_statement:			READSYM LPAREN var RPAREN SEMICOLON {
-							// Look up from sym_table by ident name
-							// Then access address filled in the sym_table
 							int id_addr;
 							enum object tmp;
 							for (int i = 1; i <= sym_tab_tail; i++) {
@@ -503,7 +498,12 @@ read_statement:			READSYM LPAREN var RPAREN SEMICOLON {
 						}
 						;
 						
-compound_statement:		LBRACE statement_list RBRACE
+compound_statement:		LBRACE {
+							static_back_patch_idx = vm_code_pointer;
+							int opran = 0;
+							if (!else_compound) gen(jpc, 0, (byte*)opran);
+							else gen(jmp, 0, (byte*)opran);
+						} statement_list RBRACE
 						;
 						
 for_statement:			FORSYM LPAREN expression SEMICOLON expression SEMICOLON expression RPAREN compound_statement

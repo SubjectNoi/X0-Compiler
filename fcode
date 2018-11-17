@@ -5,13 +5,16 @@
    4 lod    2    3
    5 lod    2    4
    6 opr    2    7
-   7 jpc    0   10
-   8 lit    4 a equal b
+   7 jpc    0   11
+   8 lit    4 a == b
    9 opr    4   19
-  10 lod    2    3
-  11 lod    2    4
-  12 opr    2    2
-  13 opr    2   19
+  10 jmp    0   13
+  11 lit    4 a != b
+  12 opr    4   19
+  13 lod    2    3
+  14 lod    2    4
+  15 opr    2    2
+  16 opr    2   19
    0 opr    2   20
    1 sto    2    3
    2 opr    2   20
@@ -19,10 +22,13 @@
    4 lod    2    3
    5 lod    2    4
    6 opr    2    7
-   7 jpc    0   10
-   8 lit    4 a equal b
+   7 jpc    0   11
+   8 lit    4 a == b
    9 opr    4   19
-  10 lod    2    3
-  11 lod    2    4
-  12 opr    2    2
-  13 opr    2   19
+  10 jmp    0   13
+  11 lit    4 a != b
+  12 opr    4   19
+  13 lod    2    3
+  14 lod    2    4
+  15 opr    2    2
+  16 opr    2   19
