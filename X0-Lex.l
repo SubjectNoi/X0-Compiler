@@ -77,6 +77,8 @@ int 		line = 1;
 ">="			{return GEQ;}
 "=="			{return EQL;}
 "!="			{return NEQ;}
+"<<"			{return RL;}
+">>"			{return RR;}
 "+"				{return PLUS;}
 "++"			{return INCPLUS;}
 "-"				{return MINUS;}

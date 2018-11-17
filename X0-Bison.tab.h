@@ -62,46 +62,48 @@ extern int yydebug;
     READSYM = 272,
     REALSYM = 273,
     REPEATSYM = 274,
-    STRINGSYM = 275,
-    SWITCHSYM = 276,
-    UNTILSYM = 277,
-    WHILESYM = 278,
-    WRITESYM = 279,
-    LBRACE = 280,
-    RBRACE = 281,
-    LBRACKET = 282,
-    RBRACKET = 283,
-    BECOMES = 284,
-    COMMA = 285,
-    LSS = 286,
-    LEQ = 287,
-    GTR = 288,
-    GEQ = 289,
-    EQL = 290,
-    NEQ = 291,
-    PLUS = 292,
-    INCPLUS = 293,
-    MINUS = 294,
-    INCMINUS = 295,
-    TIMES = 296,
-    DEVIDE = 297,
-    LPAREN = 298,
-    RPAREN = 299,
-    MOD = 300,
-    SEMICOLON = 301,
-    XOR = 302,
-    AND = 303,
-    OR = 304,
-    NOT = 305,
-    YAJU = 306,
-    YARIMASUNESYM = 307,
-    KIBONOHANASYM = 308,
-    IDENT = 309,
-    INTEGER = 310,
-    STRING = 311,
-    CHAR = 312,
-    BOOL = 313,
-    REAL = 314
+    RR = 275,
+    RL = 276,
+    STRINGSYM = 277,
+    SWITCHSYM = 278,
+    UNTILSYM = 279,
+    WHILESYM = 280,
+    WRITESYM = 281,
+    LBRACE = 282,
+    RBRACE = 283,
+    LBRACKET = 284,
+    RBRACKET = 285,
+    BECOMES = 286,
+    COMMA = 287,
+    LSS = 288,
+    LEQ = 289,
+    GTR = 290,
+    GEQ = 291,
+    EQL = 292,
+    NEQ = 293,
+    PLUS = 294,
+    INCPLUS = 295,
+    MINUS = 296,
+    INCMINUS = 297,
+    TIMES = 298,
+    DEVIDE = 299,
+    LPAREN = 300,
+    RPAREN = 301,
+    MOD = 302,
+    SEMICOLON = 303,
+    XOR = 304,
+    AND = 305,
+    OR = 306,
+    NOT = 307,
+    YAJU = 308,
+    YARIMASUNESYM = 309,
+    KIBONOHANASYM = 310,
+    IDENT = 311,
+    INTEGER = 312,
+    STRING = 313,
+    CHAR = 314,
+    BOOL = 315,
+    REAL = 316
   };
 #endif
 
@@ -110,7 +112,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 155 "X0-Bison.y" /* yacc.c:1909  */
+#line 159 "X0-Bison.y" /* yacc.c:1909  */
 
 	char 	*ident;
 	int 	number;
@@ -119,7 +121,7 @@ union YYSTYPE
 	int 	flag;
 	double 	realnumber;
 
-#line 123 "X0-Bison.tab.h" /* yacc.c:1909  */
+#line 125 "X0-Bison.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

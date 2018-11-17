@@ -1,11 +1,9 @@
 main {
-	integer a[10, 20, 30];
-	a[3, 4, 5] := 2;
-	a[3,4,6] := 4;
-	write(a[3,4,6]);
-	write(a[3,4,5]);
-
-	integer b[20, 10];
-	b[1,2] := 25;
+	integer a, b;
+	read(a);
+	read(b);
+	if (a == b) {
+		write("a equal b");
+	}
+	write(a + b);
 }
-

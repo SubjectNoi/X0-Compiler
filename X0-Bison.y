@@ -4,6 +4,7 @@
 #include <malloc.h>
 #include <memory.h>
 #include <string.h>
+#include <math.h>
 
 #define bool 			int
 #define true 			1
@@ -18,6 +19,7 @@
 #define STRING_LEN		201				// Max length of const string
 #define ERROR_MAG_NUM	1145141919810	// For error processing
 #define MAX_ARR_DIM		10				// Max dimension of the array
+#define FLOAT_EPS		0.001			// Using for float opran comparing
 
 typedef unsigned char byte;
 int cnt = 0;
@@ -125,6 +127,8 @@ int 		glob_var_addr;
 int			back_patch_list[STRING_LEN];
 int			back_patch_idx = 0;
 int 		curr_ident_array_or_not = 0;
+int			static_back_patch_idx;
+int			static_back_patch_val;
 
 struct expression_result {
 	enum	data_type	t;
@@ -162,7 +166,7 @@ void 		gen(enum fct x, int y, byte* z);
 }
 
 %token BOOLSYM, BREAKSYM, CALLSYM, CASESYM, CHARSYM, CONSTSYM, CONTINUESYM, DOSYM, ELSESYM
-%token ELSESYM, EXITSYM, FORSYM, INTSYM, IFSYM, MAINSYM, READSYM, REALSYM, REPEATSYM
+%token ELSESYM, EXITSYM, FORSYM, INTSYM, IFSYM, MAINSYM, READSYM, REALSYM, REPEATSYM, RR, RL
 %token STRINGSYM, SWITCHSYM, UNTILSYM, WHILESYM, WRITESYM, LBRACE, RBRACE, LBRACKET, RBRACKET
 %token BECOMES, COMMA, LSS, LEQ, GTR, GEQ, EQL, NEQ, PLUS, INCPLUS, MINUS, INCMINUS,TIMES, DEVIDE
 %token LPAREN, RPAREN, MOD, SEMICOLON, XOR, AND, OR, NOT, YAJU, YARIMASUNESYM, KIBONOHANASYM
@@ -179,7 +183,7 @@ void 		gen(enum fct x, int y, byte* z);
 %type <number>			identlist, identarraylist, identdef
 %type <number>			simple_expr, SINGLEOPR
 %type <number>			dimension, dimensionlist, PLUSMINUS, TIMESDEVIDE
-%type <number>			expression_list						// This Expression only for ARRAY LOCATING!!!!!!!!
+%type <number>			expression_list, OPR 				// This Expression only for ARRAY LOCATING!!!!!!!!
 %%
 
 program: 				MAINSYM 
@@ -271,10 +275,6 @@ identdef:				IDENT {
 							}
 							else {									// Variable declaration, pre-init required?
 								var_decl_with_init_or_not = 1;
-								// if (cur_decl_type != $3) {
-								// 	yyerror("Incopnpitable type!\n");
-								// }
-								// else {
 								strcpy(id_name, $1);
 									switch (cur_decl_type) {
 										case 2:
@@ -330,12 +330,6 @@ identarraydef:			IDENT LBRACKET dimensionlist RBRACKET {
 								tmp_arr_list[i] = tmp_arr_list[MAX_ARR_DIM - 1 - i];
 								tmp_arr_list[MAX_ARR_DIM - 1 - i] = tmp;
 							}
-							// for (i = MAX_ARR_DIM - 1; i >= 0; i--) {
-							// 	if (tmp_arr_list[i]) {
-							// 		tmp_arr_list[i] = 1;
-							// 		break;
-							// 	}
-							// }
 							if (constant_decl_or_not == 1) {
 								switch (cur_decl_type) {
 									case 2:
@@ -420,8 +414,21 @@ continue_stat:			CONTINUESYM SEMICOLON
 break_stat:				BREAKSYM SEMICOLON
 						;
 						
-if_statement:			IFSYM LPAREN expression RPAREN compound_statement 
-					  | IFSYM LPAREN expression RPAREN compound_statement ELSESYM compound_statement 
+if_statement:		  	IFSYM LPAREN expression RPAREN {
+							static_back_patch_idx = vm_code_pointer;
+							int opran = 0;
+							gen(jpc, 0, (byte*)opran);
+						} compound_statement {
+							static_back_patch_val = vm_code_pointer;
+							memcpy((void*)code[static_back_patch_idx].opr, (const void*)&static_back_patch_val, STRING_LEN);
+						}
+					  | IFSYM LPAREN expression RPAREN {
+
+					  	} compound_statement {
+
+						} ELSESYM compound_statement {
+
+						}
 						;
 	
 while_statement:		WHILESYM LPAREN expression RPAREN compound_statement
@@ -449,33 +456,43 @@ read_statement:			READSYM LPAREN var RPAREN SEMICOLON {
 							int lev, opran;
 							switch (tmp) {
 								case constant_int:
+								case constant_int_array:
 									yyerror("Trying to change constant variable!\n");
 									break;
 								case variable_int:
+								case variable_int_array:
 									lev = 2;
 									break;
 								case constant_real:
+								case constant_real_array:
 									yyerror("Trying to change constant variable!\n");
 									break;
 								case variable_real:
+								case variable_real_array:
 									lev = 3;
 									break;
 								case constant_string:
+								case constant_string_array:
 									yyerror("Trying to change constant variable!\n");
 									break;
 								case variable_string:
+								case variable_string_array:
 									lev = 4;
 									break;
 								case constant_char:
+								case constant_char_array:
 									yyerror("Trying to change constant variable!\n");
 									break;
 								case variable_char:
+								case variable_char_array:
 									lev = 6;
 									break;
 								case constant_bool:
+								case constant_bool_array:
 									yyerror("Trying to change constant variable!\n");
 									break;
 								case variable_bool:
+								case variable_bool_array:
 									lev = 5;
 									break;
 							}
@@ -631,7 +648,15 @@ expression:				var {
 						;
 
 simple_expr:			additive_expr { $$ = $1; }
-					  | additive_expr OPR additive_expr { $$ = 5; }
+					  | additive_expr OPR additive_expr { 
+						  	$$ = 5; 						// res is bool
+							int opran;
+							if ($1 != $3) {
+								yyerror("Different type between bool operator!\n");
+							}
+							opran = $2 + 6;					// reference line 1284 and line 679
+							gen(opr, $1, (byte*)opran);
+						}
 					  | additive_expr SINGLEOPR { 
 						  	$$ = $1;
 						  	int var_addr = find_addr_of_ident(curr_read_write_ident);
@@ -645,6 +670,7 @@ simple_expr:			additive_expr { $$ = $1; }
 					  | SINGLEOPR additive_expr { 
 						  	// @todo: Finish stuff like ++a --a 
 						  	$$ = $2; 
+							int var_addr = find_addr_of_ident(curr_read_write_ident);
 						}
 						;
 
@@ -659,22 +685,40 @@ SINGLEOPR:				INCPLUS {
 					  	}
 						;
 
-OPR:					EQL 
-					  | NEQ 
-					  | LSS 
-					  | LEQ 
-					  | GTR 
-					  | GEQ 
-					  | AND 
-					  | OR 
-					  | XOR
+OPR:					EQL {
+							$$ = 1;
+						}
+					  | NEQ {
+						  	$$ = 2;
+					  	}
+					  | LSS {
+						  	$$ = 3;
+					  	}
+					  | LEQ {
+						  	$$ = 4;
+					  	}
+					  | GTR {
+						  	$$ = 5;
+					  	}
+					  | GEQ {
+						  	$$ = 6;
+					  	}
+					  | AND {
+						  	$$ = 7;
+					  	}
+					  | OR {
+						  	$$ = 8;
+					 	}
+					  | XOR {
+						  	$$ = 9;
+					 	}
 						;
 
 additive_expr:			term {
 							$$ = $1;
 						}
 					  | additive_expr PLUSMINUS term {
-							$$ = $1;
+							$$ = type_max($1, $3);
 							int opran = ($2 == 1 ? 2 : 3);
 							gen(opr, $$, (byte*)opran);
 					  	}
@@ -692,7 +736,7 @@ term:					factor {
 							$$ = $1;
 						}
 					  | term TIMESDEVIDE factor {
-							$$ = $1;
+							$$ = type_max($1, $3);
 							int opran = ($2 == 1 ? 4 : ($2 == 2 ? 5 : 6));
 							gen(opr, $$, (byte*)opran);
 					  	}
@@ -745,10 +789,6 @@ factor:					LPAREN expression RPAREN {
 										}
 									}
 								}
-								// if (curr_ident_array_or_not) {
-								// 	back_patch_list[back_patch_idx++] = vm_code_pointer;
-								// 	var_addr = -1;
-								// }
 								gen(lod, $1, (byte*)var_addr);
 							}
 							stack_top++;
@@ -999,8 +1039,6 @@ int find_addr_of_ident(char *s) {
 	return addr;
 }
 
-int cur_pc = 0;
-
 void interpret() {
 	// Unknown error of unexpected output!
 	int 		pc = 0;
@@ -1008,7 +1046,10 @@ void interpret() {
 	struct 		instruction i;
 	int			addr;
 	int			iter;
+	int			jter;
 	int			res;
+	int 		addr_to_find_array_in_table;
+	int			bool_opr1, bool_opr2;
 	memset(inbuf_string, 0, sizeof inbuf_string);
 	printf("Start X0\n");
 	fprintf(fresult, "Start X0\n");
@@ -1246,14 +1287,72 @@ void interpret() {
 						}
 						break;
 					case 7:								// 2 opr ==
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = *(int*)&s[stack_top].val == *(int*)&s[stack_top + 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 3:
+								outter_int = abs(*(float*)&s[stack_top].val - *(float*)&s[stack_top + 1].val) < FLOAT_EPS ? 1 : 0;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 4:
+								outter_int = !strcmp(s[stack_top].val, s[stack_top + 1].val);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 5:
+								bool_opr1 = *(int*)&s[stack_top].val, bool_opr2 = *(int*)&s[stack_top + 1].val;
+								outter_int = (bool_opr1 * bool_opr2 || (!bool_opr1 && !bool_opr2)) ? 1 : 0;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 6:
+								outter_int = *(char*)&s[stack_top].val == *(char*)&s[stack_top + 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+						}
 						break;
 					case 8:								// 2 opr !=
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = !(*(int*)&s[stack_top].val == *(int*)&s[stack_top + 1].val);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 3:
+								outter_int = !(abs(*(float*)&s[stack_top].val - *(float*)&s[stack_top + 1].val) < FLOAT_EPS ? 1 : 0);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 4:
+								outter_int = strcmp(s[stack_top].val, s[stack_top + 1].val);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 5:
+								bool_opr1 = *(int*)&s[stack_top].val, bool_opr2 = *(int*)&s[stack_top + 1].val;
+								outter_int = !((bool_opr1 * bool_opr2 || (!bool_opr1 && !bool_opr2)) ? 1 : 0);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 6:
+								outter_int = !(*(char*)&s[stack_top].val == *(char*)&s[stack_top + 1].val);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+						}
 						break;
 					case 9:								// 2 opr <
 						break;
-					case 10:							// 2 opr >
+					case 10:							// 2 opr <=
 						break;
-					case 11:							// 2 opr <=
+					case 11:							// 2 opr >
 						break;
 					case 12:							// 2 opr >=
 						break;
@@ -1291,7 +1390,7 @@ void interpret() {
 						stack_top--;
 						break;
 					case 20:							// input
-						//stack_top++;
+						stack_top++;
 						//printf("INPUT:\n");
 						switch (i.lev) {
 							case 2:
@@ -1324,6 +1423,12 @@ void interpret() {
 								getchar();
 								break;
 						}
+						break;
+					case 21: 						// <<
+
+						break;
+					case 22:						// >>
+
 						break;
 				}
 				break;
@@ -1382,17 +1487,31 @@ void interpret() {
 				stack_top = stack_top + *(int*)&i.opr;
 				break;
 			case jmp:
+				pc = *(int*)&i.opr;
 				break;
 			case jpc:
+				if (*(int*)&s[stack_top].val == 0) {		// jump when condition not true
+					pc = *(int*)&i.opr;
+				}
+				stack_top--;
 				break;
 			case off:
 				res = 0;
+				addr_to_find_array_in_table = *(int*)&i.opr;
+				for (iter = 1; iter <= sym_tab_tail; iter++) {
+					if (table[iter].addr == addr_to_find_array_in_table) {
+						for (jter = 0; jter < MAX_ARR_DIM; jter++) {
+							tmp_arr_list[jter] = table[iter].array_dim[jter];
+						}
+						break;
+					}
+				}
 				for (iter = 0; iter < i.lev; iter++) {
 					res += (*(int*)&s[stack_top].val) * tmp_arr_list[i.lev - iter - 1];
 					stack_top--;
 				}
 				res += *(int*)&i.opr;
-				for (iter = cur_pc; iter < vm_code_pointer; iter++) {
+				for (iter = pc; iter < vm_code_pointer; iter++) {
 					if (code[iter].f == lod || code[iter].f == sto) {
 						back_patch(iter, (byte*)res);
 						break;
@@ -1400,9 +1519,12 @@ void interpret() {
 				}
 				break;
 		}
-
 		//print_data_stack();
-	} while (cur_pc++ != vm_code_pointer);
+	} while (pc != vm_code_pointer);
+}
+
+int type_max(int a, int b) {
+	return a > b ? a : b;
 }
 
 void back_patch(int ins_idx, byte op[STRING_LEN]) {
@@ -1487,6 +1609,7 @@ int main(int argc, int **argv) {
 	}
 	redirectInput(f);
 	init();
+	int opran = 0;
 	//while (tok = yylex()) printf("%d\n", tok);
 	yyparse();
 	display_sym_tab();

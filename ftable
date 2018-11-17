@@ -1,2 +1,2 @@
-         1	variable	array	                   a:	address:         3
-         2	variable	array	                   b:	address:      6003
+         1	variable	integer	                   a:	Initialized or not = 0
+         2	variable	integer	                   b:	Initialized or not = 0
