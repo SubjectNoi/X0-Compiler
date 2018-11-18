@@ -130,6 +130,10 @@ int 		curr_ident_array_or_not = 0;
 int			static_back_patch_idx;
 int			static_back_patch_val;
 int			else_compound;
+int 		while_compound;
+int			while_static_back_patch_idx;
+int			while_static_back_patch_val;
+int			while_start_idx;
 
 struct expression_result {
 	enum	data_type	t;
@@ -429,7 +433,16 @@ if_statement:		  	IFSYM LPAREN expression RPAREN compound_statement {
 						}
 						;
 	
-while_statement:		WHILESYM LPAREN expression RPAREN compound_statement
+while_statement:		WHILESYM { while_compound = 1; } LPAREN { 
+							while_start_idx = vm_code_pointer;
+ 						} expression RPAREN {
+							while_static_back_patch_idx = vm_code_pointer;
+						} compound_statement {
+							gen(jmp, 0, (byte*)while_start_idx);
+							while_compound = 0;
+							while_static_back_patch_val = vm_code_pointer;
+							memcpy((void*)code[while_static_back_patch_idx].opr, (const void*)&while_static_back_patch_val, STRING_LEN);
+						}
 						;
 	
 write_statement:		WRITESYM LPAREN expression RPAREN SEMICOLON {

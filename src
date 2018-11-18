@@ -1,16 +1,17 @@
 main {
-	integer a, b;
+	integer a;
+	write("Please input the number of test set:");
 	read(a);
-	read(b);
-	if (a != 1) {
-		write("a != 1");
+	while (a--) {
+		integer b, c;
+		write("Please input 2 integer:");
+		read(b);
+		read(c);
+		if (b == c) {
+			write("b eql c");
+		}
+		else {
+			write("b dif c");
+		}
 	}
-	if (a == b) {
-		write("a == b");
-	}
-	else {
-		write("a != b");
-	}
-	/* if-if-else still problem, fix later. */
-	write(a + b);
 }
