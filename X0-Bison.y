@@ -134,6 +134,13 @@ int 		while_compound;
 int			while_static_back_patch_idx;
 int			while_static_back_patch_val;
 int			while_start_idx;
+int			do_start_idx;
+int			break_return_address_by_level[DEPTH_MAX];			// Using to recording return address of for, while, do, switch per level to back patch the break statement
+int			continue_return_address_by_level[DEPTH_MAX];
+int			cur_break_level = 0;
+int			cur_continue_level = 0;
+int			break_statement_address[DEPTH_MAX][STRING_LEN];
+int			continue_statement_address[DEPTH_MAX][STRING_LEN];	// Allowed up to 200 continue and break.
 
 struct expression_result {
 	enum	data_type	t;
@@ -189,6 +196,7 @@ void 		gen(enum fct x, int y, byte* z);
 %type <number>			simple_expr, SINGLEOPR
 %type <number>			dimension, dimensionlist, PLUSMINUS, TIMESDEVIDE
 %type <number>			expression_list, OPR 				// This Expression only for ARRAY LOCATING!!!!!!!!
+%type <number>			statement, statement_list
 %%
 
 program: 				MAINSYM 
@@ -395,28 +403,31 @@ dimension:				INTEGER {
 						;
 
 statement_list:			statement_list statement 
-					  | statement 
+					  | statement
 					  | 
 						;
 						
 statement:				expression_statement 
-					  | if_statement 
-					  | while_statement 
-					  | read_statement 
-					  | write_statement 
-					  | compound_statement 
-					  | for_statement 
-					  | do_statement 
-					  | declaration_list
-					  | continue_stat 
-					  | break_stat 
+					  | if_statement 		
+					  | while_statement 	
+					  | read_statement 		
+					  | write_statement 	
+					  | compound_statement 	
+					  | for_statement 		
+					  | do_statement 		
+					  | declaration_list 	
+					  | continue_stat 			
+					  | break_stat 				
 					  |
 						;
 						
 continue_stat:			CONTINUESYM SEMICOLON
 						;
 						
-break_stat:				BREAKSYM SEMICOLON
+break_stat:				BREAKSYM SEMICOLON {
+							int opran = 0;
+							gen(jmp, 0, (byte*)opran);
+						}
 						;
 						
 if_statement:		  	IFSYM LPAREN expression RPAREN compound_statement {
@@ -522,7 +533,7 @@ compound_statement:		LBRACE {
 for_statement:			FORSYM LPAREN expression SEMICOLON expression SEMICOLON expression RPAREN compound_statement
 						;
 						
-do_statement:			DOSYM compound_statement WHILESYM LPAREN expression RPAREN SEMICOLON
+do_statement:			DOSYM { do_start_idx = 1; } compound_statement WHILESYM LPAREN expression RPAREN SEMICOLON
 						;
 	
 var:					IDENT {
