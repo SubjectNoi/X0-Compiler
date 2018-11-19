@@ -1,0 +1,14 @@
+main {
+    integer a;
+    read(a);
+    while (a--) {
+        integer b;
+        read(b);
+        if (b == 3) {
+            break;
+        }
+        else {
+            write("no need to break");
+        }
+    }
+}

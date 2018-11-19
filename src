@@ -1,8 +1,23 @@
 main {
-	integer a := 5;
+	integer a, b;
+	read(a);
 	while (a--) {
-		if (a == 3) {
+		read(b);
+		if (b == -1) {
 			break;
 		}
+		else {
+			while (b--) {
+				integer c;
+				read(c);
+				if (c == -2) {
+					break;
+				}
+				else {
+					write(b + c);
+				}
+			}
+		}
 	}
+	/* jpc/jmp bug in line 7 15 may be in if-statement, fix it */
 }

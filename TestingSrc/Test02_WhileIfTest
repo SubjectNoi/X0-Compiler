@@ -1,0 +1,17 @@
+main {
+	integer a;
+	write("Please input the number of test set:");
+	read(a);
+	while (a--) {
+		integer b, c;
+		write("Please input 2 integer:");
+		read(b);
+		read(c);
+		if (b == c) {
+			write("b eql c");
+		}
+		else {
+			write("b dif c");
+		}
+	}
+}

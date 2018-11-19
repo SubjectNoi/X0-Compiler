@@ -141,6 +141,9 @@ int			cur_break_level = 0;
 int			cur_continue_level = 0;
 int			break_statement_address[DEPTH_MAX][STRING_LEN];
 int			continue_statement_address[DEPTH_MAX][STRING_LEN];	// Allowed up to 200 continue and break.
+int			cur_level = 0;
+int			else_remedy_idx;
+int			else_remedy_val;
 
 struct expression_result {
 	enum	data_type	t;
@@ -196,16 +199,15 @@ void 		gen(enum fct x, int y, byte* z);
 %type <number>			simple_expr, SINGLEOPR
 %type <number>			dimension, dimensionlist, PLUSMINUS, TIMESDEVIDE
 %type <number>			expression_list, OPR 				// This Expression only for ARRAY LOCATING!!!!!!!!
-%type <number>			statement, statement_list
+%type <number>			statement, statement_list, compound_statement, while_statement, for_statement, do_statement, program, if_statement, else_list
 %%
 
 program: 				MAINSYM 
-						{	
+						LBRACE {
+							cur_level = 0;
+							memset(break_statement_address, -1, sizeof break_statement_address);
 						}
-						LBRACE 
-						statement_list 
-						{
-						
+						statement_list {
 						}
 						RBRACE 
 						;
@@ -402,19 +404,19 @@ dimension:				INTEGER {
 						}
 						;
 
-statement_list:			statement_list statement 
-					  | statement
+statement_list:			statement_list statement
+					  | statement 
 					  | 
 						;
 						
 statement:				expression_statement 
-					  | if_statement 		
+					  | if_statement 	
 					  | while_statement 	
-					  | read_statement 		
-					  | write_statement 	
+					  | read_statement 	
+					  | write_statement 
 					  | compound_statement 	
-					  | for_statement 		
-					  | do_statement 		
+					  | for_statement 	
+					  | do_statement 			
 					  | declaration_list 	
 					  | continue_stat 			
 					  | break_stat 				
@@ -425,25 +427,43 @@ continue_stat:			CONTINUESYM SEMICOLON
 						;
 						
 break_stat:				BREAKSYM SEMICOLON {
+							int break_statement_address_idx = 0, iter, level = cur_level - 1;
+							//printf("current break level: %d\n", level);
+							for (iter = 0; iter < STRING_LEN; iter++) {
+								if (break_statement_address[level][iter] < 0) {
+									break_statement_address[level][iter] = vm_code_pointer;
+									break;
+								}
+							}
 							int opran = 0;
 							gen(jmp, 0, (byte*)opran);
+							// break_statement_address[cur_level - 1].push_back(vm_code_pointer);
 						}
 						;
 						
-if_statement:		  	IFSYM LPAREN expression RPAREN compound_statement {
+if_statement:		  	IFSYM LPAREN expression RPAREN { cur_level --; } compound_statement {
+							else_remedy_idx = static_back_patch_idx;
 							static_back_patch_val = vm_code_pointer;
+							else_remedy_val = static_back_patch_val + 1;
 							memcpy((void*)code[static_back_patch_idx].opr, (const void*)&static_back_patch_val, STRING_LEN);
-						}
-					  | IFSYM LPAREN expression RPAREN compound_statement {
-							static_back_patch_val = vm_code_pointer + 1;
-							memcpy((void*)code[static_back_patch_idx].opr, (const void*)&static_back_patch_val, STRING_LEN);
-					  	} ELSESYM { else_compound = 1; } compound_statement { 
-							static_back_patch_val = vm_code_pointer;
-							memcpy((void*)code[static_back_patch_idx].opr, (const void*)&static_back_patch_val, STRING_LEN);
-							else_compound = 0; 
+					  	} else_list {
+							cur_level++;
+							if ($8 == 1) {
+								memcpy((void*)code[else_remedy_idx].opr, (const void*)&else_remedy_val, STRING_LEN);
+							}
 						}
 						;
-	
+
+else_list:				ELSESYM { else_compound = 1; } compound_statement { 
+							static_back_patch_val = vm_code_pointer;
+							memcpy((void*)code[static_back_patch_idx].opr, (const void*)&static_back_patch_val, STRING_LEN);
+							else_compound = 0;
+							$$ = 1;
+						}
+					  |	{ $$ = 0; }
+						;
+
+
 while_statement:		WHILESYM { while_compound = 1; } LPAREN { 
 							while_start_idx = vm_code_pointer;
  						} expression RPAREN {
@@ -453,6 +473,19 @@ while_statement:		WHILESYM { while_compound = 1; } LPAREN {
 							while_compound = 0;
 							while_static_back_patch_val = vm_code_pointer;
 							memcpy((void*)code[while_static_back_patch_idx].opr, (const void*)&while_static_back_patch_val, STRING_LEN);
+							int iter;
+							printf("curr while level %d\n", cur_level);
+							for (iter = 0; iter < STRING_LEN; iter++) {
+								if (break_statement_address[cur_level][iter] != -1) {
+									//printf("while break %d\n", break_statement_address[cur_level][iter]);
+									memcpy((void*)code[break_statement_address[cur_level][iter]].opr, (const void*)&vm_code_pointer, STRING_LEN);
+								}
+								else {
+									break;
+								}
+							}
+							//printf("while end: %d\n", vm_code_pointer);
+							// memset this level
 						}
 						;
 	
@@ -523,11 +556,14 @@ read_statement:			READSYM LPAREN var RPAREN SEMICOLON {
 						;
 						
 compound_statement:		LBRACE {
+							cur_level++;
 							static_back_patch_idx = vm_code_pointer;
 							int opran = 0;
 							if (!else_compound) gen(jpc, 0, (byte*)opran);
 							else gen(jmp, 0, (byte*)opran);
-						} statement_list RBRACE
+						} statement_list RBRACE {
+							cur_level--;
+						}
 						;
 						
 for_statement:			FORSYM LPAREN expression SEMICOLON expression SEMICOLON expression RPAREN compound_statement
