@@ -1566,6 +1566,12 @@ void interpret() {
 						break;
 					}
 				}
+				for (iter = MAX_ARR_DIM - 1; iter >= 0; iter--) {
+					if (tmp_arr_list[iter]) {
+						tmp_arr_list[iter] = 1;
+						break;
+					}
+				}
 				for (iter = 0; iter < i.lev; iter++) {
 					res += (*(int*)&s[stack_top].val) * tmp_arr_list[i.lev - iter - 1];
 					stack_top--;
@@ -1577,6 +1583,8 @@ void interpret() {
 						break;
 					}
 				}
+				// listall();
+				// printf("=============================================================\n");
 				break;
 		}
 		//print_data_stack();
@@ -1675,6 +1683,6 @@ int main(int argc, int **argv) {
 	display_sym_tab();
 	listall();
 	interpret();
-	listall();
+	//listall();
 	//print_data_stack();
 }
