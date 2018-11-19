@@ -24,7 +24,7 @@
   23 lod    2    9
   24 lit    2    0
   25 opr    2    8
-  26 jpc    0   36
+  26 jpc    0   43
   27 lod    2    9
   28 lit    2    1
   29 opr    2    3
@@ -32,5 +32,12 @@
   31 lod    2    9
   32 off    1    4
   33 lod    2    4
-  34 opr    2   19
-  35 jmp    0   23
+  34 lit    2    3
+  35 opr    2    7
+  36 jpc    0   38
+  37 jmp    0   43
+  38 lod    2    9
+  39 off    1    4
+  40 lod    2    4
+  41 opr    2   19
+  42 jmp    0   23

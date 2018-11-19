@@ -12,6 +12,9 @@ main {
 	write("Array contain following element:");
 	while (b != 0) {
 		b := b - 1;
+        if (aa[b] == 3) {
+            break;
+        }
 		write(aa[b]);
 	}
 	/* if use a-- b--, there will be lod/sto bug leading to wrong number */
