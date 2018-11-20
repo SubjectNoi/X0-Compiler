@@ -184,7 +184,7 @@ void 		gen(enum fct x, int y, byte* z);
 }
 
 %token BOOLSYM, BREAKSYM, CALLSYM, CASESYM, CHARSYM, COLON, CONSTSYM, CONTINUESYM, DEFAULTSYM, DOSYM, ELSESYM
-%token ELSESYM, EXITSYM, FORSYM, INTSYM, IFSYM, MAINSYM, READSYM, REALSYM, REPEATSYM, RR, RL
+%token ELSESYM, EXITSYM, FORSYM, INTSYM, IFSYM, MAINSYM, READSYM, REALSYM, REPEATSYM, RR, RL, LPAREN, RPAREN
 %token STRINGSYM, SWITCHSYM, UNTILSYM, WHILESYM, WRITESYM, LBRACE, RBRACE, LBRACKET, RBRACKET
 %token BECOMES, COMMA, LSS, LEQ, GTR, GEQ, EQL, NEQ, PLUS, INCPLUS, MINUS, INCMINUS,TIMES, DEVIDE
 %token LPAREN, RPAREN, MOD, SEMICOLON, XOR, AND, OR, NOT, YAJU, YARIMASUNESYM, KIBONOHANASYM
@@ -199,7 +199,7 @@ void 		gen(enum fct x, int y, byte* z);
 %type <number>			factor, term, additive_expr			// Indicate type of factor
 %type <number>			expression, var						// Indicate type of expression
 %type <number>			identlist, identarraylist, identdef
-%type <number>			simple_expr, SINGLEOPR
+%type <number>			simple_expr, SINGLEOPR, SEMICOLON, SEMICOLONSTAT, LPARENSTAT, LPAREN, RPAREN, RPARENSTAT
 %type <number>			dimension, dimensionlist, PLUSMINUS, TIMESDEVIDE
 %type <number>			expression_list, OPR 				// This Expression only for ARRAY LOCATING!!!!!!!!
 %type <number>			statement, statement_list, compound_statement, while_statement, for_statement, do_statement, program, if_statement, else_list
@@ -220,7 +220,7 @@ declaration_list:		declaration_list declaration_stat
 					  | 
 						;
 
-declaration_stat:		typeenum identlist SEMICOLON { /* Why can't me add sth after typeenum?? */ }
+declaration_stat:		typeenum identlist SEMICOLONSTAT { /* Why can't me add sth after typeenum?? */ }
 					  | typeenum identarraylist { 
 						  	constant_decl_or_not = 0; 
 							memset(tmp_arr_list, 0, sizeof tmp_arr_list); 
@@ -428,7 +428,7 @@ statement:				expression_statement
 					  |
 						;
 
-switch_statement:		SWITCHSYM LPAREN expression RPAREN LBRACE case_list default_statement RBRACE
+switch_statement:		SWITCHSYM LPARENSTAT expression RPARENSTAT LBRACE case_list default_statement RBRACE
 						;
 
 case_list:				case_list case_stat 
@@ -444,10 +444,10 @@ default_statement:		DEFAULTSYM COLON compound_statement
 					  |
 						;
 						
-continue_stat:			CONTINUESYM SEMICOLON
+continue_stat:			CONTINUESYM SEMICOLONSTAT
 						;
 						
-break_stat:				BREAKSYM SEMICOLON {
+break_stat:				BREAKSYM SEMICOLONSTAT {
 							int break_statement_address_idx = 0, iter, level = cur_level - 1;
 							for (iter = 0; iter < STRING_LEN; iter++) {
 								if (break_statement_address[level][iter] < 0) {
@@ -460,7 +460,7 @@ break_stat:				BREAKSYM SEMICOLON {
 						}
 						;
 						
-if_statement:		  	IFSYM LPAREN expression RPAREN { //// @todo: Causion: if ++ -- in expression, should pop a result from the data stack, not the problem of ++ -- 
+if_statement:		  	IFSYM LPARENSTAT expression RPARENSTAT { //// @todo: Causion: if ++ -- in expression, should pop a result from the data stack, not the problem of ++ -- 
 							cur_level --; 
 							static_back_patch_idx = vm_code_pointer;
 							int opran = 0;
@@ -493,7 +493,7 @@ else_list:				ELSESYM {
 						;
 
 
-while_statement:		WHILESYM { while_compound = 1; } LPAREN { 
+while_statement:		WHILESYM { while_compound = 1; } LPARENSTAT { 
 							while_start_idx = vm_code_pointer;
  						} expression RPAREN { // @todo: Causion: if ++ -- in expression, should pop a result from the data stack, not the problem of ++ -- 
 							int opran;
@@ -523,13 +523,13 @@ while_statement:		WHILESYM { while_compound = 1; } LPAREN {
 						}
 						;
 	
-write_statement:		WRITESYM LPAREN expression RPAREN SEMICOLON {
+write_statement:		WRITESYM LPARENSTAT expression RPARENSTAT SEMICOLONSTAT {
 							int opran = 19;
 							gen(opr, $3, (byte*)opran);
 						}
 						;
 	
-read_statement:			READSYM LPAREN var RPAREN SEMICOLON {
+read_statement:			READSYM LPARENSTAT var RPARENSTAT SEMICOLONSTAT {
 							int id_addr;
 							enum object tmp;
 							for (int i = 1; i <= sym_tab_tail; i++) {
@@ -600,35 +600,35 @@ compound_statement:		LBRACE {		// Please re-construct here, put gen(jpc/jmp) out
 						}
 						;
 						
-for_statement:			FORSYM LPAREN {
+for_statement:			FORSYM LPARENSTAT 
+						expression SEMICOLONSTAT {				// e1
+							//if_e2_enter = vm_code_pointer;
 						}
-						expression SEMICOLON {				// e1
-							if_e2_enter = vm_code_pointer;
-						}
-						expression SEMICOLON {				// e2
+						expression SEMICOLONSTAT {				// e2
 							int opran = 0;
-							if_s_end_idx = vm_code_pointer;
+							//if_s_end_idx = vm_code_pointer;
 							gen(jpc, 0, (byte*)opran);
-							if_s_enter_idx = vm_code_pointer;
+							//if_s_enter_idx = vm_code_pointer;
 							gen(jmp, 0, (byte*)opran);
-							if_e3_enter = vm_code_pointer;
+							//if_e3_enter = vm_code_pointer;
 						}			
-						expression RPAREN {					// e3
+						expression RPARENSTAT {					// e3
 							int opran;
 							if (inc_flag) {
 								inc_flag = 0;
 								opran = 23;					// pop ++ --
 								gen(opr, 2, (byte*)opran);
 							}
-							if_e2_enter_idx = vm_code_pointer;
+							//if_e2_enter_idx = vm_code_pointer;
 							gen(jmp, 0, (byte*)opran);
-							if_s_enter = vm_code_pointer;
+							//if_s_enter = vm_code_pointer;
 						}
 						compound_statement {
 							int opran = 0;
-							if_e3_enter_idx = vm_code_pointer;
+							//if_e3_enter_idx = vm_code_pointer;
+							int if_s_end_idx = $7, if_s_enter_idx = $7 + 1, if_e2_enter_idx = $10 + 1, if_e3_enter_idx = vm_code_pointer;
+							int if_s_end = vm_code_pointer + 1, if_s_enter = $10 + 2, if_e2_enter = $4, if_e3_enter = $7 + 2;
 							gen(jmp, 0, (byte*)opran);
-							if_s_end = vm_code_pointer;
 							memcpy((void*)code[if_s_end_idx].opr, (const void*)&if_s_end, STRING_LEN);
 							memcpy((void*)code[if_s_enter_idx].opr, (const void*)&if_s_enter, STRING_LEN);
 							memcpy((void*)code[if_e2_enter_idx].opr, (const void*)&if_e2_enter, STRING_LEN);
@@ -648,13 +648,13 @@ for_statement:			FORSYM LPAREN {
 						
 do_statement:			DOSYM { 
 							do_start_idx = vm_code_pointer;
-						} compound_statement WHILESYM LPAREN expression RPAREN {
+						} compound_statement WHILESYM LPAREN expression RPARENSTAT {
 							int opran;
 							opran = 0;
 							gen(jpc, 0, (byte*)opran);
 							gen(jmp, 0, (byte*)do_start_idx);
 							memcpy((void*)code[vm_code_pointer - 2].opr, (const void*)&vm_code_pointer, STRING_LEN);
-						}SEMICOLON
+						}SEMICOLONSTAT
 						;
 	
 var:					IDENT {
@@ -769,7 +769,7 @@ expression_list:		expression {
 					  	}
 						;
 
-expression_statement:	expression SEMICOLON {
+expression_statement:	expression SEMICOLONSTAT {
 							// int opran;
 							// if (inc_flag) {
 							// 	inc_flag = 0;
@@ -777,7 +777,7 @@ expression_statement:	expression SEMICOLON {
 							// 	gen(opr, 2, (byte*)opran);
 							// }
 						} 
-					  | SEMICOLON
+					  | SEMICOLONSTAT
 						;
 
 expression:				var {
@@ -913,7 +913,7 @@ TIMESDEVIDE:			TIMES {
 					  	}
 						;
 
-factor:					LPAREN expression RPAREN {
+factor:					LPARENSTAT expression RPARENSTAT {
 							$$ = $2;
 						}
 					  | var {
@@ -983,6 +983,14 @@ factor:					LPAREN expression RPAREN {
 					  	}
 						;
 
+SEMICOLONSTAT:			SEMICOLON {$1 = vm_code_pointer; $$ = $1;}
+						;
+				
+LPARENSTAT:				LPAREN {$1 = vm_code_pointer; $$ = $1; }
+						;
+
+RPARENSTAT:				RPAREN {$1 = vm_code_pointer; $$ = $1;}
+						;
 %%
 
 void init() {
