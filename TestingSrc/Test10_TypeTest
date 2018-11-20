@@ -1,0 +1,19 @@
+main {
+    integer int_a, int_b := 10;
+    real real_a, real_b := 5.5;
+    bool flag_a, flag_b := true;
+    char char_a, char_b := 'c';
+    string str_a, str_b := "testString";
+    read(int_a);
+    read(real_a);
+    read(flag_a);
+    read(char_a);
+    read(str_a);
+
+    write("===============================================");
+    write(int_a + int_b + 3 * (int_a / int_b));
+    write(int_a * real_b);
+    write(real_a * real_a * int_b);
+    /* write(flag_a && flag_b); */
+    /* write(char_a + char_b); should error */
+}

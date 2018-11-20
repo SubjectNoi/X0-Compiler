@@ -130,10 +130,6 @@ int 		curr_ident_array_or_not = 0;
 int			static_back_patch_idx;
 int			static_back_patch_val;
 int			else_compound;
-int 		while_compound;
-int			while_static_back_patch_idx;
-int			while_static_back_patch_val;
-int			while_start_idx;
 int			do_start_idx;
 int			break_return_address_by_level[DEPTH_MAX];			// Using to recording return address of for, while, do, switch per level to back patch the break statement
 int			continue_return_address_by_level[DEPTH_MAX];
@@ -142,10 +138,6 @@ int			cur_continue_level = 0;
 int			break_statement_address[DEPTH_MAX][STRING_LEN];
 int			continue_statement_address[DEPTH_MAX][STRING_LEN];	// Allowed up to 200 continue and break.
 int			cur_level = 0;
-int			else_remedy_idx;
-int			else_remedy_val;
-int			if_e2_enter, if_e3_enter, if_s_enter, if_s_end;
-int			if_s_end_idx, if_s_enter_idx, if_e2_enter_idx, if_e3_enter_idx;
 int			inc_flag;
 
 struct expression_result {
@@ -200,7 +192,7 @@ void 		gen(enum fct x, int y, byte* z);
 %type <number>			expression, var						// Indicate type of expression
 %type <number>			identlist, identarraylist, identdef
 %type <number>			simple_expr, SINGLEOPR, SEMICOLON, SEMICOLONSTAT, LPARENSTAT, LPAREN, RPAREN, RPARENSTAT
-%type <number>			dimension, dimensionlist, PLUSMINUS, TIMESDEVIDE
+%type <number>			dimension, dimensionlist, PLUSMINUS, TIMESDEVIDE, ELSESYMSTAT, WHILESYMSTAT
 %type <number>			expression_list, OPR 				// This Expression only for ARRAY LOCATING!!!!!!!!
 %type <number>			statement, statement_list, compound_statement, while_statement, for_statement, do_statement, program, if_statement, else_list
 %%
@@ -209,6 +201,7 @@ program: 				MAINSYM
 						LBRACE {
 							cur_level = 0;
 							memset(break_statement_address, -1, sizeof break_statement_address);
+							memset(continue_statement_address, -1, sizeof continue_statement_address);
 						}
 						statement_list {
 						}
@@ -444,7 +437,17 @@ default_statement:		DEFAULTSYM COLON compound_statement
 					  |
 						;
 						
-continue_stat:			CONTINUESYM SEMICOLONSTAT
+continue_stat:			CONTINUESYM SEMICOLONSTAT {
+							int continue_statement_address_idx = 0, iter, level = cur_level - 1;
+							for (iter = 0; iter < STRING_LEN; iter++) {
+								if (continue_statement_address[level][iter] < 0) {
+									continue_statement_address[level][iter] = vm_code_pointer;
+									break;
+								}
+							}
+							int opran = 0;
+							gen(jmp, 0, (byte*)opran);
+						}
 						;
 						
 break_stat:				BREAKSYM SEMICOLONSTAT {
@@ -462,15 +465,13 @@ break_stat:				BREAKSYM SEMICOLONSTAT {
 						
 if_statement:		  	IFSYM LPARENSTAT expression RPARENSTAT { //// @todo: Causion: if ++ -- in expression, should pop a result from the data stack, not the problem of ++ -- 
 							cur_level --; 
-							static_back_patch_idx = vm_code_pointer;
 							int opran = 0;
 							gen(jpc, 0, (byte*)opran);
 						} compound_statement {
-							else_remedy_idx = static_back_patch_idx;
-							static_back_patch_val = vm_code_pointer;
-							else_remedy_val = static_back_patch_val + 1;
+							int static_back_patch_idx = $4, static_back_patch_val = vm_code_pointer;
 							memcpy((void*)code[static_back_patch_idx].opr, (const void*)&static_back_patch_val, STRING_LEN);
 					  	} else_list {
+							int else_remedy_idx = $4, else_remedy_val = $6 + 1;
 							cur_level++;
 							if ($8 == 1) {
 								memcpy((void*)code[else_remedy_idx].opr, (const void*)&else_remedy_val, STRING_LEN);
@@ -478,13 +479,12 @@ if_statement:		  	IFSYM LPARENSTAT expression RPARENSTAT { //// @todo: Causion: 
 						}
 						;
 
-else_list:				ELSESYM { 
+else_list:				ELSESYMSTAT { 
 							else_compound = 1;
-							static_back_patch_idx = vm_code_pointer;
 							int opran = 0;
 							gen(jmp, 0, (byte*)opran);
 						} compound_statement { 
-							static_back_patch_val = vm_code_pointer;
+							int static_back_patch_val = $3, static_back_patch_idx = $1;
 							memcpy((void*)code[static_back_patch_idx].opr, (const void*)&static_back_patch_val, STRING_LEN);
 							else_compound = 0;
 							$$ = 1;
@@ -492,23 +492,21 @@ else_list:				ELSESYM {
 					  |	{ $$ = 0; }
 						;
 
+ELSESYMSTAT:			ELSESYM { $$ = vm_code_pointer; }
+						;
 
-while_statement:		WHILESYM { while_compound = 1; } LPARENSTAT { 
-							while_start_idx = vm_code_pointer;
- 						} expression RPAREN { // @todo: Causion: if ++ -- in expression, should pop a result from the data stack, not the problem of ++ -- 
+while_statement:		WHILESYMSTAT LPARENSTAT expression RPARENSTAT { // @todo: Causion: if ++ -- in expression, should pop a result from the data stack, not the problem of ++ -- 
 							int opran;
-							static_back_patch_idx = vm_code_pointer;
-							while_static_back_patch_idx = vm_code_pointer;
 							gen(jpc, 0, (byte*)opran);
 							if (inc_flag) {
 								inc_flag = 0;
 								opran = 23;					// pop ++ --
-								gen(opr, 2, (byte*)opran);
+								//gen(opr, 2, (byte*)opran); // ??? to be determined
 							}
 						} compound_statement {
+							int while_start_idx = $1, static_back_patch_idx = $4, while_static_back_patch_idx = $4;
 							gen(jmp, 0, (byte*)while_start_idx);
-							while_compound = 0;
-							while_static_back_patch_val = vm_code_pointer;
+							int while_static_back_patch_val = vm_code_pointer;
 							memcpy((void*)code[while_static_back_patch_idx].opr, (const void*)&while_static_back_patch_val, STRING_LEN);
 							int iter;
 							//printf("curr while level %d\n", cur_level);
@@ -520,7 +518,18 @@ while_statement:		WHILESYM { while_compound = 1; } LPARENSTAT {
 									break;
 								}
 							}
+							int continue_destination = $1;
+							for (iter = 0; iter < STRING_LEN; iter++) {
+								if (continue_statement_address[cur_level][iter] != -1) {
+									memcpy((void*)code[continue_statement_address[cur_level][iter]].opr, (const void*)&continue_destination, STRING_LEN);
+								}
+								else {
+									break;
+								}
+							}
 						}
+						;
+WHILESYMSTAT:			WHILESYM {$$ = vm_code_pointer;}
 						;
 	
 write_statement:		WRITESYM LPARENSTAT expression RPARENSTAT SEMICOLONSTAT {
@@ -597,6 +606,7 @@ compound_statement:		LBRACE {		// Please re-construct here, put gen(jpc/jmp) out
 							//else gen(jmp, 0, (byte*)opran);
 						} statement_list RBRACE {
 							cur_level--;
+							$$ = vm_code_pointer;
 						}
 						;
 						
@@ -638,6 +648,15 @@ for_statement:			FORSYM LPARENSTAT
 							for (iter = 0; iter < STRING_LEN; iter++) {
 								if (break_statement_address[cur_level][iter] != -1) {
 									memcpy((void*)code[break_statement_address[cur_level][iter]].opr, (const void*)&vm_code_pointer, STRING_LEN);
+								}
+								else {
+									break;
+								}
+							}
+							int continue_destination = $7 + 2;
+							for (iter = 0; iter < STRING_LEN; iter++) {
+								if (continue_statement_address[cur_level][iter] != -1) {
+									memcpy((void*)code[continue_statement_address[cur_level][iter]].opr, (const void*)&continue_destination, STRING_LEN);
 								}
 								else {
 									break;

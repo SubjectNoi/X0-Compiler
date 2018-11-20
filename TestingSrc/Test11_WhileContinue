@@ -1,0 +1,11 @@
+main {
+	integer a := 5;
+	while (a--) {
+		integer b;
+		read(b);
+		if (b == 3) {
+			continue;
+		}
+		write("****");
+	}
+}

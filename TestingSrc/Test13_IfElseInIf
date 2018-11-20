@@ -1,0 +1,16 @@
+main {
+	integer a, b;
+	read(a);
+	read(b);
+	if (a != 1) {
+		if (a % b == 0) {
+			write("a % b = 0");
+		}
+		else {
+			write("b can not devide a");
+		}
+	}
+	else {
+		write("a can't be 1");
+	}
+}
