@@ -1,18 +1,7 @@
 main {
 	integer a;
-	integer aa[5];
-	integer b := 5;
-	write("Please input the length of array:");
 	read(a);
-	while (a != 0) {
-		a := a - 1;
-		write("Please input array element:");
-		read(aa[a]);
+	for (a := 1; a != 10; a := a + 1) {
+		write(a);
 	}
-	write("Array contain following element:");
-	while (b != 0) {
-		b := b - 1;
-		write(aa[b]);
-	}
-	/* if use a-- b--, there will be lod/sto bug leading to wrong number */
 }

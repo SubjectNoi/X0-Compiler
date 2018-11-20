@@ -1,13 +1,15 @@
 main {
 	integer a, b;
 	read(a);
-	while (a--) {
+	while (a != 0) {
+		a := a - 1;
 		read(b);
 		if (b == -1) {
 			break;
 		}
 		else {
-			while (b--) {
+			while (b != 0) {
+				b := b - 1;
 				integer c;
 				read(c);
 				if (c == -2) {

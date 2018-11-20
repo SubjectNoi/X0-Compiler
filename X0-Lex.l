@@ -21,6 +21,7 @@ int 		line = 1;
 "char"			{return CHARSYM;}
 "const"			{return CONSTSYM;}
 "continue"		{return CONTINUESYM;}
+"default"		{return DEFAULTSYM;}
 "do"			{return DOSYM;}
 "else"			{return ELSESYM;}
 "exit"			{return EXITSYM;}
@@ -94,6 +95,7 @@ int 		line = 1;
 "%"				{return MOD;}
 ","				{return COMMA;}
 ";"				{return SEMICOLON;}
+":"				{return COLON;}
 "^^"			{return XOR;}
 "&&"			{return AND;}
 "||"			{return OR;}

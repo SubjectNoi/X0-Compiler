@@ -8,6 +8,9 @@ main {
 		a := a - 1;
 		write("Please input array element:");
 		read(aa[a]);
+		if (aa[a] == -1) {
+			break;
+		}
 	}
 	write("Array contain following element:");
 	while (b != 0) {
