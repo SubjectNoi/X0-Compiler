@@ -1,0 +1,6 @@
+main {
+	integer a := 3;
+	write(++a);
+	write(a++);
+	write(a);
+}

@@ -146,6 +146,7 @@ int			else_remedy_idx;
 int			else_remedy_val;
 int			if_e2_enter, if_e3_enter, if_s_enter, if_s_end;
 int			if_s_end_idx, if_s_enter_idx, if_e2_enter_idx, if_e3_enter_idx;
+int			inc_flag;
 
 struct expression_result {
 	enum	data_type	t;
@@ -495,17 +496,22 @@ else_list:				ELSESYM {
 while_statement:		WHILESYM { while_compound = 1; } LPAREN { 
 							while_start_idx = vm_code_pointer;
  						} expression RPAREN { // @todo: Causion: if ++ -- in expression, should pop a result from the data stack, not the problem of ++ -- 
+							int opran;
 							static_back_patch_idx = vm_code_pointer;
 							while_static_back_patch_idx = vm_code_pointer;
-							int opran = 0;
 							gen(jpc, 0, (byte*)opran);
+							if (inc_flag) {
+								inc_flag = 0;
+								opran = 23;					// pop ++ --
+								gen(opr, 2, (byte*)opran);
+							}
 						} compound_statement {
 							gen(jmp, 0, (byte*)while_start_idx);
 							while_compound = 0;
 							while_static_back_patch_val = vm_code_pointer;
 							memcpy((void*)code[while_static_back_patch_idx].opr, (const void*)&while_static_back_patch_val, STRING_LEN);
 							int iter;
-							printf("curr while level %d\n", cur_level);
+							//printf("curr while level %d\n", cur_level);
 							for (iter = 0; iter < STRING_LEN; iter++) {
 								if (break_statement_address[cur_level][iter] != -1) {
 									memcpy((void*)code[break_statement_address[cur_level][iter]].opr, (const void*)&vm_code_pointer, STRING_LEN);
@@ -608,7 +614,12 @@ for_statement:			FORSYM LPAREN {
 							if_e3_enter = vm_code_pointer;
 						}			
 						expression RPAREN {					// e3
-							int opran = 0;
+							int opran;
+							if (inc_flag) {
+								inc_flag = 0;
+								opran = 23;					// pop ++ --
+								gen(opr, 2, (byte*)opran);
+							}
 							if_e2_enter_idx = vm_code_pointer;
 							gen(jmp, 0, (byte*)opran);
 							if_s_enter = vm_code_pointer;
@@ -622,10 +633,28 @@ for_statement:			FORSYM LPAREN {
 							memcpy((void*)code[if_s_enter_idx].opr, (const void*)&if_s_enter, STRING_LEN);
 							memcpy((void*)code[if_e2_enter_idx].opr, (const void*)&if_e2_enter, STRING_LEN);
 							memcpy((void*)code[if_e3_enter_idx].opr, (const void*)&if_e3_enter, STRING_LEN);
+							int iter;
+							//printf("%d %d\n", cur_level, vm_code_pointer);
+							for (iter = 0; iter < STRING_LEN; iter++) {
+								if (break_statement_address[cur_level][iter] != -1) {
+									memcpy((void*)code[break_statement_address[cur_level][iter]].opr, (const void*)&vm_code_pointer, STRING_LEN);
+								}
+								else {
+									break;
+								}
+							}
 						}
 						;
 						
-do_statement:			DOSYM { do_start_idx = 1; } compound_statement WHILESYM LPAREN expression RPAREN SEMICOLON
+do_statement:			DOSYM { 
+							do_start_idx = vm_code_pointer;
+						} compound_statement WHILESYM LPAREN expression RPAREN {
+							int opran;
+							opran = 0;
+							gen(jpc, 0, (byte*)opran);
+							gen(jmp, 0, (byte*)do_start_idx);
+							memcpy((void*)code[vm_code_pointer - 2].opr, (const void*)&vm_code_pointer, STRING_LEN);
+						}SEMICOLON
 						;
 	
 var:					IDENT {
@@ -740,7 +769,14 @@ expression_list:		expression {
 					  	}
 						;
 
-expression_statement:	expression SEMICOLON 
+expression_statement:	expression SEMICOLON {
+							// int opran;
+							// if (inc_flag) {
+							// 	inc_flag = 0;
+							// 	opran = 23;					// pop ++ --
+							// 	gen(opr, 2, (byte*)opran);
+							// }
+						} 
 					  | SEMICOLON
 						;
 
@@ -782,11 +818,19 @@ simple_expr:			additive_expr { $$ = $1; }
 							opran = ($2 == 1 ? 2 : 3);
 							gen(opr, 2, (byte*)opran);
 							gen(sto, 2, (byte*)var_addr);
+							inc_flag = 1;
 						}
 					  | SINGLEOPR additive_expr { 
 						  	// @todo: Finish stuff like ++a --a 
 						  	$$ = $2; 
+							int opran = 1;
 							int var_addr = find_addr_of_ident(curr_read_write_ident);
+							gen(lit, 2, (byte*)&opran);
+							opran = ($1 == 1 ? 2 : 3);
+							gen(opr, 2, (byte*)opran);
+							gen(sto, 2, (byte*)var_addr);
+							gen(lod, 2, (byte*)var_addr);
+							inc_flag = 1;
 						}
 						;
 
@@ -1465,6 +1509,7 @@ void interpret() {
 						}
 						break;
 					case 9:								// 2 opr <
+						
 						break;
 					case 10:							// 2 opr <=
 						break;

@@ -1,7 +1,6 @@
 main {
-	integer a;
-	read(a);
-	for (a := 1; a != 10; a := a + 1) {
+	integer a := 5;
+	do {
 		write(a);
-	}
+	} while (a--);
 }
