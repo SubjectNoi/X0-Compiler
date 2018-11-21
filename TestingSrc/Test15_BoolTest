@@ -1,0 +1,7 @@
+main {
+    string a := "abc";
+    write(a < a);
+    write(a <= a);
+    write((a <= a) ^^ (a <= a));
+    write((!(a != a)) && (a == a));
+}

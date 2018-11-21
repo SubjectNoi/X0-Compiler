@@ -842,14 +842,21 @@ simple_expr:			additive_expr { $$ = $1; }
 					  | SINGLEOPR additive_expr { 
 						  	// @todo: Finish stuff like ++a --a 
 						  	$$ = $2; 
-							int opran = 1;
-							int var_addr = find_addr_of_ident(curr_read_write_ident);
-							gen(lit, 2, (byte*)&opran);
-							opran = ($1 == 1 ? 2 : 3);
-							gen(opr, 2, (byte*)opran);
-							gen(sto, 2, (byte*)var_addr);
-							gen(lod, 2, (byte*)var_addr);
-							inc_flag = 1;
+							int opran;
+							if ($1 == 1 || $1 == 2) {
+								opran = 1;
+								int var_addr = find_addr_of_ident(curr_read_write_ident);
+								gen(lit, 2, (byte*)&opran);
+								opran = ($1 == 1 ? 2 : 3);
+								gen(opr, 2, (byte*)opran);
+								gen(sto, 2, (byte*)var_addr);
+								gen(lod, 2, (byte*)var_addr);
+								inc_flag = 1;
+							}
+							else {
+								opran = 16;
+								gen(opr, $2, (byte*)opran);
+							}
 						}
 						;
 
@@ -891,6 +898,12 @@ OPR:					EQL {
 					  | XOR {
 						  	$$ = 9;
 					 	}
+					  | RR {
+						  	$$ = 15;
+					  	}
+					  | RL {
+						  	$$ = 16;
+					  	}
 						;
 
 additive_expr:			term {
@@ -1536,21 +1549,208 @@ void interpret() {
 						}
 						break;
 					case 9:								// 2 opr <
-						
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = *(int*)&s[stack_top].val < *(int*)&s[stack_top + 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 3:
+								outter_int = *(float*)&s[stack_top].val - *(float*)&s[stack_top + 1].val < -FLOAT_EPS ? 1 : 0;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 4:
+								outter_int = strcmp(s[stack_top].val, s[stack_top + 1].val) < 0 ? 1 : 0;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 5:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+							case 6:
+								outter_int = *(char*)&s[stack_top].val < *(char*)&s[stack_top + 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+						}
 						break;
 					case 10:							// 2 opr <=
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = *(int*)&s[stack_top].val <= *(int*)&s[stack_top + 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 3:
+								outter_int = *(float*)&s[stack_top].val - *(float*)&s[stack_top + 1].val <= -FLOAT_EPS ? 1 : 0;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 4:
+								outter_int = strcmp(s[stack_top].val, s[stack_top + 1].val) <= 0 ? 1 : 0;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 5:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+							case 6:
+								outter_int = *(char*)&s[stack_top].val <= *(char*)&s[stack_top + 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+						}
 						break;
 					case 11:							// 2 opr >
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = *(int*)&s[stack_top].val > *(int*)&s[stack_top + 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 3:
+								outter_int = *(float*)&s[stack_top].val - *(float*)&s[stack_top + 1].val > FLOAT_EPS ? 1 : 0;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 4:
+								outter_int = strcmp(s[stack_top].val, s[stack_top + 1].val) > 0 ? 1 : 0;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 5:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+							case 6:
+								outter_int = *(char*)&s[stack_top].val > *(char*)&s[stack_top + 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+						}
 						break;
 					case 12:							// 2 opr >=
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = *(int*)&s[stack_top].val >= *(int*)&s[stack_top + 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 3:
+								outter_int = *(float*)&s[stack_top].val - *(float*)&s[stack_top + 1].val >= FLOAT_EPS ? 1 : 0;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 4:
+								outter_int = strcmp(s[stack_top].val, s[stack_top + 1].val) >= 0 ? 1 : 0;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 5:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+							case 6:
+								outter_int = *(char*)&s[stack_top].val >= *(char*)&s[stack_top + 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+						}
 						break;
 					case 13:							// 2 opr &&
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = *(int*)&s[stack_top].val && *(int*)&s[stack_top + 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 3:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+							case 4:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+							case 5:
+								bool_opr1 = *(int*)&s[stack_top].val, bool_opr2 = *(int*)&s[stack_top + 1].val;
+								outter_int = bool_opr1 && bool_opr2;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 6:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+						}
 						break;
 					case 14:							// 2 opr ||
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = *(int*)&s[stack_top].val || *(int*)&s[stack_top + 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 3:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+							case 4:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+							case 5:
+								bool_opr1 = *(int*)&s[stack_top].val, bool_opr2 = *(int*)&s[stack_top + 1].val;
+								outter_int = bool_opr1 || bool_opr2;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 6:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+						}
 						break;
 					case 15:							// 2 opr ^^
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								bool_opr1 = *(int*)&s[stack_top].val, bool_opr2 = *(int*)&s[stack_top + 1].val;
+								if ((bool_opr1 > 0 && bool_opr2 > 0) || (bool_opr1 == 0 && bool_opr2 == 0)) outter_int = 0;
+								else outter_int = 1;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 3:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+							case 4:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+							case 5:
+								bool_opr1 = *(int*)&s[stack_top].val, bool_opr2 = *(int*)&s[stack_top + 1].val;
+								if ((bool_opr1 > 0 && bool_opr2 > 0) || (bool_opr1 == 0 && bool_opr2 == 0)) outter_int = 0;
+								else outter_int = 1;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 6:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+						}
 						break;
 					case 16:							// 1 opr !
+						switch (i.lev) {
+							case 2:
+							case 5:
+								outter_int = *(int*)&s[stack_top].val ? 1 : 0;
+								outter_int = outter_int ? 0 : 1;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							default: {
+								yyerror("Opration not support for this type of variabls.");
+							}
+						}
 						break;
 					case 17:							// 1 opr ++
 						break;
