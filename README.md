@@ -1,4 +1,4 @@
-# DBSCAN_CUDA
+# X0-Compiler(Mini-C)
 
 | **Modules** | **Status** | **Test Source** |
 | :------------- | :------------- | :------------- |
