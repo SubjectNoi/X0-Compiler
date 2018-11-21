@@ -1,5 +1,6 @@
 main {
     integer int_a, int_b := 10;
+    // real int_a;                         // should be error
     real real_a, real_b := 5.5;
     bool flag_a, flag_b := true;
     char char_a, char_b := 'c';
@@ -14,6 +15,10 @@ main {
     write(int_a + int_b + 3 * (int_a / int_b));
     write(int_a * real_b);
     write(real_a * real_a * int_b);
-    /* write(flag_a && flag_b); */
+    write(flag_a && flag_b);
     /* write(char_a + char_b); should error */
+    write("following are constant test");
+    const integer int_c_a := 3;
+    // const real real_c_a;            // Should be error
+    // read(int_c_a);                   // Should be error
 }

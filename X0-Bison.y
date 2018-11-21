@@ -93,30 +93,25 @@ struct instruction {
 
 struct instruction code[CODE_MAX];		// Store V-Machine code
 
-int			sym_tab_tail;
-int			vm_code_pointer = 0;
-char		id_name[ID_NAME_LEN];
-int			outter_int;
-float		outter_real;
-bool		outter_bool;
-char		outter_char;
-char		outter_string[STRING_LEN];
-int			output_int;
-float		output_real;
-bool		output_bool;
-char		output_char;
-char		output_string[STRING_LEN];
-int			err_num;
+int			sym_tab_tail;							// tail of sym table
+int			vm_code_pointer = 0;					// pc during parsing stage
+char		id_name[ID_NAME_LEN];					// current parsing ident name
+int			outter_int;								// used for temp result
+float		outter_real;							// Un-used
+bool		outter_bool;							// Un-used
+char		outter_char;							// Un-used
+char		outter_string[STRING_LEN];				// Un-used
+int			err_num;								// Un-used
 int			constant_decl_or_not = 0;
 int 		var_decl_with_init_or_not = 0;
 int			cur_decl_type = -1;
 char		curr_read_write_ident[ID_NAME_LEN];
-int 		curr_address = 3;
-int 		inbuf_int;
-float		inbuf_real;
-char		inbuf_char;
-char		inbuf_string[STRING_LEN];
-char		inbuf_bool[6];
+int 		curr_address = 3;						// RA,SL,DL for future function module
+int 		inbuf_int;								// for read() [opr $% 20]
+float		inbuf_real;								// for read() [opr $% 20]
+char		inbuf_char;								// for read() [opr $% 20]
+char		inbuf_string[STRING_LEN];				// for read() [opr $% 20]
+char		inbuf_bool[6];							// for read() [opr $% 20]
 int			bool_flag;
 int			arr_size = 0;
 int			tmp_arr_list[MAX_ARR_DIM];
@@ -129,8 +124,6 @@ int 		glob_var_addr;
 int			back_patch_list[STRING_LEN];
 int			back_patch_idx = 0;
 int 		curr_ident_array_or_not = 0;
-int			static_back_patch_idx;
-int			static_back_patch_val;
 int			else_compound;
 int			do_start_idx;
 int			break_return_address_by_level[DEPTH_MAX];			// Using to recording return address of for, while, do, switch per level to back patch the break statement
@@ -140,7 +133,7 @@ int			cur_continue_level = 0;
 int			break_statement_address[DEPTH_MAX][STRING_LEN];
 int			continue_statement_address[DEPTH_MAX][STRING_LEN];	// Allowed up to 200 continue and break.
 int			cur_level = 0;
-int			inc_flag;
+int			inc_flag;											// inc++ inc-- act differently when pop stack top
 
 struct expression_result {
 	enum	data_type	t;
@@ -201,9 +194,9 @@ void 		gen(enum fct x, int y, byte* z);
 %type <number>			identlist identarraylist identdef
 %type <number>			simple_expr SINGLEOPR SEMICOLON SEMICOLONSTAT LPARENSTAT LPAREN RPAREN RPARENSTAT
 %type <number>			dimension dimensionlist PLUSMINUS TIMESDEVIDE ELSESYMSTAT WHILESYMSTAT
-%type <number>			expression_list OPR CASESYM DEFAULTSYM 				// This Expression only for ARRAY LOCATING!!!!!!!!
+%type <number>			expression_list OPR CASESYM DEFAULTSYM 					// This Expression only for ARRAY LOCATING!!!!!!!!
 %type <number>			statement statement_list compound_statement while_statement for_statement do_statement program if_statement else_list
-%type <bp>				case_stat default_statement
+%type <bp>				case_stat default_statement								// For case back patch, problem in naked switch parsing, change to compound
 %%
 
 program: 				function_decl
@@ -434,7 +427,6 @@ statement:				expression_statement
 
 switch_statement:		SWITCHSYM LPARENSTAT expression RPARENSTAT LBRACE case_list default_statement RBRACE {
 							int iter;
-							//printf("curr while level %d\n", cur_level);
 							for (iter = 0; iter < STRING_LEN; iter++) {
 								if (break_statement_address[cur_level][iter] != -1) {
 									memcpy((void*)code[break_statement_address[cur_level][iter]].opr, (const void*)&vm_code_pointer, STRING_LEN);
@@ -468,7 +460,6 @@ case_stat:				CASESYM expression COLON {
 							$$ = (struct bp_list*)malloc(sizeof (struct bp_list));
 							$$->case_start = $1;
 							$$->case_end = vm_code_pointer;
-							//printf("%d %d\n", $$->case_start, $$->case_end);
 						}
 					  | 
 						;
@@ -716,7 +707,7 @@ do_statement:			DOSYM {
 							gen(jpc, 0, (byte*)opran);
 							gen(jmp, 0, (byte*)do_start_idx);
 							memcpy((void*)code[vm_code_pointer - 2].opr, (const void*)&vm_code_pointer, STRING_LEN);
-						}SEMICOLONSTAT
+						} SEMICOLONSTAT
 						;
 	
 var:					IDENT {
@@ -1083,7 +1074,7 @@ para_item:				typeenum IDENT
 					  	;
 
 yarimasu_stat:			YARIMASUNESYM SEMICOLON {
-							int opran = 0;
+							int opran = 1;
 							printf("              ,O@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO/`.\n	\
                  \\@OOOOOOOOOOOOOOOOOOOOOOOOO@@@@OOOOOOO/..=\n	\
                    [@@OOOOOOOOO@@OOO`........[OO@@@@\\`     \n	\
@@ -1095,9 +1086,9 @@ yarimasu_stat:			YARIMASUNESYM SEMICOLON {
              ]Oo[****.....]]]****,/\\[******.*****,]]ooOO@@@\n	\
           ./o[***********,oOO^..*,]ooOOOOo`****ooooooooOO@@\n	\
          ,o[**.***]]\\o\\oooOOO\\**/OOOOOOOOOOoooooooooooOOO@@\n\
-       		.//****,oOOOOO@OOo\\ooOO@OOOOoooooOOO@OOoooOOooOOOOO@\n	\
+       	       .//****,oOOOOO@OOo\\ooOO@OOOOoooooOOO@OOoooOOooOOOOO@\n	\
       ,O/**=OOOoOO@@]  \\OOoooO@OOOo.***,\\*.,\\OOOOOooooOOOO@\n\
-     		,OO^**=oOO\\,*,@@@` ,OOOOOOOOO*.*****=oooOOOOOoooOOOO@@\n	\
+     	     ,OO^**=oOO\\,*,@@@` ,OOOOOOOOO*.*****=oooOOOOOoooOOOO@@\n	\
    ,O@OOooooooOOOo..O@@^ ,OOOOo`*....****/oOOoOOOOOOOOOO@@@\n	\
  ,OOOOOOOOOoo//OOOOOooO@@OOOOO`*....***/ooOOOOOOOOOOOO@@@@@\n	\
 OOoOOOOOOOOOOooooOOOOOOOOOOOo`*.***]/ooooooOoooooOOO@@@@@@@\n	\
@@ -1136,10 +1127,6 @@ void gen(enum fct x, int y, byte z[STRING_LEN]) {
 		printf("Program is too long!\n");
 		exit(1);
 	}
-	// if (z > ADDRESS_MAX) {
-	// 	printf("Acquiring address out of bound\n");
-	// 	exit(1);
-	// }
 	code[vm_code_pointer].f 	= x;
 	code[vm_code_pointer].lev 	= y;
 	if (x == lit) memcpy((void*)(code[vm_code_pointer].opr), (const void*)z, STRING_LEN); // @todo: Fatal Problem, should be research!!!!
@@ -1909,7 +1896,7 @@ void interpret() {
 					case 23:						// pop from the stack
 						stack_top--;
 						break;
-					case 24:
+					case 24:							// This == is especially for case, which will not pop the stack top after comparing
 						switch (i.lev) {				// 2 opran should be with the same type
 							case 2:
 								outter_int = *(int*)&s[stack_top].val == *(int*)&s[stack_top - 1].val;
