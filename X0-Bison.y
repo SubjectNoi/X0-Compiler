@@ -20,6 +20,7 @@
 #define ERROR_MAG_NUM	1145141919810	// For error processing
 #define MAX_ARR_DIM		10				// Max dimension of the array
 #define FLOAT_EPS		0.001			// Using for float opran comparing
+#define MAX_CASE_NUM	100				// Max case in switch statement
 
 typedef unsigned char byte;
 int cnt = 0;
@@ -151,6 +152,11 @@ struct expression_result {
 
 struct expression_result e_res;
 
+struct bp_list {
+	int 	case_start;
+	int 	case_end;
+};
+
 FILE*		fin;
 FILE*		ftable;
 FILE*		fcode;
@@ -173,6 +179,7 @@ void 		gen(enum fct x, int y, byte* z);
 	char 	single_char;
 	int 	flag;
 	double 	realnumber;
+	struct 	bp_list *bp;
 }
 
 %token BOOLSYM, BREAKSYM, CALLSYM, CASESYM, CHARSYM, COLON, CONSTSYM, CONTINUESYM, DEFAULTSYM, DOSYM, ELSESYM
@@ -188,13 +195,14 @@ void 		gen(enum fct x, int y, byte* z);
 %token <flag>			BOOL
 %token <realnumber>		REAL
 
-%type <number>			factor, term, additive_expr			// Indicate type of factor
-%type <number>			expression, var						// Indicate type of expression
+%type <number>			factor, term, additive_expr								// Indicate type of factor
+%type <number>			expression, var											// Indicate type of expression
 %type <number>			identlist, identarraylist, identdef
 %type <number>			simple_expr, SINGLEOPR, SEMICOLON, SEMICOLONSTAT, LPARENSTAT, LPAREN, RPAREN, RPARENSTAT
 %type <number>			dimension, dimensionlist, PLUSMINUS, TIMESDEVIDE, ELSESYMSTAT, WHILESYMSTAT
-%type <number>			expression_list, OPR 				// This Expression only for ARRAY LOCATING!!!!!!!!
+%type <number>			expression_list, OPR, CASESYM, DEFAULTSYM 				// This Expression only for ARRAY LOCATING!!!!!!!!
 %type <number>			statement, statement_list, compound_statement, while_statement, for_statement, do_statement, program, if_statement, else_list
+%type <bp>				case_stat, default_statement
 %%
 
 program: 				MAINSYM 
@@ -421,20 +429,52 @@ statement:				expression_statement
 					  |
 						;
 
-switch_statement:		SWITCHSYM LPARENSTAT expression RPARENSTAT LBRACE case_list default_statement RBRACE
+switch_statement:		SWITCHSYM LPARENSTAT expression RPARENSTAT LBRACE case_list default_statement RBRACE {
+							int iter;
+							//printf("curr while level %d\n", cur_level);
+							for (iter = 0; iter < STRING_LEN; iter++) {
+								if (break_statement_address[cur_level][iter] != -1) {
+									memcpy((void*)code[break_statement_address[cur_level][iter]].opr, (const void*)&vm_code_pointer, STRING_LEN);
+								}
+								else {
+									break;
+								}
+							}
+						}
 						;
 
-case_list:				case_list case_stat 
-					  |	case_stat 
+case_list:				case_list case_stat {
+						  	int dest = $2->case_end;
+							memcpy((void*)code[$2->case_start].opr, (const void*)&dest, STRING_LEN);
+						}
+					  |	case_stat {
+						  	int dest = $1->case_end;
+							memcpy((void*)code[$1->case_start].opr, (const void*)&dest, STRING_LEN);
+					  	}
 					  |
 						;
 
-case_stat:				CASESYM factor COLON compound_statement
+case_stat:				CASESYM expression COLON {
+							int opran;
+							opran = 24;
+							gen(opr, $2, (byte*)opran);
+							$1 = vm_code_pointer;
+							opran = 0;
+							gen(jpc, 0, (byte*)opran);
+						} compound_statement {
+							$$ = (struct bp_list*)malloc(sizeof (struct bp_list));
+							$$->case_start = $1;
+							$$->case_end = vm_code_pointer;
+							//printf("%d %d\n", $$->case_start, $$->case_end);
+						}
 					  | 
 						;
 
-default_statement:		DEFAULTSYM COLON compound_statement
-					  |
+default_statement:		DEFAULTSYM COLON compound_statement {
+							$$ = (struct bp_list*)malloc(sizeof (struct bp_list));
+							$$->case_start = $1;
+							$$->case_end = vm_code_pointer;
+						}
 						;
 						
 continue_stat:			CONTINUESYM SEMICOLONSTAT {
@@ -1820,6 +1860,37 @@ void interpret() {
 						break;
 					case 23:						// pop from the stack
 						stack_top--;
+						break;
+					case 24:
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = *(int*)&s[stack_top].val == *(int*)&s[stack_top - 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 3:
+								outter_int = abs(*(float*)&s[stack_top].val - *(float*)&s[stack_top - 1].val) < FLOAT_EPS ? 1 : 0;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 4:
+								outter_int = !strcmp(s[stack_top].val, s[stack_top - 1].val);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 5:
+								bool_opr1 = *(int*)&s[stack_top].val, bool_opr2 = *(int*)&s[stack_top - 1].val;
+								outter_int = (bool_opr1 * bool_opr2 || (!bool_opr1 && !bool_opr2)) ? 1 : 0;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+							case 6:
+								outter_int = *(char*)&s[stack_top].val == *(char*)&s[stack_top - 1].val;
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = boolean;
+								break;
+						}
+						break;
 						break;
 				}
 				break;

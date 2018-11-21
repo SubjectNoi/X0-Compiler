@@ -1,6 +1,3 @@
 main {
-    integer a, b;
-    read(a);
-    read(b);
-    write(a <= b);
+    /* all test source are in TestingSrc folder */
 }

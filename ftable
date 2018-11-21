@@ -1,1 +1,2 @@
-         1	variable	string	                   a:	Initialized or not = 1
+         1	variable	integer	                   a:	Initialized or not = 0
+         2	variable	integer	                   b:	Initialized or not = 0
