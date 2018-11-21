@@ -1095,9 +1095,9 @@ yarimasu_stat:			YARIMASUNESYM SEMICOLON {
              ]Oo[****.....]]]****,/\\[******.*****,]]ooOO@@@\n	\
           ./o[***********,oOO^..*,]ooOOOOo`****ooooooooOO@@\n	\
          ,o[**.***]]\\o\\oooOOO\\**/OOOOOOOOOOoooooooooooOOO@@\n\
-       .//****,oOOOOO@OOo\\ooOO@OOOOoooooOOO@OOoooOOooOOOOO@\n	\
+       		.//****,oOOOOO@OOo\\ooOO@OOOOoooooOOO@OOoooOOooOOOOO@\n	\
       ,O/**=OOOoOO@@]  \\OOoooO@OOOo.***,\\*.,\\OOOOOooooOOOO@\n\
-     ,OO^**=oOO\\,*,@@@` ,OOOOOOOOO*.*****=oooOOOOOoooOOOO@@\n	\
+     		,OO^**=oOO\\,*,@@@` ,OOOOOOOOO*.*****=oooOOOOOoooOOOO@@\n	\
    ,O@OOooooooOOOo..O@@^ ,OOOOo`*....****/oOOoOOOOOOOOOO@@@\n	\
  ,OOOOOOOOOoo//OOOOOooO@@OOOOO`*....***/ooOOOOOOOOOOOO@@@@@\n	\
 OOoOOOOOOOOOOooooOOOOOOOOOOOo`*.***]/ooooooOoooooOOO@@@@@@@\n	\
