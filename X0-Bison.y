@@ -1084,6 +1084,30 @@ para_item:				typeenum IDENT
 
 yarimasu_stat:			YARIMASUNESYM SEMICOLON {
 							int opran = 0;
+							printf("              ,O@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO/`.\n	\
+                 \\@OOOOOOOOOOOOOOOOOOOOOOOOO@@@@OOOOOOO/..=\n	\
+                   [@@OOOOOOOOO@@OOO`........[OO@@@@\\`     \n	\
+                     ,\\[`.,O@@OO[`*.......*....,OO@@@@@@@@^\n	\
+                        ,OOO[**=OO\\`*..**********=OO@@@@@@^\n	\
+                    .],**********O@O^**************\\OO@@@@@\n	\
+                  /o/**....****o,O@Oo**************,oOO@@@@\n	\
+               ,OO/`*........**,oOOOO\\**************\\OOO@@@\n	\
+             ]Oo[****.....]]]****,/\\[******.*****,]]ooOO@@@\n	\
+          ./o[***********,oOO^..*,]ooOOOOo`****ooooooooOO@@\n	\
+         ,o[**.***]]\\o\\oooOOO\\**/OOOOOOOOOOoooooooooooOOO@@\n\
+       .//****,oOOOOO@OOo\\ooOO@OOOOoooooOOO@OOoooOOooOOOOO@\n	\
+      ,O/**=OOOoOO@@]  \\OOoooO@OOOo.***,\\*.,\\OOOOOooooOOOO@\n\
+     ,OO^**=oOO\\,*,@@@` ,OOOOOOOOO*.*****=oooOOOOOoooOOOO@@\n	\
+   ,O@OOooooooOOOo..O@@^ ,OOOOo`*....****/oOOoOOOOOOOOOO@@@\n	\
+ ,OOOOOOOOOoo//OOOOOooO@@OOOOO`*....***/ooOOOOOOOOOOOO@@@@@\n	\
+OOoOOOOOOOOOOooooOOOOOOOOOOOo`*.***]/ooooooOoooooOOO@@@@@@@\n	\
+oooOOOOOOOOOOOOoooOOOOooooo^****/ooooooooooooooOOO@@@@@@@@@\n	\
+oooOOOOOOOOOOOOOooooOooo^*,*/ooooooooooooooooOOOO@@@@@@@@@@\n	\
+ooOOOOO@@OOOOOOOOooooooooooooooooooooooooooOOO@@@@@@@@@@@@@\n	\
+oOOOOOO@@@@OOOOOOOoooooooooooooooooooooooOOOO@@@@@@@@@@@O[.\n	\
+oooooooO@@@@@@OOOOOOOooooooooooooooOOOOOOOOOOOO@@@@@@@O`.  \n	\
+ooooooooOO@@@@@@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOooO@@@/`.     \n	\
+ooooooooooOOOO@@@@OOOOOOOOOOOOOOOOOOOOOOOOOOO@@O`..        \n");
 							gen(jmp, 0, (byte*)opran);
 						}
 						;	
