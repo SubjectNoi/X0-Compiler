@@ -1,11 +1,41 @@
 # X0-Compiler
 
-为什么支持多类型能那么麻烦？？
+多类型支持：√ @ TestingSrc/Test10_TypeTest
 
-我真是操了你妈了。
+for语句：√ @ TestingSrc/Test06_ForBreak, TestingSrc/Test08_ForLoopPrimeNumber, TestingSrc/Test12_ForContinue
 
-一开始写Yacc的时候只顾着写生成式，没考虑语义。
+break/continue: √ @ TestingSrc/Test03_SimpleWhileBreak, TestingSrc/Test11_WhileContinue
 
-现在语义写的头都大了。
+++/--：√ @ TestingSrc/Test_IncPlusMinus, TestingSrc/Test09_TwoWhileLoop
 
-我晕了。
+while-for-if-do嵌套：√ @ TestingSrc/Test13_IfElseInIf, TestingSrc/Test04_ComplexWhileIfBreak
+
+立即数：√
+
+参数返回值函数：×
+
+作用域：×
+
+常量：√
+
+n维数组：√ @ TestingSrc/Test00_ArrayTest, TestingSrc/Test05_WhileArray
+
+全运算符：√ @ TestingSrc/Test15_BoolTest
+
+语法错误检查：|===>---|
+
+语义错误检查：√
+
+Gokurou Sama Desu
+
+Usage：
+
+```
+Ubuntu>$ git clone http://github.com/SubjectNoi/X0-Compiler
+```
+```
+Ubuntu>$ make
+```
+```
+Ubuntu>$ ./X0 [Your source file]
+```
