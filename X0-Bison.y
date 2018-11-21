@@ -428,6 +428,7 @@ statement:				expression_statement
 					  | break_stat 				
 					  | switch_statement 
 					  | case_list
+					  | yarimasu_stat
 					  |
 						;
 
@@ -1080,6 +1081,13 @@ para_list:				para_list COMMA para_item
 para_item:				typeenum IDENT 
 					  |
 					  	;
+
+yarimasu_stat:			YARIMASUNESYM SEMICOLON {
+							printf("Ying, Heng, Heng, AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!\n");
+							int opran = 0;
+							gen(jmp, 0, (byte*)opran);
+						}
+						;	
 %%
 
 void init() {
