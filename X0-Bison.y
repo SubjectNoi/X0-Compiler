@@ -1083,7 +1083,6 @@ para_item:				typeenum IDENT
 					  	;
 
 yarimasu_stat:			YARIMASUNESYM SEMICOLON {
-							printf("Ying, Heng, Heng, AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!\n");
 							int opran = 0;
 							gen(jmp, 0, (byte*)opran);
 						}
