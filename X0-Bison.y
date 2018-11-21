@@ -1129,7 +1129,7 @@ void gen(enum fct x, int y, byte z[STRING_LEN]) {
 	}
 	code[vm_code_pointer].f 	= x;
 	code[vm_code_pointer].lev 	= y;
-	if (x == lit) memcpy((void*)(code[vm_code_pointer].opr), (const void*)z, STRING_LEN); // @todo: Fatal Problem, should be research!!!!
+	if (x == lit) memcpy((void*)(code[vm_code_pointer].opr), (const void*)z, STRING_LEN); // lit has different behavior with other instruction, causion.
 	else memcpy((void*)(code[vm_code_pointer].opr), (const void*)&z, STRING_LEN);
 	vm_code_pointer++;
 }
