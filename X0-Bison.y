@@ -45,6 +45,7 @@ enum object {
 	variable_bool_array,
 	constant_string_array,
 	variable_string_array,
+	function,
 };
 
 struct symbol_table {
@@ -182,11 +183,11 @@ void 		gen(enum fct x, int y, byte* z);
 	struct 	bp_list *bp;
 }
 
-%token BOOLSYM, BREAKSYM, CALLSYM, CASESYM, CHARSYM, COLON, CONSTSYM, CONTINUESYM, DEFAULTSYM, DOSYM, ELSESYM
-%token ELSESYM, EXITSYM, FORSYM, INTSYM, IFSYM, MAINSYM, READSYM, REALSYM, REPEATSYM, RR, RL, LPAREN, RPAREN
-%token STRINGSYM, SWITCHSYM, UNTILSYM, WHILESYM, WRITESYM, LBRACE, RBRACE, LBRACKET, RBRACKET
-%token BECOMES, COMMA, LSS, LEQ, GTR, GEQ, EQL, NEQ, PLUS, INCPLUS, MINUS, INCMINUS,TIMES, DEVIDE
-%token LPAREN, RPAREN, MOD, SEMICOLON, XOR, AND, OR, NOT, YAJU, YARIMASUNESYM, KIBONOHANASYM
+%token BOOLSYM BREAKSYM CALLSYM CASESYM CHARSYM COLON CONSTSYM CONTINUESYM DEFAULTSYM DOSYM ELSESYM
+%token ELSESYM EXITSYM FORSYM INTSYM IFSYM MAINSYM READSYM REALSYM REPEATSYM RR RL LPAREN RPAREN
+%token STRINGSYM SWITCHSYM UNTILSYM WHILESYM WRITESYM LBRACE RBRACE LBRACKET RBRACKET
+%token BECOMES COMMA LSS LEQ GTR GEQ EQL NEQ PLUS INCPLUS MINUS INCMINUS TIMES DEVIDE
+%token LPAREN RPAREN MOD SEMICOLON XOR AND OR NOT YAJU YARIMASUNESYM KIBONOHANASYM RETURNSYM
 
 %token <ident> 			IDENT
 %token <number> 		INTEGER
@@ -195,17 +196,18 @@ void 		gen(enum fct x, int y, byte* z);
 %token <flag>			BOOL
 %token <realnumber>		REAL
 
-%type <number>			factor, term, additive_expr								// Indicate type of factor
-%type <number>			expression, var											// Indicate type of expression
-%type <number>			identlist, identarraylist, identdef
-%type <number>			simple_expr, SINGLEOPR, SEMICOLON, SEMICOLONSTAT, LPARENSTAT, LPAREN, RPAREN, RPARENSTAT
-%type <number>			dimension, dimensionlist, PLUSMINUS, TIMESDEVIDE, ELSESYMSTAT, WHILESYMSTAT
-%type <number>			expression_list, OPR, CASESYM, DEFAULTSYM 				// This Expression only for ARRAY LOCATING!!!!!!!!
-%type <number>			statement, statement_list, compound_statement, while_statement, for_statement, do_statement, program, if_statement, else_list
-%type <bp>				case_stat, default_statement
+%type <number>			factor term additive_expr								// Indicate type of factor
+%type <number>			expression var											// Indicate type of expression
+%type <number>			identlist identarraylist identdef
+%type <number>			simple_expr SINGLEOPR SEMICOLON SEMICOLONSTAT LPARENSTAT LPAREN RPAREN RPARENSTAT
+%type <number>			dimension dimensionlist PLUSMINUS TIMESDEVIDE ELSESYMSTAT WHILESYMSTAT
+%type <number>			expression_list OPR CASESYM DEFAULTSYM 				// This Expression only for ARRAY LOCATING!!!!!!!!
+%type <number>			statement statement_list compound_statement while_statement for_statement do_statement program if_statement else_list
+%type <bp>				case_stat default_statement
 %%
 
-program: 				MAINSYM 
+program: 				function_decl
+						MAINSYM 
 						LBRACE {
 							cur_level = 0;
 							memset(break_statement_address, -1, sizeof break_statement_address);
@@ -1063,6 +1065,21 @@ LPARENSTAT:				LPAREN {$1 = vm_code_pointer; $$ = $1; }
 
 RPARENSTAT:				RPAREN {$1 = vm_code_pointer; $$ = $1;}
 						;
+function_decl_list:		function_decl_list function_decl
+					  | function_decl
+						;
+
+function_decl:			typeenum IDENT LPAREN para_list RPAREN compound_statement
+					  | 
+						;
+
+para_list:				para_list COMMA para_item
+					  | para_item
+					  	;
+
+para_item:				typeenum IDENT 
+					  |
+					  	;
 %%
 
 void init() {

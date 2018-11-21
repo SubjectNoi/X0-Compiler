@@ -34,6 +34,7 @@ int 		line = 1;
 "read"			{return READSYM;}
 "real"			{return REALSYM;}
 "repeat"		{return REPEATSYM;}
+"return"		{return RETURNSYM;}
 "string"		{return STRINGSYM;}
 "switch"		{return SWITCHSYM;}
 "true"			{yylval.flag = 1; return BOOL;}

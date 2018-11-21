@@ -1,3 +1,21 @@
 main {
-    /* all test source are in TestingSrc folder */
+    integer a;
+    read(a);
+    while (a--) {
+        integer b;
+        read(b);
+        switch (b % 3) {
+            case 1: {
+                write("number you input mod 3 equals 1");
+                break;
+            }
+            case 2: {
+                write("number you input mod 3 equals 2");
+                break;
+            }
+            default: {
+                write("number you input can be devided by 3");
+            }
+        }
+    }
 }
