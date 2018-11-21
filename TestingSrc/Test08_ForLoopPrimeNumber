@@ -1,6 +1,6 @@
 main {
 	integer i, j, flag, cnt := 0;
-	for (i := 2; i = 101; i++) {
+	for (i := 2; i != 101; i++) {
 		flag := 0;
 		for (j := 2; j != i; j++) { /* bug here : j != i -> j < i not function */
 			if (i % j == 0) {
