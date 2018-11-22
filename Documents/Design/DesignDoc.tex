@@ -1,6 +1,257 @@
 \documentclass{article}
+	\usepackage{booktabs}
+	\usepackage{listings}
+	\usepackage{geometry}
+	\geometry{left=2cm, right=2cm, top=2cm, bottom=2cm}
+	\usepackage{xcolor}
+	\usepackage{amsmath}
 	\title{X0-Compiler Design Document}
+	\usepackage[colorlinks, linkcolor=red]{hyperref}
 	\author{Altair, Liu @ ilovehanhan1120@hotmail.com}
 	\begin{document}
 		\maketitle
+		\section{Introduction}
+		\subsection{Purpose}
+		The purpose of conducting as technical proposal to describe the global designing of this project, containing basic functionality of the system, run-time designing and error detecting methods. This document is aimed to provide a schema of designing and implement all functionality, which will be the critical document during the process of developing. This document will be read by developers and testers.
+		\subsection{Background}
+		This project is to develop a \textbf{X0 Language Compiler}, which is a C-like language. This project is mainly for research and study purpose.
+		\begin{center}
+		\begin{tabular}{cc}
+			\toprule
+			Item & Detail\\
+			\midrule
+			Project Name & X0-Compiler(mini-C)\\
+			Developing Platform & Ubuntu 18.04 64-bit\\
+			Developing Tools & \textbf{Flex} and \textbf{Bison}\\
+			Open Source or not & Yes \\
+			\bottomrule 
+		\end{tabular}\\
+		\end{center}
+		All source files can be found at: \url{http://github.com/SubjectNoi/X0-Compiler}
+		\subsection{Remarks}
+		Usage:
+		\begin{lstlisting}[language={sh},numbers=left,numberstyle=\tiny,%frame=shadowbox,  
+   rulesepcolor=\color{red!20!green!20!blue!20},  
+   keywordstyle=\color{blue!70!black},  
+   commentstyle=\color{blue!90!},  
+   basicstyle=\ttfamily]  
+ Ubuntu>$ git clone http://github.com/SubjectNoi/X0-Compiler
+ Ubuntu>$ cd X0-Compiler
+ Ubuntu>$ make
+ Ubuntu>$ ./X0 [Your source file]
+\end{lstlisting}  
+		\section{Design Summarize}
+		\subsection{Main purpose of the project}
+		Following are main purposes of this project:
+		\begin{itemize}
+		\item Run correctly on target OS: Ubuntu 18.04 64-bit
+		\item Compile X0 language
+		\item Report compile error, including syntax and semantic error 
+		\end{itemize}
+		\subsection{Primary demand}
+		The X0 compiler should compile these C-like language, detailed grammar definition will be showed in next section.
+		\begin{lstlisting}[language={C},numbers=left,numberstyle=\tiny,%frame=shadowbox,  
+   rulesepcolor=\color{red!20!green!20!blue!20},  
+   keywordstyle=\color{blue!70!black},  
+   commentstyle=\color{blue!90!},  
+   basicstyle=\ttfamily]  
+main {
+	integer i, j, flag, cnt := 0;
+	for (i := 2; i != 101; i++) {
+		flag := 0;
+		for (j := 2; j != i; j++) { 
+			if (i % j == 0) {
+				flag := 1;
+				break;
+			}
+		}
+		if (flag == 0) {
+			write(i);
+			cnt++;
+		}
+	}
+	write("There're:");
+	write(cnt);
+	write("Primes.");
+}
+\end{lstlisting}
+		And correct result should be given. If there exists syntax or semantic error, compiler should report them.
+		\subsection{Restrictions of Design}
+		To complete this project, following restrictions should be watched out:
+		\begin{itemize}
+		\item Project will be only run on Ubuntu 18.04
+		\item Both developing and testing should be finished before 2018-11-26T11:30:00.000Z
+		\end{itemize}
+		\subsection{Principles and Rules of Design}
+		Following principles should be followed in the process of developing:
+		\begin{itemize}
+		\item Complete: implement as many features as possible
+		\item Simple: try best to ensure low coupling between modules
+		\item High Efficiency: try best to ensure the highest execution efficiency of virtual machine code.
+		\end{itemize}
+		When developing, following rules should be obey:
+		\begin{itemize}
+		\item All files should be named under following rules:
+		\begin{center}
+		\begin{tabular}{cc}
+			\toprule
+			File & Naming rule\\
+			\midrule
+			Yacc file & X0-Bison.y\\
+			Lex file & X0-Lex.l\\
+			Constructing file & Makefile\\
+			Testing source & /TestingSrc/Test\textbf{XX}\_\textbf{[Testing Content]} \\
+			Git ignore file & .gitignore \\
+			\bottomrule 
+		\end{tabular}\\
+		\end{center}
+		\item Git is used for version control
+		\item Use \textbf{git fetch \&\& git pull}
+		\item Use \textbf{git rm -r --cached .}
+		\item Use \textbf{git add .}
+		\item Use \textbf{git commit -am [Meaningful Comment]}
+		\item Never \textbf{git push -f}
+		\end{itemize}
+		\section{Main Design}
+		\subsection{Demand}
+		In this sub-section, detailed grammar of X0 Language will be given:
+		\begin{align}
+		\textbf{program} \rightarrow & 'main', \lbrace, \textbf{statement\_list}, \rbrace \\
+		\textbf{statement\_list} \rightarrow &
+		\textbf{statement\_list}, \textbf{statement} \\ 
+	  &| \textbf{statment} \\ 
+	  &| \epsilon \\
+		\textbf{statement} \rightarrow &
+		\textbf{expression\_list} \\ 
+	  &| \textbf{if\_statement} \\ 
+	  &| \textbf{while\_statement} \\
+	  &| \textbf{read\_statement} \\ 
+	  &| \textbf{switch\_statement} \\ 
+	  &| \textbf{case\_stat} \\ 
+	  &| \textbf{write\_statement} \\
+	  &| \textbf{compound\_statement} \\ 
+	  &| \textbf{for\_statement} \\
+	  &| \textbf{do\_statement} \\ 
+	  &| \textbf{declaration\_list} \\
+	  &| \textbf{continue\_stat} \\ 
+	  &| \textbf{break\_stat} \\
+	  &| \textbf{yarimasu\_stat}\\
+	  &| \epsilon \\
+		\textbf{declaration\_list} \rightarrow &
+		\textbf{declaration\_list}, \textbf{declaration\_stat}\\ 
+	  &| \textbf{declaration\_stat} \\ 
+	  &| \epsilon \\
+	  	\textbf{declaration\_stat} \rightarrow & 
+	  	\textbf{typeenum},\textbf{identlist},';'\\
+	  &|\textbf{typeenum},\textbf{identarraylist}\\
+	  &|'const',\textbf{typeenum},\textbf{identlist},\textbf{SEMICOLONSTAT}\\
+	  &|'const',\textbf{typeenum},\textbf{identarraylist}\\
+	  \textbf{identlist} \rightarrow & 
+	  \textbf{identdef} \\
+	  &|\textbf{identlist}, ',', \textbf{identdef} \\
+	  &|\epsilon \\
+	  \textbf{identdef} \rightarrow &
+	  IDENT \\
+	  &|IDENT, ':=', \textbf{factor} \\
+	  \end{align}
+	  \begin{align}
+	  \textbf{typeenum} \rightarrow &
+	  'integer' \\
+	  &|'string' \\
+	  &|'bool'	\\
+	  &|'real'\\
+	  &|'char'\\
+	  \textbf{identarraylist} \rightarrow &
+	  \textbf{identarraydef} \\
+	  &|\textbf{identarraylist},',',\textbf{identarraydef}\\
+	  \textbf{identarraydef} \rightarrow &
+	  IDENT, '[', \textbf{dimensionlist}, ']'\\
+	  \textbf{dimensionlist} \rightarrow &
+	  \textbf{dimension} \\
+	  &|\textbf{dimensionlist},',',\textbf{dimension}\\
+	  \textbf{dimension} \rightarrow &
+	  INTEGER \\
+	  \textbf{switch\_statement} \rightarrow &
+	  'switch','(',\textbf{expression},')', '\lbrace', \textbf{case\_list},\textbf{default\_statement}, '\rbrace' \\
+	  \textbf{case\_list} \rightarrow &
+	  \textbf{case\_list},\textbf{case\_stat} \\
+	  &|\textbf{case\_stat} \\
+	  &|\epsilon\\
+	  \textbf{case\_stat} \rightarrow &
+	  'case',\textbf{expression},':',\textbf{compound\_statement}\\
+	  &|\epsilon\\
+	  \textbf{default\_statement} \rightarrow &
+	  'default',':',\textbf{compound\_statement}\\
+	  \textbf{continue\_stat} \rightarrow & 
+	  'continue',';'\\
+	  \textbf{break\_stat} \rightarrow & 
+	  'break',';'\\
+	  \textbf{if\_statement} \rightarrow &
+	  'if','(',\textbf{expression},')',\textbf{compound\_statement},\textbf{else\_list}\\
+	  \textbf{else\_list} \rightarrow &
+	  'else',\textbf{compound\_statement}\\
+	  &|\epsilon\\
+	  \textbf{while\_statement} \rightarrow &
+	  'while','(',\textbf{expression},')',\textbf{compound\_statement}\\
+	  \textbf{write\_statement} \rightarrow &
+	  'write','(',\textbf{expression},')'\\
+	  \textbf{read\_statement} \rightarrow &
+	  'read','(',\textbf{var},')'\\
+	  \textbf{compound\_statement} \rightarrow &
+	  '\lbrace', \textbf{statement\_list}, '\rbrace'\\
+	  \textbf{for\_statement} \rightarrow &
+	  'for','(',\textbf{expression},';',\textbf{expression},';',\textbf{expression},')',\\ &\textbf{compound\_statement}\\
+	  \textbf{do\_statement} \rightarrow &
+	  'do',\textbf{compound\_statement},'while','(',\textbf{expression},')',';'\\
+	  \textbf{var} \rightarrow &
+	  IDENT\\
+	  &|IDENT, '[',\textbf{expression\_list},']'\\
+	  \textbf{expression\_list} \rightarrow &
+	  \textbf{expression} \\
+	  &|\textbf{expression\_list}, ',', \textbf{expression}\\
+	  \textbf{expression} \rightarrow &
+	  \textbf{var},':=',\textbf{expression} \\
+	  &|\textbf{simple\_expr}\\
+	  \textbf{simple\_expr} \rightarrow &
+	  \textbf{additive\_expr} \\
+	  &|\textbf{additive\_expr},\textbf{OPR},\textbf{additive\_expr}\\
+	  &|\textbf{additive\_expr},\textbf{SINGLEOPR}\\
+	  &|\textbf{SINGLEOPR},\textbf{additive\_expr}\\
+	  \textbf{SINGLEOPR} \rightarrow &
+	  '++' | '--' | '!'\\
+	  \textbf{OPR} \rightarrow & 
+	  '=='|'!='|'<'|'<='|'>'|'>='|'\&\&'|'||'|'\wedge\wedge'|'<<'|'>>'\\
+		\end{align}
+		\begin{align}
+		\textbf{additive\_expr} \rightarrow &
+		\textbf{term} \\
+		&|\textbf{additive\_expr}, \textbf{PLUSMINUS},\textbf{term}\\
+		\textbf{PLUSMINUS} \rightarrow &
+		'+'|'-'\\
+		\textbf{term} \rightarrow &
+		\textbf{factor} \\
+		&| \textbf{term},\textbf{TIMESDIVIDE},\textbf{factor}\\
+		\textbf{TIMESDEVIDE} \rightarrow &
+		'*'|'/'|'\%'\\
+		\textbf{factor} \rightarrow &
+		'(',\textbf{expression},')'\\
+		&|\textbf{var}\\
+		&|INTEGER \\
+		&|REAL \\
+		&|STRING \\
+		&|BOOL\\
+		&|CHAR\\
+		&|YAJU\\
+		\textbf{yarimasu\_stat} \rightarrow &
+		'yarimasune',';'\\
+		\end{align}
+		This language should follow this grammar, detailed development of every modules will be mentioned below.
+		\subsection{Environment}
+		This project is developed on Ubuntu 18.08 64-bit, using \textbf{make} and corresponding \textbf{Makefile} to construct. External tool needed are: \textbf{Bison}, \textbf{Flex}, \textbf{VsCode}, \textbf{git}.
+		\subsection{Modules}
+		\subsection{Description of Modules}
+		\subsection{Hardware}
+		
+		\section{Details of modules developing}
+		
 	\end{document}
