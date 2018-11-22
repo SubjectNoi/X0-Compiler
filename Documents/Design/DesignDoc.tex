@@ -247,11 +247,68 @@ main {
 		\end{align}
 		This language should follow this grammar, detailed development of every modules will be mentioned below.
 		\subsection{Environment}
-		This project is developed on Ubuntu 18.08 64-bit, using \textbf{make} and corresponding \textbf{Makefile} to construct. External tool needed are: \textbf{Bison}, \textbf{Flex}, \textbf{VsCode}, \textbf{git}.
+		This project is developed on Ubuntu 18.08 64-bit, using \textbf{make} and corresponding \textbf{Makefile} to construct. External tools needed are: \textbf{Bison}, \textbf{Flex}, \textbf{VsCode}, \textbf{git}.
 		\subsection{Modules}
-		\subsection{Description of Modules}
-		\subsection{Hardware}
+		This part contain main modules that is to be implemented in this compiler. Including not only basic functionality, but also some bonus functionality. Items with * are bonus modules.
+		\begin{center}
+		\begin{tabular}{cc}
+			\toprule
+			Module Name & Brief Description\\
+			\midrule
+			Variable store and load & Basic functionality\\
+			*Constant store and load & Support constant identifiers\\
+			*Multi-type supporting & Support integer, float, string, char and boolean\\
+			read and write & Basic input and output, supporting multiple types\\
+			Arithmetic operation & Basic arithmetic operation including +, -, *, /, \%\\
+			Logic operation & Basic logic operation including ==, !=, etc. \\
+			Instant number in instruction & Essential modules for multiple types supporting\\
+			Expression & Complex, mixed type expression\\
+			*Unary operator & Support ++, - -, !\\
+			Basic condition statement & If-else statement\\
+			Basic loop statement & Do-while, while statement\\
+			*Advanced condition statement & Switch-case-default statement\\
+			*Advanced loop statement & For statement\\
+			*N-dimension array & Support theoretically unlimited dimension array\\
+			*Break/Continue & Support break/continue in for, do-while, while, switch, etc.\\
+			Error processing & Reporting Syntax and Semantic errors.\\
+			Magic identifiers & 114514, 1919810, yarimasune, etc.\\
+			\bottomrule 
+		\end{tabular}\\
+		\end{center}
 		
+		\subsection{Hardware}
+			\begin{center}
+			\begin{tabular}{ccc}
+			\toprule
+			Item & Model \\
+			\midrule
+			CPU & Intel Xeon E5-2699v3@2.30GHz(18C36T) \\
+			Main Board & ASUS ROG Rampage V Extreme \\
+			RAM & Corsair DDR4 2133@15-15-36-50 64GB \\
+			GPU & Nvidia Geforce RTX 2080Ti 11GB $ \times $ 2 \\
+			Hard Disk & Intel 750 NVMe SSD 1.2TB $ \times $ 2 \\
+			OS & Ubuntu 18.04 LTS 64-bit \\
+			\bottomrule
+			\end{tabular}
+			\end{center}
 		\section{Details of modules developing}
+		\subsection{ISA}
+		This section mainly describe all technical details of the instruction set, including meaning, usage, etc. 
+		\subsection{Variable store and load}
+		\subsection{Constant store and load}
+		\subsection{Multi-type supporting}
+		\subsection{read and write}
+		\subsection{Arithmetic operation}
+		\subsection{Logic operation}
+		\subsection{Expression}
+		\subsection{Unary operator}
+		\subsection{Basic condition statement}
+		\subsection{Basic loop statement}
+		\subsection{Advanced condition statement}
+		\subsection{Advanced loop statement}
+		\subsection{N-dimension array}
+		\subsection{Break/Continue}
+		\subsection{Error Processing}
+		
 		
 	\end{document}
