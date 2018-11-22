@@ -1325,6 +1325,8 @@ void interpret() {
 	int			res;
 	int 		addr_to_find_array_in_table;
 	int			bool_opr1, bool_opr2;
+	int			array_input = 0;
+	int			input_flag = 0;
 	memset(inbuf_string, 0, sizeof inbuf_string);
 	printf("Start X0\n");
 	fprintf(fresult, "Start X0\n");
@@ -1854,6 +1856,7 @@ void interpret() {
 						break;
 					case 20:							// input
 						stack_top++;
+						input_flag = !array_input;
 						//printf("INPUT:\n");
 						switch (i.lev) {
 							case 2:
@@ -1930,6 +1933,7 @@ void interpret() {
 				}
 				break;
 			case lod:
+				input_flag = 1;
 				stack_top++;
 				addr = *(int*)&(i.opr);
 				if (addr == -1) {
@@ -1976,7 +1980,12 @@ void interpret() {
 						s[stack_top].t = single_char;
 						break;
 				}
-				stack_top--;
+				if (array_input == 1) {
+					array_input = 0;
+				}
+				else {
+					stack_top --;
+				}
 				break;
 			case cal:
 				break;
@@ -1993,6 +2002,7 @@ void interpret() {
 				stack_top--;
 				break;
 			case off:
+				array_input = 1;
 				res = 0;
 				addr_to_find_array_in_table = *(int*)&i.opr;
 				for (iter = 1; iter <= sym_tab_tail; iter++) {
@@ -2003,17 +2013,13 @@ void interpret() {
 						break;
 					}
 				}
-				for (iter = MAX_ARR_DIM - 1; iter >= 0; iter--) {
-					if (tmp_arr_list[iter]) {
-						tmp_arr_list[iter] = 1;
-						break;
-					}
+				for (iter = 0; iter < i.lev - 1; iter++) {
+					res += (*(int*)&s[stack_top - (i.lev - iter - 1)].val) * tmp_arr_list[iter];
 				}
-				for (iter = 0; iter < i.lev; iter++) {
-					res += (*(int*)&s[stack_top].val) * tmp_arr_list[i.lev - iter - 1];
-					stack_top--;
-				}
+				res += (*(int*)&s[stack_top].val);
+				stack_top -= (i.lev);
 				res += *(int*)&i.opr;
+				//printf("res %d ", res);
 				for (iter = pc; iter < vm_code_pointer; iter++) {
 					if (code[iter].f == lod || code[iter].f == sto) {
 						back_patch(iter, (byte*)res);

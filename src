@@ -1,4 +1,8 @@
 main {
-    // yarimasune;
-    write(1);
+    integer a[2];
+    integer i := 2;
+    a[0] := 1;
+    a[1] := i;
+    write(a[0]);
+    write(a[1]);
 }
