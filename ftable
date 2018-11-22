@@ -1,4 +1,0 @@
-         1	variable	integer	                   i:	Initialized or not = 0
-         2	variable	integer	                   j:	Initialized or not = 0
-         3	variable	integer	                flag:	Initialized or not = 0
-         4	variable	integer	                 cnt:	Initialized or not = 1
