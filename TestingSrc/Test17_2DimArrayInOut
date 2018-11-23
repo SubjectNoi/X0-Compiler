@@ -1,5 +1,5 @@
 main {
-    integer i, j, k, n, a, b, w;
+    integer i, j, k, n, a, b;
     integer G[5,5];
     for (i := 0; i != 5; i++) {
         for (j := 0; j != 5; j++) {
@@ -14,8 +14,6 @@ main {
         read(a);
         read(b);
         read(G[a,b]);//still bug in read(w), G[a,b] := w;
-        w := G[a,b];
-        G[b,a] := w;
     }
     for (i := 0; i != 5; i++) {
         for (j := 0; j != 5; j++) {
