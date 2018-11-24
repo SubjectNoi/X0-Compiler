@@ -850,6 +850,7 @@ expression:				var {
 					  | simple_expr {
 						  	$$ = $1;
 					  	}
+					  | { $$ = -1; }
 						;
 
 simple_expr:			additive_expr { $$ = $1; }

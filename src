@@ -1,0 +1,5 @@
+main {
+    integer a := 1;
+    for ( ; ; ) {
+    }
+}
