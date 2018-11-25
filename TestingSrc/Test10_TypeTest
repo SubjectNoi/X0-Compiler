@@ -5,12 +5,18 @@ main {
     bool flag_a, flag_b := true;
     char char_a, char_b := 'c';
     string str_a, str_b := "testString";
+    write("variable you input");
     read(int_a);
     read(real_a);
     read(flag_a);
     read(char_a);
     read(str_a);
-
+    write("variable pre-init");
+    write(int_b);
+    write(real_b);
+    write(flag_b);
+    write(char_b);
+    write(str_b);
     write("===============================================");
     write(int_a + int_b + 3 * (int_a / int_b));
     write(int_a * real_b);

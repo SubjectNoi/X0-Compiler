@@ -4,4 +4,5 @@ main {
     write(a <= a);
     write((a <= a) ^^ (a <= a));
     write((!(a != a)) && (a == a));
+    write(false || true);
 }
