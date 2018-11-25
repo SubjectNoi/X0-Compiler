@@ -178,7 +178,7 @@ void 		gen(enum fct x, int y, byte* z);
 
 %token BOOLSYM BREAKSYM CALLSYM CASESYM CHARSYM COLON CONSTSYM CONTINUESYM DEFAULTSYM DOSYM ELSESYM
 %token ELSESYM EXITSYM FORSYM INTSYM IFSYM MAINSYM READSYM REALSYM REPEATSYM RR RL LPAREN RPAREN
-%token STRINGSYM SWITCHSYM UNTILSYM WHILESYM WRITESYM LBRACE RBRACE LBRACKET RBRACKET
+%token STRINGSYM SWITCHSYM UNTILSYM WHILESYM WRITESYM LBRACE RBRACE LBRACKET RBRACKET BITAND BITOR
 %token BECOMES COMMA LSS LEQ GTR GEQ EQL NEQ PLUS INCPLUS MINUS INCMINUS TIMES DEVIDE
 %token LPAREN RPAREN MOD SEMICOLON XOR AND OR NOT YAJU YARIMASUNESYM KIBONOHANASYM RETURNSYM
 
@@ -937,6 +937,12 @@ OPR:					EQL {
 					  | XOR {
 						  	$$ = 9;
 					 	}
+					  | BITAND {
+						  	$$ = 11;
+					  	}
+					  | BITOR {
+						  	$$ = 12;
+					  	}
 					  | RR {
 						  	$$ = 15;
 					  	}
@@ -1835,8 +1841,36 @@ void interpret() {
 						}
 						break;
 					case 17:							// 1 opr ++
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = (*(int*)&s[stack_top].val) & (*(int*)&s[stack_top + 1].val);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = integer;
+								break;
+							case 3:
+							case 4:
+							case 5:
+							case 6:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+						}
 						break;
 					case 18:							// 1 opr --
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = (*(int*)&s[stack_top].val) | (*(int*)&s[stack_top + 1].val);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = integer;
+								break;
+							case 3:
+							case 4:
+							case 5:
+							case 6:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+						}
 						break;
 					case 19:
 						//printf("OUTPUT:\n");
@@ -1895,11 +1929,37 @@ void interpret() {
 								break;
 						}
 						break;
-					case 21: 						// <<
-
+					case 21: 						// >>
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = (*(int*)&s[stack_top].val) >> (*(int*)&s[stack_top + 1].val);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = integer;
+								break;
+							case 3:
+							case 4:
+							case 5:
+							case 6:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+						}
 						break;
-					case 22:						// >>
-
+					case 22:						// <<
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = (*(int*)&s[stack_top].val) << (*(int*)&s[stack_top + 1].val);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = integer;
+								break;
+							case 3:
+							case 4:
+							case 5:
+							case 6:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+						}
 						break;
 					case 23:						// pop from the stack
 						stack_top--;
@@ -1933,7 +1993,6 @@ void interpret() {
 								s[stack_top].t = boolean;
 								break;
 						}
-						break;
 						break;
 				}
 				break;
