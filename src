@@ -1,5 +1,10 @@
 main {
     integer a := 1;
     for ( ; ; ) {
+        write(1);
+        a := a + 1;
+        if (a == 20) {
+            break;
+        }
     }
 }

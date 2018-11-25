@@ -190,7 +190,7 @@ void 		gen(enum fct x, int y, byte* z);
 %token <realnumber>		REAL
 
 %type <number>			factor term additive_expr								// Indicate type of factor
-%type <number>			expression var											// Indicate type of expression
+%type <number>			expression var INC_OR_NOT								// Indicate type of expression
 %type <number>			identlist identarraylist identdef
 %type <number>			simple_expr SINGLEOPR SEMICOLON SEMICOLONSTAT LPARENSTAT LPAREN RPAREN RPARENSTAT
 %type <number>			dimension dimensionlist PLUSMINUS TIMESDEVIDE ELSESYMSTAT WHILESYMSTAT
@@ -651,13 +651,14 @@ for_statement:			FORSYM LPARENSTAT
 						expression SEMICOLONSTAT {				// e2
 							int opran = 0;
 							//if_s_end_idx = vm_code_pointer;
-							gen(jpc, 0, (byte*)opran);
+							if ($6 != -1) gen(jpc, 0, (byte*)opran);
 							//if_s_enter_idx = vm_code_pointer;
 							gen(jmp, 0, (byte*)opran);
 							//if_e3_enter = vm_code_pointer;
 						}			
-						expression RPARENSTAT {					// e3
+						expression RPARENSTAT INC_OR_NOT {					// e3
 							int opran;
+							$11 = inc_flag;
 							if (inc_flag) {
 								inc_flag = 0;
 								opran = 23;					// pop ++ --
@@ -670,10 +671,10 @@ for_statement:			FORSYM LPARENSTAT
 						compound_statement {
 							int opran = 0;
 							//if_e3_enter_idx = vm_code_pointer;
-							int if_s_end_idx = $7, if_s_enter_idx = $7 + 1, if_e2_enter_idx = $10 + 1, if_e3_enter_idx = vm_code_pointer;
-							int if_s_end = vm_code_pointer + 1, if_s_enter = $10 + 2, if_e2_enter = $4, if_e3_enter = $7 + 2;
+							int if_s_end_idx = $7, if_s_enter_idx = $7 + ($6 == -1 ? 0 : 1), if_e2_enter_idx = $10 + ($11 == 1 ? 1 : 0), if_e3_enter_idx = vm_code_pointer;
+							int if_s_end = vm_code_pointer + 1, if_s_enter = $10 + 1 + ($11 == 1 ? 1 : 0), if_e2_enter = $4, if_e3_enter = $7 + 2;
 							gen(jmp, 0, (byte*)opran);
-							memcpy((void*)code[if_s_end_idx].opr, (const void*)&if_s_end, STRING_LEN);
+							if ($6 != -1) memcpy((void*)code[if_s_end_idx].opr, (const void*)&if_s_end, STRING_LEN);
 							memcpy((void*)code[if_s_enter_idx].opr, (const void*)&if_s_enter, STRING_LEN);
 							memcpy((void*)code[if_e2_enter_idx].opr, (const void*)&if_e2_enter, STRING_LEN);
 							memcpy((void*)code[if_e3_enter_idx].opr, (const void*)&if_e3_enter, STRING_LEN);
@@ -699,6 +700,9 @@ for_statement:			FORSYM LPARENSTAT
 						}
 						;
 						
+INC_OR_NOT:				
+						;
+
 do_statement:			DOSYM { 
 							do_start_idx = vm_code_pointer;
 						} compound_statement WHILESYM LPAREN expression RPARENSTAT {
