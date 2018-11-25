@@ -1,7 +1,7 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.3.2)  22 NOV 2018 22:58
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.3.2)  23 NOV 2018 21:51
 entering extended mode
-**./DesignDoc.tex
-(DesignDoc.tex
+**./designdoc.tex
+(designdoc.tex
 LaTeX2e <2017/01/01> patch level 1
 Babel <3.9r> and hyphenation patterns for 75 language(s) loaded.
 ("C:\Program Files\MiKTeX 2.9\tex\latex\base\article.cls"
@@ -295,8 +295,8 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 )
 \Hy@SectionHShift=\skip46
 )
-(DesignDoc.aux)
-\openout1 = `DesignDoc.aux'.
+(designdoc.aux)
+\openout1 = `designdoc.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
 LaTeX Font Info:    ... okay on input line 11.
@@ -376,9 +376,9 @@ LaTeX Info: Redefining \ref on input line 11.
 LaTeX Info: Redefining \pageref on input line 11.
 LaTeX Info: Redefining \nameref on input line 11.
 
-(DesignDoc.out) (DesignDoc.out)
+(designdoc.out) (designdoc.out)
 \@outlinefile=\write3
-\openout3 = `DesignDoc.out'.
+\openout3 = `designdoc.out'.
 
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\listings\lstlang1.sty"
@@ -400,43 +400,57 @@ File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
 ) [1
 
 {C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}] [2] [3] [4] [5]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 314.
- [6]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 314.
- (DesignDoc.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 314.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 314.
+Underfull \hbox (badness 10000) in paragraph at lines 318--323
+
+ []
+
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 362--363
+
+ []
 
 
-Package rerunfilecheck Warning: File `DesignDoc.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
+Underfull \hbox (badness 10000) in paragraph at lines 377--378
 
-Package rerunfilecheck Info: Checksums for `DesignDoc.out':
-(rerunfilecheck)             Before: 0F35529DB39AD73135DBB24BD3815532;917
-(rerunfilecheck)             After:  3AAF0304D72CDB9632304650FD7E9511;2026.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 314.
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 386--387
+
+ []
+
+[7] [8]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 457.
+ [9]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 457.
+ (designdoc.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 457.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 457.
+Package rerunfilecheck Info: File `designdoc.out' has not changed.
+(rerunfilecheck)             Checksum: A93E14F638FD8394635E0EC5C4C1B1B3;2728.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 457.
  ) 
 Here is how much of TeX's memory you used:
- 7892 strings out of 493333
- 112619 string characters out of 3139195
- 259959 words of memory out of 3000000
- 11210 multiletter control sequences out of 15000+200000
- 9810 words of font info for 36 fonts, out of 3000000 for 9000
+ 8062 strings out of 493333
+ 115347 string characters out of 3139195
+ 259997 words of memory out of 3000000
+ 11326 multiletter control sequences out of 15000+200000
+ 10169 words of font info for 37 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 28i,11n,51p,425b,1745s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 28i,11n,51p,485b,1745s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Pr
 ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Fi
-les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKT
-eX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fo
-nts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1
-/public/amsfonts/cm/cmr17.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/a
-msfonts/cm/cmr5.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm
-/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.p
-fb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on DesignDoc.pdf (6 pages, 183942 bytes).
+les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><C:/Program Files/Mi
+KTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9
+/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/ty
+pe1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publi
+c/amsfonts/cm/cmr17.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfont
+s/cm/cmr5.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy1
+0.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:
+/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on designdoc.pdf (9 pages, 221975 bytes).
 PDF statistics:
- 296 PDF objects out of 1000 (max. 8388607)
- 154 named destinations out of 1000 (max. 500000)
- 121 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 455 PDF objects out of 1000 (max. 8388607)
+ 207 named destinations out of 1000 (max. 500000)
+ 337 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -27,7 +27,7 @@
 			\bottomrule 
 		\end{tabular}\\
 		\end{center}
-		All source files can be found at: \url{http://github.com/SubjectNoi/X0-Compiler}
+		All source files can be found at: \url{http://github.com/SubjectNoi/X0-Compiler}, star and follow it, please $ \hat{ } \_ \hat{ } $ .
 		\subsection{Remarks}
 		Usage:
 		\begin{lstlisting}[language={sh},numbers=left,numberstyle=\tiny,%frame=shadowbox,  
@@ -74,7 +74,7 @@ main {
 	write(cnt);
 	write("Primes.");
 }
-\end{lstlisting}
+		\end{lstlisting}
 		And correct result should be given. If there exists syntax or semantic error, compiler should report them.
 		\subsection{Restrictions of Design}
 		To complete this project, following restrictions should be watched out:
@@ -247,7 +247,7 @@ main {
 		\end{align}
 		This language should follow this grammar, detailed development of every modules will be mentioned below.
 		\subsection{Environment}
-		This project is developed on Ubuntu 18.08 64-bit, using \textbf{make} and corresponding \textbf{Makefile} to construct. External tools needed are: \textbf{Bison}, \textbf{Flex}, \textbf{VsCode}, \textbf{git}.
+		This project is developed on Ubuntu 18.04 64-bit, using \textbf{make} and corresponding \textbf{Makefile} to construct. External tools needed are: \textbf{Bison}, \textbf{Flex}, \textbf{VsCode}, \textbf{git}.
 		\subsection{Modules}
 		This part contain main modules that is to be implemented in this compiler. Including not only basic functionality, but also some bonus functionality. Items with * are bonus modules.
 		\begin{center}
@@ -258,6 +258,7 @@ main {
 			Variable store and load & Basic functionality\\
 			*Constant store and load & Support constant identifiers\\
 			*Multi-type supporting & Support integer, float, string, char and boolean\\
+			*Implicit type converting & Convert integer to float if necessary \\
 			read and write & Basic input and output, supporting multiple types\\
 			Arithmetic operation & Basic arithmetic operation including +, -, *, /, \%\\
 			Logic operation & Basic logic operation including ==, !=, etc. \\
@@ -278,7 +279,7 @@ main {
 		
 		\subsection{Hardware}
 			\begin{center}
-			\begin{tabular}{ccc}
+			\begin{tabular}{cc}
 			\toprule
 			Item & Model \\
 			\midrule
@@ -292,9 +293,151 @@ main {
 			\end{tabular}
 			\end{center}
 		\section{Details of modules developing}
+		\subsection{Data Stack}
+		To support multiple types, the structure of data stack is different with origin version, \textbf{All data are stored in Binary format, and specified by pointer}.
+		\begin{lstlisting}[language={C},numbers=left,numberstyle=\tiny,%frame=shadowbox,  
+   rulesepcolor=\color{red!20!green!20!blue!20},  
+   keywordstyle=\color{blue!70!black},  
+   commentstyle=\color{blue!90!},  
+   basicstyle=\ttfamily]  
+enum data_type {
+	integer,
+	real,
+	single_char,
+	boolean,
+	str,
+};
+
+struct data_stack {
+	enum data_type	t;
+	byte		val[STRING_LEN]; // STRING_LEN is defined as Macro
+};
+		\end{lstlisting}
+		When specifying the data, using pointer in .y source: \textbf{\emph{var = *([type]*)val}}.
+		\subsection{Symbol Table}
+		To support multiple types and array, the structure of symbol table is different with origin version, following is detailed structure:\\
+		\begin{lstlisting}[language={C},numbers=left,numberstyle=\tiny,%frame=shadowbox,  
+   rulesepcolor=\color{red!20!green!20!blue!20},  
+   keywordstyle=\color{blue!70!black},  
+   commentstyle=\color{blue!90!},  
+   basicstyle=\ttfamily]  
+enum object {
+	constant_int,	constant_real,
+	constant_bool,	constant_string,
+	constant_char,
+	variable_int,	variable_real,
+	variable_bool,	variable_string,
+	variable_char,
+	constant_int_array,	variable_int_array,
+	constant_real_array,	variable_real_array,
+	constant_char_array,	variable_char_array,
+	constant_bool_array,	variable_bool_array,
+	constant_string_array,	variable_string_array,
+	function,
+};
+		\end{lstlisting}
+		Type \textbf{function} is not used in current version, may be function will be added in following release. Expect it!
+		\newpage
+		\begin{lstlisting}[language={C},numbers=left,numberstyle=\tiny,%frame=shadowbox,  
+   rulesepcolor=\color{red!20!green!20!blue!20},  
+   keywordstyle=\color{blue!70!black},  
+   commentstyle=\color{blue!90!},  
+   basicstyle=\ttfamily]  
+struct symbol_table {
+	char		name[ID_NAME_LEN];
+	enum object	kind;
+	int		addr;
+	byte		val[STRING_LEN];
+	int		init_or_nor;
+	int		array_size;
+	int		array_const_or_not;
+	int		array_dim[MAX_ARR_DIM];
+};
+		\end{lstlisting}
 		\subsection{ISA}
-		This section mainly describe all technical details of the instruction set, including meaning, usage, etc. 
+		This section mainly describe all technical details of the instruction set, including meaning, usage, etc. All instruction are in following format:
+		\begin{center}
+		\textbf{[operation]}, \textbf{[opran1]}, \textbf{[opran2]}
+		\end{center} 
+		\textbf{[operation]} include \textbf{lit}, \textbf{opr}, \textbf{lod}, \textbf{sto}, \textbf{cal}, \textbf{ini}, \textbf{jmp}, \textbf{jpc}, \textbf{off}. \textbf{[opran1]} specify the type of \textbf{[opran2]} in some operation, corresponding to following table:\\
+		\begin{center}
+			\begin{tabular}{ccc}
+			\toprule
+			Value of \textbf{[opran1]} & Type of \textbf{[opran2]} & Identifier in language \\
+			\midrule
+			2 & Intel Integer & \textbf{integer} \\
+			3 & Real number & \textbf{real} \\
+			4 & C-like string & \textbf{string} \\
+			5 & Bool val & \textbf{boolean}\\
+			6 & Single char & \textbf{char} \\
+			\bottomrule
+			\end{tabular}
+			\end{center}
+		\subsubsection{lit}
+		This instruction is used to load instant number to the top of data stack, leading to increment of stack top. This instruct support all type in this language. Usage: \\
+		\begin{itemize}
+		\item \textbf{lit, 2, 1919}
+		\item \textbf{lit, 5, false}
+		\item \textbf{lit, 4, "LvYingZheNiuBi"}
+		\item \textbf{lit, 3, 114.514}
+		\end{itemize}
+		This instruction will be used in instant number expression, variable declaration, etc.
+		\subsubsection{opr}
+		This instruction is the most used instruction in this compiler, accounting for all of arithmetic and logic operation and some other operation, listed in the table:\\
+		\begin{center}
+			\begin{tabular}{cc}
+			\toprule
+			Value of \textbf{[opran2]} & Operation \\
+			\midrule
+			0 & return from function, will be developed in following release\\
+			1 & Negative the stack top, support only integer and real\\
+			2 & Binary operator + \\
+			3 & Binary operator - \\
+			4 & Binary operator * \\
+			5 & Binary operator / \\
+			6 & Binary operator \% \\
+			7 & Binary operator == \\
+			8 & Binary operator != \\
+			9 & Binary operator $ < $ \\
+			10 & Binary operator $ <= $ \\
+			11 & Binary operator $ > $ \\
+			12 & Binary operator $ >= $ \\
+			13 & Binary operator $ \&\& $ \\
+			14 & Binary operator $ || $ \\
+			15 & Binary operator $ \wedge\wedge $ \\
+			16 & Single operator ! \\
+			17 & \textbf{Reserved for ++}\\
+			18 & \textbf{Reserved for - -}\\
+			19 & Output the top of the stack, type specified by \textbf{[opran1]}\\
+			20 & Input a value, put it on the top of the stack\\
+			21 & \textbf{Reserved for $ << $} \\
+			22 & \textbf{Reserved for $ >> $} \\
+			23 & Pop an element from the stack\\
+			24 & Binary operator ==, but will not pop value from the stack\\
+			   & Used for switch-case\\
+			\bottomrule
+			\end{tabular}
+			\end{center}
+		\subsubsection{lod}
+		Load a variable or constant from symbol table to the top of the stack.
+		\subsubsection{sto}
+		Store the top of the stack to an identifier.
+		\subsubsection{cal}
+		Calling function, currently unused.
+		\subsubsection{ini}
+		Initialize a space to store data. Top of the stack will increase by the opran 2 of this instruction.
+		\subsubsection{jmp}
+		Jump to the instruction of opran 2.
+		\subsubsection{jpc}
+		Jump to the instruction of opran 2 if the top of the stack is false.
+		\subsubsection{off}
+		This instruction is especially used for array accessing. This instruction calculate \\ $ \textbf{array.dimension[0:dim-1] * stack.value[0:opran 1 - 1] + stack.value[opran 1]} $ to be the offset of array accessing. Because all expression value will be calculated run-time, so this result can only be back patched to the instruction run-time, the next step of this instruction is back patch to \textbf{opran2} of the next \textbf{lod/sto} instruction.
 		\subsection{Variable store and load}
+		\begin{itemize}
+		\item In parsing phase: Variable type can be determined when parsing, and should be return along with the un-terminal with their property for further code generating job.
+		\item In declaration phase: When the variable is declared, it will be written into the symbol table with an address, if using $ var := [VALUE] $ to initialize the variable, the $ init\_or\_not $ in the symbol table will be set to \textbf{true}. Using \textbf{read()} or $ := $ to assign value will also set this flag. When calling a variable with \textbf{false} flag, compiler will raise an error. 
+		\item In using phase: It should be noted that when accessing a variable, the stack top should increase, or fatal data error will be caused. Whether the variable is used duplicated or not will be checked in both declaration and using phase. In this phase, \textbf{lod, [type], [address]} will be used in calling, and \textbf{sto, [type], [address]} will be used in storing.
+		\end{itemize}
 		\subsection{Constant store and load}
 		\subsection{Multi-type supporting}
 		\subsection{read and write}

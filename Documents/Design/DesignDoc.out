@@ -13,19 +13,30 @@
 \BOOKMARK [2][-]{subsection.3.3}{Modules}{section.3}% 13
 \BOOKMARK [2][-]{subsection.3.4}{Hardware}{section.3}% 14
 \BOOKMARK [1][-]{section.4}{Details of modules developing}{}% 15
-\BOOKMARK [2][-]{subsection.4.1}{ISA}{section.4}% 16
-\BOOKMARK [2][-]{subsection.4.2}{Variable store and load}{section.4}% 17
-\BOOKMARK [2][-]{subsection.4.3}{Constant store and load}{section.4}% 18
-\BOOKMARK [2][-]{subsection.4.4}{Multi-type supporting}{section.4}% 19
-\BOOKMARK [2][-]{subsection.4.5}{read and write}{section.4}% 20
-\BOOKMARK [2][-]{subsection.4.6}{Arithmetic operation}{section.4}% 21
-\BOOKMARK [2][-]{subsection.4.7}{Logic operation}{section.4}% 22
-\BOOKMARK [2][-]{subsection.4.8}{Expression}{section.4}% 23
-\BOOKMARK [2][-]{subsection.4.9}{Unary operator}{section.4}% 24
-\BOOKMARK [2][-]{subsection.4.10}{Basic condition statement}{section.4}% 25
-\BOOKMARK [2][-]{subsection.4.11}{Basic loop statement}{section.4}% 26
-\BOOKMARK [2][-]{subsection.4.12}{Advanced condition statement}{section.4}% 27
-\BOOKMARK [2][-]{subsection.4.13}{Advanced loop statement}{section.4}% 28
-\BOOKMARK [2][-]{subsection.4.14}{N-dimension array}{section.4}% 29
-\BOOKMARK [2][-]{subsection.4.15}{Break/Continue}{section.4}% 30
-\BOOKMARK [2][-]{subsection.4.16}{Error Processing}{section.4}% 31
+\BOOKMARK [2][-]{subsection.4.1}{Data Stack}{section.4}% 16
+\BOOKMARK [2][-]{subsection.4.2}{Symbol Table}{section.4}% 17
+\BOOKMARK [2][-]{subsection.4.3}{ISA}{section.4}% 18
+\BOOKMARK [3][-]{subsubsection.4.3.1}{lit}{subsection.4.3}% 19
+\BOOKMARK [3][-]{subsubsection.4.3.2}{opr}{subsection.4.3}% 20
+\BOOKMARK [3][-]{subsubsection.4.3.3}{lod}{subsection.4.3}% 21
+\BOOKMARK [3][-]{subsubsection.4.3.4}{sto}{subsection.4.3}% 22
+\BOOKMARK [3][-]{subsubsection.4.3.5}{cal}{subsection.4.3}% 23
+\BOOKMARK [3][-]{subsubsection.4.3.6}{ini}{subsection.4.3}% 24
+\BOOKMARK [3][-]{subsubsection.4.3.7}{jmp}{subsection.4.3}% 25
+\BOOKMARK [3][-]{subsubsection.4.3.8}{jpc}{subsection.4.3}% 26
+\BOOKMARK [3][-]{subsubsection.4.3.9}{off}{subsection.4.3}% 27
+\BOOKMARK [2][-]{subsection.4.4}{Variable store and load}{section.4}% 28
+\BOOKMARK [2][-]{subsection.4.5}{Constant store and load}{section.4}% 29
+\BOOKMARK [2][-]{subsection.4.6}{Multi-type supporting}{section.4}% 30
+\BOOKMARK [2][-]{subsection.4.7}{read and write}{section.4}% 31
+\BOOKMARK [2][-]{subsection.4.8}{Arithmetic operation}{section.4}% 32
+\BOOKMARK [2][-]{subsection.4.9}{Logic operation}{section.4}% 33
+\BOOKMARK [2][-]{subsection.4.10}{Expression}{section.4}% 34
+\BOOKMARK [2][-]{subsection.4.11}{Unary operator}{section.4}% 35
+\BOOKMARK [2][-]{subsection.4.12}{Basic condition statement}{section.4}% 36
+\BOOKMARK [2][-]{subsection.4.13}{Basic loop statement}{section.4}% 37
+\BOOKMARK [2][-]{subsection.4.14}{Advanced condition statement}{section.4}% 38
+\BOOKMARK [2][-]{subsection.4.15}{Advanced loop statement}{section.4}% 39
+\BOOKMARK [2][-]{subsection.4.16}{N-dimension array}{section.4}% 40
+\BOOKMARK [2][-]{subsection.4.17}{Break/Continue}{section.4}% 41
+\BOOKMARK [2][-]{subsection.4.18}{Error Processing}{section.4}% 42
