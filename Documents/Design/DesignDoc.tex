@@ -2,12 +2,13 @@
 	\usepackage{booktabs}
 	\usepackage{listings}
 	\usepackage{geometry}
-	\geometry{left=2cm, right=2cm, top=2cm, bottom=2cm}
+	\usepackage{graphicx}
+	\geometry{left=1.8cm, right=1.8cm, top=1.6cm, bottom=1.6cm}
 	\usepackage{xcolor}
 	\usepackage{amsmath}
 	\title{X0-Compiler Design Document}
 	\usepackage[colorlinks, linkcolor=red]{hyperref}
-	\author{Altair, Liu @ ilovehanhan1120@hotmail.com}
+	\author{Liu, Altair @ ilovehanhan1120@hotmail.com}
 	\begin{document}
 		\maketitle
 		\section{Introduction}
@@ -245,7 +246,17 @@ main {
 		\textbf{yarimasu\_stat} \rightarrow &
 		'yarimasune',';'\\
 		\end{align}
-		This language should follow this grammar, detailed development of every modules will be mentioned below.
+		This language should follow this grammar, detailed development of every modules will be mentioned below. Following are keywords:\\
+		\begin{center}
+		\begin{tabular}{ccccc}
+			\emph{bool} & \emph{break} & \emph{call} & \emph{case} & \emph{char} \\
+			\emph{const} & \emph{continue} & \emph{default} & \emph{do} & \emph{else} \\
+			\emph{exit} & \emph{false} & \emph{for} & \emph{integer} & \emph{if} \\
+			\emph{main} & \emph{real} & \emph{repeat} & \emph{return} & \emph{string}\\
+			\emph{switch} & \emph{true} & \emph{until} & \emph{while} & \emph{write}\\
+			
+		\end{tabular}\\
+		\end{center}
 		\subsection{Environment}
 		This project is developed on Ubuntu 18.04 64-bit, using \textbf{make} and corresponding \textbf{Makefile} to construct. External tools needed are: \textbf{Bison}, \textbf{Flex}, \textbf{VsCode}, \textbf{git}.
 		\subsection{Modules}
@@ -337,7 +348,6 @@ enum object {
 };
 		\end{lstlisting}
 		Type \textbf{function} is not used in current version, may be function will be added in following release. Expect it!
-		\newpage
 		\begin{lstlisting}[language={C},numbers=left,numberstyle=\tiny,%frame=shadowbox,  
    rulesepcolor=\color{red!20!green!20!blue!20},  
    keywordstyle=\color{blue!70!black},  
@@ -365,7 +375,7 @@ struct symbol_table {
 			\toprule
 			Value of \textbf{[opran1]} & Type of \textbf{[opran2]} & Identifier in language \\
 			\midrule
-			2 & Intel Integer & \textbf{integer} \\
+			2 & Integer & \textbf{integer} \\
 			3 & Real number & \textbf{real} \\
 			4 & C-like string & \textbf{string} \\
 			5 & Bool val & \textbf{boolean}\\
@@ -418,6 +428,7 @@ struct symbol_table {
 			\bottomrule
 			\end{tabular}
 			\end{center}
+			\hypertarget{4.3.2}{}
 		\subsubsection{lod}
 		Load a variable or constant from symbol table to the top of the stack.
 		\subsubsection{sto}
@@ -439,19 +450,203 @@ struct symbol_table {
 		\item In using phase: It should be noted that when accessing a variable, the stack top should increase, or fatal data error will be caused. Whether the variable is used duplicated or not will be checked in both declaration and using phase. In this phase, \textbf{lod, [type], [address]} will be used in calling, and \textbf{sto, [type], [address]} will be used in storing.
 		\end{itemize}
 		\subsection{Constant store and load}
+		\begin{itemize}
+		\item In parsing phase, compiler will check if constant is initialized, if not, compiler will raise an error: \textbf{\emph{Constant require initialization}}. Also, the type can be determined in this phase and should be return along with the un-terminal for further code generating job. 
+		\item In declaration phase: It should be noted that constant will not occupy the stack when un-used, it will only occupy if is loaded by the instruction \textbf{lod, [type], [address]}. And declaration of a constant will not generate \textbf{sto, [type], [address]} since the value of constant can be determined in paring phase. 
+		\item In using phase: Be careful, anything tend to change the value of constant in the symbol table will raise error including \textbf{read()}, \textbf{$ := $}, etc. 
+		\end{itemize}
 		\subsection{Multi-type supporting}
+		\begin{itemize}
+		\item To support multiple type, the value of all variables and constants are store in \textbf{byte} format, which means all data will be converted into \textbf{byte array} to store in the symbol table, stack, and when using these variables and constants, parser will convert them from \textbf{byte array} into their origin type through \textbf{opran 1}, which is generated \textbf{\emph{by the information provided by the un-terminal}}, so it's very important to maintain the type information in parsing stage.\\
+		\item Since the compiler also support instant number, so the instruction should support multiple type instant number too, which means the structure of the instruction is different, to be specific, the \textbf{opran 2} is also \textbf{byte array} type to support instant number. The instruction load an instant number is \textbf{lit, [type], [value]}, the assignment of \textbf{opran 2} of this instruction is different with others, listed as following:\\
+		\begin{lstlisting}[language={C},numbers=left,numberstyle=\tiny,%frame=shadowbox,  
+   rulesepcolor=\color{red!20!green!20!blue!20},  
+   keywordstyle=\color{blue!70!black},  
+   commentstyle=\color{blue!90!},  
+   basicstyle=\ttfamily]  
+byte opran[];
+if (inst.fct == lit) {
+	memcpy((void*)(code[pc].opr), (const void*)opran, STRING_LEN);
+}
+else {
+	memcpy((void*)(code[pc].opr), (const void*)&opran, STRING_LEN);
+}
+		\end{lstlisting}
+		When using the opran of an instruction, it will be the same as following format besides string opran:\\
+		\begin{lstlisting}[language={C},numbers=left,numberstyle=\tiny,%frame=shadowbox,  
+   rulesepcolor=\color{red!20!green!20!blue!20},  
+   keywordstyle=\color{blue!70!black},  
+   commentstyle=\color{blue!90!},  
+   basicstyle=\ttfamily]  
+int 	opran_int 		= *(int*)	&code[pc].val;
+float 	opran_float 		= *(float*)	&code[pc].val;
+char 	opran_char 		= *(char*)	&code[pc].val;
+bool 	opran_int 		= *(int*)	&code[pc].val == 1;
+string 	opran_string 		= 		 code[pc].val;
+		\end{lstlisting}
+		\item This compiler support implicit type convert from \textbf{integer} to \textbf{real}, \textbf{integer} to \textbf{char}, etc. Mixed type arithmetic operation is also supported by adding type of every element in the data stack.
+		\end{itemize}
 		\subsection{read and write}
+		In this compiler, all \textbf{expression} can be written to the console, but only non-constant \textbf{var} can be read from the console. When calling \textbf{write()}, \textbf{opr, [type], 19} will be generated, and when calling \textbf{read()}, \textbf{opr, [type], 20} will be generated. \textbf{[type]} can be specified by the property of \textbf{expression} and \textbf{var}.
 		\subsection{Arithmetic operation}
+		There are 3 categories of arithmetic operator:
+		\begin{itemize}
+		\item Binary operator and will pop value from the stack.
+		\item Binary operator but will not pop value from the stack (only for \textbf{switch-case} statement).
+		\item Unary operator.
+		\end{itemize}
+		All the operator will simply generate an instruction: \textbf{opr, [type], [opran]}.
 		\subsection{Logic operation}
+		There are 3 categories of logic operator:
+		\begin{itemize}
+		\item Binary operator and will pop value from the stack.
+		\item Binary operator but will not pop value from the stack (only for \textbf{switch-case} statement).
+		\item Unary operator.
+		\end{itemize}
+		All the operator will simply generate an instruction: \textbf{opr, [type], [opran]}. The relationship of value of \textbf{opran 2} with operation is in table in \hyperlink{4.3.2}{section 4.3.2}.
 		\subsection{Expression}
+		Expression contains 2 parts: assignment statement and arithmetic and logic statement.
+		\begin{itemize}
+		\item Assignment statement: when assigning value to a variable, a \textbf{sto, [type], [value]} will be generated. And the value of assignment statement is set to be zero. So, the compiler doesn't support assignment like \textbf{\emph{$ a := b := 10 $}}, which will be fixed in future release.
+		\item Arithmetic and Logic statement: since there exist priority issue in arithmetic and logic operation, so, priority is set fixed in this compiler with 6 level.\\
+		\begin{center}
+			\begin{tabular}{ccc}
+			\toprule
+			Operator & Priority & Associativity\\
+			\midrule
+			$ () $ & 0 & N/A\\
+			$ * $, $ / $, $ \% $ & 1 & Right-associative\\
+			$ + $, $ - $ & 2 & Right-associative\\
+			$ << $, $ >> $, $ | $, $ \& $ & 3 & Right-associative\\
+			$ ==/\neq $, $ </\leq $, $ >/\geq $, $ \&\&/||/\wedge\wedge $ & 4 & Right-associative\\
+			$ ++/-- $. $ ! $ & 5 & N/A\\ 
+			\bottomrule
+			\end{tabular}
+		\end{center}
+		\end{itemize}
+		\textbf{factor} is the minimal part of an expression, it can be expression surrounded by a pair of $ () $, a variable or a constant, or just instant value, in these situations, different IR will be generated:\\
+		\begin{center}
+			\begin{tabular}{cc}
+			\toprule
+			Situation & IR \\
+			\midrule
+			\textbf{(expressiopn)} & Parse \textbf{expression} recursively \\
+			variable & \textbf{lod, [type], [address\_data\_stack]}\\
+			constant & \textbf{lit, [type], [value\_in\_symbol\_table]}\\
+			Instant value & \textbf{lit, [type], [value\_parsed\_by\_lex]}\\
+			\bottomrule
+			\end{tabular}
+		\end{center}
+		After having generated the code of \textbf{factor}, the code of all operation can be generated simply in \textbf{term} and \textbf{additive\_expr} as \textbf{opr, [type], [opran]}.
 		\subsection{Unary operator}
+		There are 2 solution to solve unary operator, one is to design specific instruction for $ ++/-- $, however, I used following method for $ variable++/-- $, $ ++/--variable $ is similar:\\
+		\begin{itemize}
+		\item Since when calling $ ++/-- $, variable is called first, so the top of the stack has already contained a copy of variable.
+		\item Load one more copy to the top of the stack by using \textbf{lod, [type], [address\_data\_stack]}.
+		\item Load instant number 1 to the top of the stack by using \textbf{lod, 2, 1}.
+		\item Do the operation by using \textbf{opr, 2, $ +/- $}
+		\item Store new value to the address of the variable by using \textbf{sto, [type], [address\_data\_stack]}.
+		\end{itemize}
+		\centerline{\includegraphics[width=16cm, height=3.2cm]{Pic/Pic0.jpg}}
 		\subsection{Basic condition statement}
+		Basic condition statement stands for \textbf{if-else} statement. Since there may be recursive if-else, while, etc. statements in an \textbf{if-else}, so the back-patch address should be recorded by the un-terminal in the grammar rather than some global variable. Detailed level condition will be discussed in \hyperlink{4.17}{section 4.17}. For \textbf{if-else} itself, first, it will generate a \textbf{jpc, 0, [destination\_address]} since there must be one condition, if \textbf{else} exists, \textbf{else} will generate an extra \textbf{jmp, 0, [destination\_address]} to jump through the statement should not be executed. The destination address will be back patched after finishing parsing the whole \textbf{if-else} statement. To be specific, the end of \textbf{if-else} will be back patched into the destination address.
 		\subsection{Basic loop statement}
+		Basic loop statement stands for \textbf{do-while, while} statements. Also, complex level condition will be discussed in \hyperlink{4.17}{section 4.17}. \\
+		\begin{itemize}
+		\item For \textbf{while} statement, first, after the expression, parser will generate a \textbf{jpc, 0, [destination\_address]}, this destination address will be back patched with the end of whole \textbf{while} statement. Then, after parsing the main body of the \textbf{while}, parser will generate a \textbf{jmp, 0, [begin\_address \_of\_expression\_in\_while]} to start a new round of condition comparing.
+		\item For \textbf{do-while}, it is very similar with \textbf{while} statement, just put the \textbf{jpc, 0, [destination\_address]} before the former \textbf{jmp} in \textbf{while} statement. And back patch it with the end of whole \textbf{do-while} statement. 
+		\end{itemize}
 		\subsection{Advanced condition statement}
+		Advanced condition statement stands for \textbf{switch-case-default} statement. Since there will be many comparing in this statement, it will be complex to use existing binary condition operators since these operators will pop result from the stack top which means the value should be calculated again. So, I implement new binary condition operators but will not pop the value from the stack top for \textbf{switch-case-default} statement. Using these operators, parser will generate a \textbf{opr, [type], $ == $(not pop stack top)} to compare the case and a \textbf{jpc, 0, [next\_case\_address]}, to back patch the address of next case, back patch list as the property of un-terminal is implemented with following structure:\\
+		\begin{itemize}
+		\item Structure of back patch list as the property of un-terminal. When using it, noted that a memory space should be dispatched to it by \textbf{\emph{malloc()}}.
+		\begin{lstlisting}[language={C},numbers=left,numberstyle=\tiny,%frame=shadowbox,  
+   rulesepcolor=\color{red!20!green!20!blue!20},  
+   keywordstyle=\color{blue!70!black},  
+   commentstyle=\color{blue!90!},  
+   basicstyle=\ttfamily]  
+struct bp_list {
+	int 	case_start;
+	int 	case_end;
+};
+%union {
+	char 	*ident;
+	int 	number;
+	char 	*text;
+	char 	single_char;
+	int 	flag;
+	double 	realnumber;
+	struct 	bp_list *bp;
+}
+%type <bp>	case_stat default_statement	
+		\end{lstlisting}
+		\item Since there will be \textbf{break} in it, the end of the whole \textbf{switch-case-default} should be back patched to the address of every \textbf{break} statements.
+		\end{itemize}
 		\subsection{Advanced loop statement}
+		Advanced loop statement stands for \textbf{for ($ E1 $; $ E2 $; $ E3 $) $ S $} statement. To implement this, following position should be maintained: \textbf{start of $ E2 $, start of $ S $, start of $ E3 $, end of $ S $} by additional un-terminal in the grammar. There are following steps:\\
+		\begin{itemize}
+		\item After parsing the condition expression $ E2 $, a \textbf{jpc, 0, [destination\_address]} will be generate if \textbf{\emph{$ E2 \neq \epsilon $}}. And a \textbf{jmp, 0, [start\_of\_$ S $]} will be generated to find the entrance of $ S $.
+		\item After parsing $ S $, the iteration variable should be modified, so, a \textbf{jmp, 0, [start\_of\_$ E3 $]} will be generated to find the entrance of $ E3 $.
+		\item After modifying the iteration variable, condition should be check again, so, a \textbf{jmp, 0, [start\_of\_$ E2 $]} will be generated to check again.
+		\end{itemize}
 		\subsection{N-dimension array}
+		It should be noted that, no matter the dimension of the array, when accessing the array, the value of the expression can only be determined run-time, so, back patching is also used for array accessing. The new instruction \textbf{off} is used in this process. In the symbol table, \emph{dimension} will be maintained for the array. When accessing the array, parser will generate a \textbf{off, [number\_of\_dimension], [base\_address]} first, base address is also recorded in the symbol table. At run time, after calculated all expression in array accessing list, \textbf{off} will calculate:
+		\begin{equation}
+		(\sum array.dimension[0:n-1] \times stack[top-number\_of\_dimension:top-1]) + array.dimension[n]
+		\end{equation}
+		This will be the offset of accessing the array, last, add this offset to the base address, and back patch this result to next \textbf{lod/sto} since next \textbf{lod/sto} must be array accessing instruction. This back patch will be done \textbf{\emph{RUN TIME}}.
 		\subsection{Break/Continue}
+		Since there may be multiple level of \textbf{for, while, if, switch}, etc. So, level should be recorded when implement \textbf{break/continue}. Every single \textbf{break/continue} will only generate a \textbf{jmp, 0, [destination\_address]}, and this destination address will be back patched in the statement call \textbf{break/continue}.
+		\begin{itemize}
+		\item Generate \textbf{jmp, 0, 0} at every \textbf{break/continue}.
+		\item Record the \textbf{level} and address of \textbf{break/continue} to be back patched. 
+		\item After parsing \textbf{for, while, if, switch}, back patch the end of them to the address of \textbf{break/continue}.
+		\end{itemize}
+		Since the level is implemented, when processing $ i+1 $ level, it will follow the order which means when a new \textbf{break/continue} is encountered, former \textbf{break/continue} in former \textbf{for, while, if, switch} has already been processed, so there will not be problem of data warp. After processing the $ i+1 $ level, $ i $ level will be processed, and the address of $ i+1 $ and $ i $ is stored in different location. The whole process is like a stack.\hypertarget{4.17}{}
 		\subsection{Error Processing}
+		\begin{itemize}
+		\item This compiler can't raise multiple syntax error at one time, may be it will be implemented in late release.
+		\item Multiple semantic error will be raised, including:\\
+		\begin{center}
+			\begin{tabular}{c}
+			\toprule
+			Semantic Error \\
+			\midrule
+			Duplicated variable defined.\\
+			Constant without initialized.\\
+			Undefined variable.\\
+			Trying to change constant.\\
+			Incompatible type.\\
+			Different type between boolean operator.\\
+			Operators incompatible.\\
+			\vdots \\
+			\bottomrule
+			\end{tabular}
+		\end{center}
+		
+		\end{itemize}
+		\section{Maintaining the software}
+		\subsection{Maintaining Personnel}
+		This software will mainly be maintained by the developer \textbf{Liu, Altair}, he can be reached by \url{ilovehanhan1120@hotmail.com}, \url{altair.liu@sap.com}.
+		\subsection{Maintenance Object}
+		\begin{itemize}
+		\item Developer will maintain the modules that the bugs are already known.
+		\item User of this software will raise report about the bugs.
+		\item Optimizing and reconstructing of the software will also be conducted if developer is in a good mood, expect it.
+		\end{itemize}
+		\subsection{Maintenance Type}
+		\begin{itemize}
+		\item Bug Fixing.
+		\item Code Reconstructing.
+		\end{itemize}
+		\subsection{Extension and Future imagination}
+		Following modules may be developed if \textbf{Liu, Altair} is in a good mood.
+		\begin{itemize}
+		\item UI with debugger and run-time stack.
+		\item function with parameter and return value.
+		\item class, struct
+		\item $ \Leftarrow $ To Be Continue.
+		\end{itemize}
 		
 		
 	\end{document}
