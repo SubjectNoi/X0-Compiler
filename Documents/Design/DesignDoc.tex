@@ -393,6 +393,7 @@ struct symbol_table {
 		\end{itemize}
 		This instruction will be used in instant number expression, variable declaration, etc.
 		\subsubsection{opr}
+		\hypertarget{4.3.2}{}
 		This instruction is the most used instruction in this compiler, accounting for all of arithmetic and logic operation and some other operation, listed in the table:\\
 		\begin{center}
 			\begin{tabular}{cc}
@@ -428,7 +429,6 @@ struct symbol_table {
 			\bottomrule
 			\end{tabular}
 			\end{center}
-			\hypertarget{4.3.2}{}
 		\subsubsection{lod}
 		Load a variable or constant from symbol table to the top of the stack.
 		\subsubsection{sto}
@@ -596,13 +596,14 @@ struct bp_list {
 		\end{equation}
 		This will be the offset of accessing the array, last, add this offset to the base address, and back patch this result to next \textbf{lod/sto} since next \textbf{lod/sto} must be array accessing instruction. This back patch will be done \textbf{\emph{RUN TIME}}.
 		\subsection{Break/Continue}
+		\hypertarget{4.17}{}
 		Since there may be multiple level of \textbf{for, while, if, switch}, etc. So, level should be recorded when implement \textbf{break/continue}. Every single \textbf{break/continue} will only generate a \textbf{jmp, 0, [destination\_address]}, and this destination address will be back patched in the statement call \textbf{break/continue}.
 		\begin{itemize}
 		\item Generate \textbf{jmp, 0, 0} at every \textbf{break/continue}.
 		\item Record the \textbf{level} and address of \textbf{break/continue} to be back patched. 
 		\item After parsing \textbf{for, while, if, switch}, back patch the end of them to the address of \textbf{break/continue}.
 		\end{itemize}
-		Since the level is implemented, when processing $ i+1 $ level, it will follow the order which means when a new \textbf{break/continue} is encountered, former \textbf{break/continue} in former \textbf{for, while, if, switch} has already been processed, so there will not be problem of data warp. After processing the $ i+1 $ level, $ i $ level will be processed, and the address of $ i+1 $ and $ i $ is stored in different location. The whole process is like a stack.\hypertarget{4.17}{}
+		Since the level is implemented, when processing $ i+1 $ level, it will follow the order which means when a new \textbf{break/continue} is encountered, former \textbf{break/continue} in former \textbf{for, while, if, switch} has already been processed, so there will not be problem of data warp. After processing the $ i+1 $ level, $ i $ level will be processed, and the address of $ i+1 $ and $ i $ is stored in different location. The whole process is like a stack.
 		\subsection{Error Processing}
 		\begin{itemize}
 		\item This compiler can't raise multiple syntax error at one time, may be it will be implemented in late release.
