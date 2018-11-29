@@ -1,9 +1,9 @@
 main {
 	integer a;
 	integer aa[5];
-	integer b := 5;
 	write("Please input the length of array:");
 	read(a);
+	integer b := a;
 	while (a != 0) {
 		a := a - 1;
 		write("Please input array element:");

@@ -100,7 +100,9 @@ int 		line = 1;
 ":"				{return COLON;}
 "^^"			{return XOR;}
 "&&"			{return AND;}
+"&"				{return BITAND;}
 "||"			{return OR;}
+"|"				{return BITOR;}
 "!"				{return NOT;}
 .				{yyerror("Unknown Character!");}
 

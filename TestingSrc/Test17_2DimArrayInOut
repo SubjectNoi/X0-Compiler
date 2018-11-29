@@ -1,0 +1,35 @@
+main {
+    integer i, j, k, n, a, b;
+    integer G[5,5];
+    for (i := 0; i != 5; i++) {
+        for (j := 0; j != 5; j++) {
+            G[i,j] := 999;
+            if (i == j) {
+                G[i, j] := 0;
+            }
+        } 
+    }
+    read(n);
+    while(n--) {
+        read(a);
+        read(b);
+        read(G[a,b]);//still bug in read(w), G[a,b] := w;
+    }
+    for (i := 0; i != 5; i++) {
+        for (j := 0; j != 5; j++) {
+            write(G[i,j]);
+        } 
+        write("=================");
+    }
+}
+// 10
+// 0 1 5
+// 1 4 3
+// 0 4 6
+// 0 2 3
+// 2 3 4
+// 0 3 8
+// 1 0 9
+// 4 2 8
+// 4 3 9
+// 4 3 8

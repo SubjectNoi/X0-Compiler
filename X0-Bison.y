@@ -178,7 +178,7 @@ void 		gen(enum fct x, int y, byte* z);
 
 %token BOOLSYM BREAKSYM CALLSYM CASESYM CHARSYM COLON CONSTSYM CONTINUESYM DEFAULTSYM DOSYM ELSESYM
 %token ELSESYM EXITSYM FORSYM INTSYM IFSYM MAINSYM READSYM REALSYM REPEATSYM RR RL LPAREN RPAREN
-%token STRINGSYM SWITCHSYM UNTILSYM WHILESYM WRITESYM LBRACE RBRACE LBRACKET RBRACKET
+%token STRINGSYM SWITCHSYM UNTILSYM WHILESYM WRITESYM LBRACE RBRACE LBRACKET RBRACKET BITAND BITOR
 %token BECOMES COMMA LSS LEQ GTR GEQ EQL NEQ PLUS INCPLUS MINUS INCMINUS TIMES DEVIDE
 %token LPAREN RPAREN MOD SEMICOLON XOR AND OR NOT YAJU YARIMASUNESYM KIBONOHANASYM RETURNSYM
 
@@ -190,7 +190,7 @@ void 		gen(enum fct x, int y, byte* z);
 %token <realnumber>		REAL
 
 %type <number>			factor term additive_expr								// Indicate type of factor
-%type <number>			expression var											// Indicate type of expression
+%type <number>			expression var INC_OR_NOT								// Indicate type of expression
 %type <number>			identlist identarraylist identdef
 %type <number>			simple_expr SINGLEOPR SEMICOLON SEMICOLONSTAT LPARENSTAT LPAREN RPAREN RPARENSTAT
 %type <number>			dimension dimensionlist PLUSMINUS TIMESDEVIDE ELSESYMSTAT WHILESYMSTAT
@@ -651,13 +651,14 @@ for_statement:			FORSYM LPARENSTAT
 						expression SEMICOLONSTAT {				// e2
 							int opran = 0;
 							//if_s_end_idx = vm_code_pointer;
-							gen(jpc, 0, (byte*)opran);
+							if ($6 != -1) gen(jpc, 0, (byte*)opran);
 							//if_s_enter_idx = vm_code_pointer;
 							gen(jmp, 0, (byte*)opran);
 							//if_e3_enter = vm_code_pointer;
 						}			
-						expression RPARENSTAT {					// e3
+						expression RPARENSTAT INC_OR_NOT {					// e3
 							int opran;
+							$11 = inc_flag;
 							if (inc_flag) {
 								inc_flag = 0;
 								opran = 23;					// pop ++ --
@@ -670,10 +671,10 @@ for_statement:			FORSYM LPARENSTAT
 						compound_statement {
 							int opran = 0;
 							//if_e3_enter_idx = vm_code_pointer;
-							int if_s_end_idx = $7, if_s_enter_idx = $7 + 1, if_e2_enter_idx = $10 + 1, if_e3_enter_idx = vm_code_pointer;
-							int if_s_end = vm_code_pointer + 1, if_s_enter = $10 + 2, if_e2_enter = $4, if_e3_enter = $7 + 2;
+							int if_s_end_idx = $7, if_s_enter_idx = $7 + ($6 == -1 ? 0 : 1), if_e2_enter_idx = $10 + ($11 == 1 ? 1 : 0), if_e3_enter_idx = vm_code_pointer;
+							int if_s_end = vm_code_pointer + 1, if_s_enter = $10 + 1 + ($11 == 1 ? 1 : 0), if_e2_enter = $4, if_e3_enter = $7 + 2;
 							gen(jmp, 0, (byte*)opran);
-							memcpy((void*)code[if_s_end_idx].opr, (const void*)&if_s_end, STRING_LEN);
+							if ($6 != -1) memcpy((void*)code[if_s_end_idx].opr, (const void*)&if_s_end, STRING_LEN);
 							memcpy((void*)code[if_s_enter_idx].opr, (const void*)&if_s_enter, STRING_LEN);
 							memcpy((void*)code[if_e2_enter_idx].opr, (const void*)&if_e2_enter, STRING_LEN);
 							memcpy((void*)code[if_e3_enter_idx].opr, (const void*)&if_e3_enter, STRING_LEN);
@@ -699,6 +700,9 @@ for_statement:			FORSYM LPARENSTAT
 						}
 						;
 						
+INC_OR_NOT:				
+						;
+
 do_statement:			DOSYM { 
 							do_start_idx = vm_code_pointer;
 						} compound_statement WHILESYM LPAREN expression RPARENSTAT {
@@ -850,6 +854,7 @@ expression:				var {
 					  | simple_expr {
 						  	$$ = $1;
 					  	}
+					  | { $$ = -1; }
 						;
 
 simple_expr:			additive_expr { $$ = $1; }
@@ -932,6 +937,12 @@ OPR:					EQL {
 					  | XOR {
 						  	$$ = 9;
 					 	}
+					  | BITAND {
+						  	$$ = 11;
+					  	}
+					  | BITOR {
+						  	$$ = 12;
+					  	}
 					  | RR {
 						  	$$ = 15;
 					  	}
@@ -1325,6 +1336,8 @@ void interpret() {
 	int			res;
 	int 		addr_to_find_array_in_table;
 	int			bool_opr1, bool_opr2;
+	int			array_input = 0;
+	int			input_flag = 0;
 	memset(inbuf_string, 0, sizeof inbuf_string);
 	printf("Start X0\n");
 	fprintf(fresult, "Start X0\n");
@@ -1828,8 +1841,36 @@ void interpret() {
 						}
 						break;
 					case 17:							// 1 opr ++
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = (*(int*)&s[stack_top].val) & (*(int*)&s[stack_top + 1].val);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = integer;
+								break;
+							case 3:
+							case 4:
+							case 5:
+							case 6:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+						}
 						break;
 					case 18:							// 1 opr --
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = (*(int*)&s[stack_top].val) | (*(int*)&s[stack_top + 1].val);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = integer;
+								break;
+							case 3:
+							case 4:
+							case 5:
+							case 6:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+						}
 						break;
 					case 19:
 						//printf("OUTPUT:\n");
@@ -1854,6 +1895,7 @@ void interpret() {
 						break;
 					case 20:							// input
 						stack_top++;
+						input_flag = !array_input;
 						//printf("INPUT:\n");
 						switch (i.lev) {
 							case 2:
@@ -1887,11 +1929,37 @@ void interpret() {
 								break;
 						}
 						break;
-					case 21: 						// <<
-
+					case 21: 						// >>
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = (*(int*)&s[stack_top].val) >> (*(int*)&s[stack_top + 1].val);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = integer;
+								break;
+							case 3:
+							case 4:
+							case 5:
+							case 6:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+						}
 						break;
-					case 22:						// >>
-
+					case 22:						// <<
+						stack_top--;
+						switch (i.lev) {				// 2 opran should be with the same type
+							case 2:
+								outter_int = (*(int*)&s[stack_top].val) << (*(int*)&s[stack_top + 1].val);
+								memcpy((void*)s[stack_top].val, (const void*)&outter_int, STRING_LEN);
+								s[stack_top].t = integer;
+								break;
+							case 3:
+							case 4:
+							case 5:
+							case 6:
+								yyerror("Opration not support for this type of variabls.");
+								break;
+						}
 						break;
 					case 23:						// pop from the stack
 						stack_top--;
@@ -1926,10 +1994,10 @@ void interpret() {
 								break;
 						}
 						break;
-						break;
 				}
 				break;
 			case lod:
+				input_flag = 1;
 				stack_top++;
 				addr = *(int*)&(i.opr);
 				if (addr == -1) {
@@ -1976,7 +2044,12 @@ void interpret() {
 						s[stack_top].t = single_char;
 						break;
 				}
-				stack_top--;
+				if (array_input == 1) {
+					array_input = 0;
+				}
+				else {
+					stack_top --;
+				}
 				break;
 			case cal:
 				break;
@@ -1993,6 +2066,7 @@ void interpret() {
 				stack_top--;
 				break;
 			case off:
+				array_input = 1;
 				res = 0;
 				addr_to_find_array_in_table = *(int*)&i.opr;
 				for (iter = 1; iter <= sym_tab_tail; iter++) {
@@ -2003,17 +2077,13 @@ void interpret() {
 						break;
 					}
 				}
-				for (iter = MAX_ARR_DIM - 1; iter >= 0; iter--) {
-					if (tmp_arr_list[iter]) {
-						tmp_arr_list[iter] = 1;
-						break;
-					}
+				for (iter = 0; iter < i.lev - 1; iter++) {
+					res += (*(int*)&s[stack_top - (i.lev - iter - 1)].val) * tmp_arr_list[iter];
 				}
-				for (iter = 0; iter < i.lev; iter++) {
-					res += (*(int*)&s[stack_top].val) * tmp_arr_list[i.lev - iter - 1];
-					stack_top--;
-				}
+				res += (*(int*)&s[stack_top].val);
+				stack_top -= (i.lev);
 				res += *(int*)&i.opr;
+				//printf("res %d ", res);
 				for (iter = pc; iter < vm_code_pointer; iter++) {
 					if (code[iter].f == lod || code[iter].f == sto) {
 						back_patch(iter, (byte*)res);
