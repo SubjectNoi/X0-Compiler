@@ -1,6 +1,258 @@
 \documentclass{article}
+	\usepackage{booktabs}
+	\usepackage{listings}
+	\usepackage{geometry}
+	\usepackage{graphicx}
+	\geometry{left=1.8cm, right=1.8cm, top=1.6cm, bottom=1.6cm}
+	\usepackage{xcolor}
+	\usepackage{amsmath}
 	\title{X0-Compiler Test Document}
-	\author{Altair, Liu @ ilovehanhan1120@hotmail.com}
+	\usepackage[colorlinks, linkcolor=red]{hyperref}
+	\author{Liu, Altair @ ilovehanhan1120@hotmail.com}
 	\begin{document}
 		\maketitle
+		\section{Introduction}
+		\subsection{Purpose}
+		The purpose of conducting as technical proposal to describe the global designing of this project, containing basic functionality of the system, run-time designing and error detecting methods. This document is aimed to provide a schema of designing and implement all functionality, which will be the critical document during the process of developing. This document will be read by developers and testers.
+		\subsection{Background}
+		This project is to develop a \textbf{X0 Language Compiler}, which is a C-like language. This project is mainly for research and study purpose.
+		\begin{center}
+		\begin{tabular}{cc}
+			\toprule
+			Item & Detail\\
+			\midrule
+			Project Name & X0-Compiler(mini-C)\\
+			Developing Platform & Ubuntu 18.04 64-bit\\
+			Developing Tools & \textbf{Flex} and \textbf{Bison}\\
+			Open Source or not & Yes \\
+			\bottomrule 
+		\end{tabular}\\
+		\end{center}
+		All source files can be found at: \url{http://github.com/SubjectNoi/X0-Compiler}, star and follow it, please $ \hat{ } \_ \hat{ } $ .
+		\subsection{Remarks}
+		Usage:
+		\begin{lstlisting}[language={sh},numbers=left,numberstyle=\tiny,%frame=shadowbox,  
+   rulesepcolor=\color{red!20!green!20!blue!20},  
+   keywordstyle=\color{blue!70!black},  
+   commentstyle=\color{blue!90!},  
+   basicstyle=\ttfamily]  
+ Ubuntu>$ git clone http://github.com/SubjectNoi/X0-Compiler
+ Ubuntu>$ cd X0-Compiler
+ Ubuntu>$ make
+ Ubuntu>$ ./X0 [Your source file]
+\end{lstlisting}  
+	20 test sample in every sub-modules are provided, named as \textbf{TestXX\_[Test Content]}.
+	\section{Testing Environment}
+	\subsection{Hardware}
+	\begin{center}
+			\begin{tabular}{cc}
+			\toprule
+			Item & Detail \\
+			\midrule
+			CPU & Intel Xeon E5-2699v3@2.30GHz(18C36T) \\
+			Main Board & ASUS ROG Rampage V Extreme \\
+			RAM & Corsair DDR4 2133@15-15-36-50 64GB \\
+			GPU & Nvidia Geforce RTX 2080Ti 11GB $ \times $ 2 \\
+			Hard Disk & Intel 750 NVMe SSD 1.2TB $ \times $ 2 \\
+			\bottomrule
+			\end{tabular}
+			\end{center}
+	\subsection{Software}
+	\begin{center}
+			\begin{tabular}{cc}
+			\toprule
+			Item & Detail \\
+			\midrule
+			OS & Ubuntu 18.04 64-bit LTS\\
+			Lexical Analyzer & Flex\\
+			Grammar Analyzer & Bison\\
+			Version Control & git\\
+			IDE & Visual Studio Code\\
+			\bottomrule
+			\end{tabular}
+			\end{center}
+	\subsection{Personnel}
+	Developer, students, researcher using this software can be the tester, all bug will be issued by git so that developer will know them in time. All bug will be fixed ASAP. All interested users are welcome to test this software.
+	\section{Testing Strategies}
+	\subsection{Functionality test}
+	\begin{center}
+			\begin{tabular}{cc}
+			\toprule
+			Item & Detail \\
+			\midrule
+			Test Scale & Basic functionality of the software\\
+			Test Aim & Ensure the correct behaviors of the software\\
+			Test Technology & Black-Box Testing, Marginal Testing\\
+			Tool & Manual Testing\\
+			Starting Point & Completing of corresponding modeles\\
+			Ending Point & Pass the standard of the developer\\
+			Testing Priority & 0 \\
+			\bottomrule
+			\end{tabular}
+			\end{center}
+	\subsection{Performance test}
+	\begin{center}
+			\begin{tabular}{cc}
+			\toprule
+			Item & Detail \\
+			\midrule
+			Test Scale & Execution speed and efficiency\\
+			Test Aim & Ensure the fastest speed and highest efficiency\\
+			Test Technology & Black-Box Testing, Marginal Testing\\
+			Tool & Manual Testing\\
+			Starting Point & Completing of corresponding modeles\\
+			Ending Point & Pass the standard of the developer\\
+			Testing Priority & 2 \\
+			\bottomrule
+			\end{tabular}
+			\end{center}
+	\subsection{Compatibility test}
+	\begin{center}
+			\begin{tabular}{cc}
+			\toprule
+			Item & Detail \\
+			\midrule
+			Test Scale & Run in different OS, version, etc.\\
+			Test Aim & Ensure the highest compatibility\\
+			Test Technology & Black-Box Testing, Marginal Testing\\
+			Tool & Manual Testing\\
+			Starting Point & Completing of corresponding modeles\\
+			Ending Point & Pass the standard of the developer\\
+			Testing Priority & 2 \\
+			\bottomrule
+			\end{tabular}
+			\end{center}
+	\subsection{Security test} 
+	\begin{center}
+			\begin{tabular}{cc}
+			\toprule
+			Item & Detail \\
+			\midrule
+			Test Scale & Influence to the system\\
+			Test Aim & Ensure the software will not lead to the crash of the system\\
+			Test Technology & Black-Box Testing, Marginal Testing\\
+			Tool & Manual Testing, Karma\\
+			Starting Point & Completing of corresponding modeles\\
+			Ending Point & Pass the standard of the developer\\
+			Testing Priority & 1 \\
+			\bottomrule
+			\end{tabular}
+			\end{center}
+	\subsection{Conducting test}
+	\begin{center}
+			\begin{tabular}{ccccc}
+			\toprule
+			Test Type & Unit Test & Integrated Test & System Test & Acceptation Test \\
+			\midrule
+			Functionality Test & $ \bigcirc $ & $ \times $ & $ \times $ & $ \bigcirc $\\
+			Performance Test & $ \bigcirc $ & $ \times $ & $ \times $ & $ \bigcirc $\\
+			Compatibility Test & $ \bigcirc $ & $ \bigcirc $ & $ \times $ & $ \bigcirc $\\
+			Security Test & $ \bigcirc $ & $ \times $ & $ \times $ & $ \bigcirc $\\
+			\bottomrule
+			\end{tabular}
+			\end{center}
+	\section{Standard of Software Testing}
+		Following is the rank of bug in a software:
+		\begin{itemize}
+		\item A: Error that influence the system seriously.
+		\item B: Normal error in functionality, influence the system a little bit.
+		\item C: Warning, little error or unfriendly UI.
+		\item D: Error which will not influence the normal use, like display error.
+		\item E: Further recommendation.
+		\end{itemize}
+		There doesn't exist any error rank A. It is confirmed that all error, warning, etc. are solved based on discussion and evaluation. All test samples are executed again and there is one functionality bug that will only lead to incorrect result rather than system crash, which will be fixed in later release.
+	\newpage
+	\section{Test Details}
+	All test sample will be appended in appendix or in the release folder.
+	\subsection{Functionality Test}
+	\begin{center}
+			\begin{tabular}{cccc}
+			\toprule
+			Test No. & Test Method & Result & Accept or not \\
+			\midrule
+			Test0100 & Using \textbf{make} in terminal & Software constructed correctly & $ \bigcirc $ \\
+			Test0101 & Run Test00\_ArrayAccess & Return correct result & $ \bigcirc $ \\
+			Test0102 & Run Test01\_IfTest & Return correct result & $ \bigcirc $ \\
+			Test0103 & Run Test02\_WhileTest & Return correct result & $ \bigcirc $ \\
+			Test0104 & Run Test03\_SimpleWhileBreak & Return correct result & $ \bigcirc $ \\
+			Test0105 & Run Test04\_ComplexWhileBreak & Return correct result & $ \bigcirc $ \\
+			Test0106 & Run Test05\_WhileArray & Return correct result & $ \bigcirc $ \\
+			Test0107 & Run Test06\_ForBreak & Return correct result & $ \bigcirc $ \\
+			Test0108 & Test $ a:=b:=10 $ & Assignment failed & $ \times $ \\
+			Test0109 & Run Test08\_ForLoopPrimeNumber & Return correct result & $ \bigcirc $ \\
+			Test0110 & Run Test09\_TwoWhileLoop & Return correct result & $ \bigcirc $ \\
+			Test0111 & Run Test10\_TypeTest & Return correct result & $ \bigcirc $ \\
+			Test0112 & Run Test11\_WhileContinue & Return correct result & $ \bigcirc $ \\
+			Test0113 & Run Test12\_ForContinue & Return correct result & $ \bigcirc $ \\
+			Test0114 & Run Test13\_IfElseInIf & Return correct result & $ \bigcirc $ \\
+			Test0115 & Run Test14\_BasicDoWhile & Return correct result & $ \bigcirc $ \\
+			Test0116 & Run Test15\_BoolTest & Return correct result & $ \bigcirc $ \\
+			Test0117 & Run Test16\_WhileSwitchCase & Return correct result & $ \bigcirc $ \\
+			Test0118 & Run Test17\_2DimArrayInOut & Return correct result & $ \bigcirc $ \\
+			Test0119 & Run Test18\_For(;;)Test & Return correct result & $ \bigcirc $ \\
+			Test0120 & Run Test19\_FastPow & Return correct result & $ \bigcirc $ \\
+			Test0121 &  Run Test07\_IncPlusMinus & Return correct result & $ \bigcirc $ \\
+			Test0122 & Define multiple variable with one name & Raise error & $ \bigcirc $\\
+			Test0123 & Accessing variable without declaration & Raise error & $ \bigcirc $\\
+			Test0124 & Miss one semi-colon & Syntax Error &  $ \bigcirc $\\
+			Test0125 & Miss multiple semi-colon & Raise only one syntax error & $ \times $\\
+			Test0126 & Accessing element beyond array bound & Raise error & $ \bigcirc $ \\
+			Test0127 & Adjust or read constant & Raise error & $ 
+		\bigcirc $\\
+			Test0128 & Mixed using of int and real & Implicit convert occurred & $ \bigcirc $\\
+			Test0129 & Mixed using of int and bool & Implicit convert forbidden & $ \bigcirc $\\
+			Test0130 & Mixed using of char and int & Implicit convert occurred & $ \times $\\
+			\textbf{Test0130-2} & Mixed using of char and int & Implicit convert forbidden & $ \bigcirc $\\
+			Test0131 & Initialize array with size $ > $8000 & Raise error & $ \bigcirc $\\
+			Test0132 & Declare constant without initialization & Raise error & $ \bigcirc $\\
+			Test0133 & Generate more than 2000 codes & Raise error & $ \bigcirc $\\
+			Test0134 & PC jump to -1 & System crash & $ \times $\\
+			\textbf{Test0134-2} & PC jump to -1 & Raise error & $ \bigcirc $\\
+			Test0135 & Test \textbf{for(;;)} & Wrong behavior & $ \times $\\
+			\textbf{Test0135-2} & Test \textbf{for(;;)} & Unlimited loop & $ \bigcirc $\\
+			Test0136 & Test \textbf{while(true)} & Unlimited loop & $ \bigcirc $\\
+			Test0137 & Test \textbf{yarimasune;} & Display Yaju Senpai & Soudayo\\
+			Test0137-2 & Test \textbf{114514;} & Raise magic output & Soudayo \\
+			Test0138 & Declare array with more than 20 dim & Raise error & $ \bigcirc $\\
+			Test0139 & Use recursive while with more than 20 level & Raise error & $ \bigcirc $\\
+			\bottomrule
+			\end{tabular}
+			\end{center}
+		\subsection{Performance Test}
+		Since this project use only \textbf{Flex} and \textbf{Bison}, which means only \textbf{IR} will be generated for Virtual Machine, so, the performance is mainly based on the interpreter, that means it is hard and meaningless to test the run time of the \textbf{IR} codes generated by the compiler. So, in this test, only samples with 10 or 100 times scale are will be tested.
+		\subsection{Compatibility Test}
+		\begin{center}
+			\begin{tabular}{cccc}
+			\toprule
+			Test No. & Test Method & Result & Accept or not \\
+			\midrule
+			Test0300 & Launch with developing platform & Launch correctly & $ \bigcirc $\\
+			Test0301 & Launch with Ubuntu 18.04 32-bit & Launch correctly & $ \bigcirc $\\
+			Test0302 & Launch with Ubuntu 16.04 64-bit & Launch correctly & $ \bigcirc $\\
+			Test0303 & Launch with Ubuntu 16.04 32-bit & Launch correctly & $ \bigcirc $\\
+			Test0304 & Launch with Windows 10 64-bit & Launch correctly & $ \bigcirc $\\
+			Test0305 & Launch with Windows 8 64-bit & Launch correctly & $ \bigcirc $\\
+			Test0306 & Launch with Windows 7-64-bit & Launch correctly & $ \bigcirc $\\
+			Test0307 & Launch with Windows XP & Launch incorrectly & $ \bigcirc $\\
+			Test0308 & Launch with old \textbf{Lex} & Launch correctly & $ \bigcirc $\\
+			Test0309 & Launch with old \textbf{Yacc} & Launch correctly & $ \bigcirc $\\
+			\bottomrule
+			\end{tabular}
+			\end{center}
+		\subsection{Security Test}
+		\begin{center}
+			\begin{tabular}{cccc}
+			\toprule
+			Test No. & Test Method & Result & Accept or not \\
+			\midrule
+			Test0400 & Launch in compatible mode & Launch correctly & $ \bigcirc $ \\
+			Test0401 & Accessing array element out of bound & Influence system data & $ \times $ \\
+			\textbf{Test0401-2} & Accessing array element out of bound & Raise error & $ \bigcirc $ \\
+			Test0402 & Set pc to be -1 & System crash & $ \times $\\
+			\textbf{Test0402-2} & Set pc to be -1 & Raise error & $  \bigcirc $\\
+			\bottomrule
+			\end{tabular}
+			\end{center}
+		\section{Conclusion}
+		Software passed the test and run stably.
 	\end{document}
